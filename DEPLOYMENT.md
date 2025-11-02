@@ -26,6 +26,14 @@ docker run -d \
   simple-tool:latest
 ```
 
+```bash
+docker run -d \
+  --name simple-tool \
+  -p 3000:3000 \
+  --restart unless-stopped \
+  registry.cn-hangzhou.aliyuncs.com/glhub/simple-tool:1.0.3
+```
+
 访问 `http://your-server-ip:3000`
 
 ---

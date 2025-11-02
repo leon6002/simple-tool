@@ -2,61 +2,109 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Tool } from "@/types";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { ToolCardProps } from "@/types";
-import { ArrowRight, Sparkles, LucideIcon } from "lucide-react";
-import * as Icons from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Star } from "lucide-react";
+import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+
+interface ToolCardProps {
+  tool: Tool;
+}
 
 export function ToolCard({ tool }: ToolCardProps) {
-  // Dynamically get the icon component
-  const IconComponent = (Icons as any)[tool.icon] as LucideIcon;
+  const { favoriteTools, addFavoriteTool, removeFavoriteTool } = useUserPreferencesStore();
+  const isFavorite = favoriteTools.includes(tool.id);
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isFavorite) {
+      removeFavoriteTool(tool.id);
+    } else {
+      addFavoriteTool(tool.id);
+    }
+  };
 
   return (
-    <Link href={tool.href} className="group">
-      <motion.div
-        whileHover={{ y: -8, scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -4, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Link
+        href={tool.href}
+        onClick={() => useUserPreferencesStore.getState().addRecentlyUsedTool(tool.id)}
+        className="block h-full"
       >
-        <Card className="h-full cursor-pointer overflow-hidden border border-border/50 bg-card/50 backdrop-blur-sm transition-all hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/10 group-hover:bg-card">
-          <CardHeader className="pb-4">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-purple-500/20 group-hover:scale-110 transition-transform duration-300">
-                {IconComponent && (
-                  <IconComponent className="h-7 w-7 text-purple-600" />
-                )}
-              </div>
-              {tool.featured && (
-                <Badge className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0 shadow-lg shadow-purple-500/30">
-                  <Sparkles className="h-3 w-3 mr-1" />
-                  Featured
-                </Badge>
+        <div className="h-full flex flex-col rounded-2xl border border-border/50 bg-card p-6 shadow-lg shadow-purple-500/5 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10">
+          <div className="flex items-start justify-between mb-4">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-purple-500/20">
+              <span className="text-xl">
+                {getEmojiForIcon(tool.icon)}
+              </span>
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-8 w-8 rounded-full transition-colors",
+                isFavorite 
+                  ? "text-yellow-500 hover:text-yellow-600 hover:bg-yellow-500/10" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
-            </div>
-            <div>
-              <CardTitle className="text-xl font-bold mb-2 group-hover:text-purple-600 transition-colors">
-                {tool.name}
-              </CardTitle>
-              <CardDescription className="text-sm leading-relaxed">
-                {tool.description}
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex items-center text-sm font-medium text-purple-600 group-hover:text-purple-700 transition-colors">
-              <span>Explore tool</span>
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-2" />
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </Link>
+              onClick={toggleFavorite}
+            >
+              <Star 
+                className={cn(
+                  "h-4 w-4",
+                  isFavorite ? "fill-current" : ""
+                )} 
+              />
+              <span className="sr-only">
+                {isFavorite ? "Remove from favorites" : "Add to favorites"}
+              </span>
+            </Button>
+          </div>
+          
+          <h3 className="text-xl font-semibold mb-2">{tool.name}</h3>
+          <p className="text-muted-foreground mb-4 flex-1">{tool.description}</p>
+          
+          {tool.featured && (
+            <Badge className="self-start mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0">
+              Featured
+            </Badge>
+          )}
+          
+          <div className="flex items-center text-sm text-muted-foreground">
+            <span>Try it now</span>
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </div>
+        </div>
+      </Link>
+    </motion.div>
   );
+}
+
+function getEmojiForIcon(icon: string): string {
+  const iconMap: Record<string, string> = {
+    Calculator: "🔢",
+    Image: "🖼️",
+    ScanText: "🔍",
+    Box: "📦",
+    Binary: "🔢",
+    Hash: "🔣",
+    Link2: "🔗",
+    Code: "💻",
+    Type: "🔤",
+    Sparkles: "✨",
+    LayoutGrid: "📋",
+    RefreshCw: "🔄",
+    FileText: "📄",
+  };
+  
+  return iconMap[icon] || "🔧";
 }

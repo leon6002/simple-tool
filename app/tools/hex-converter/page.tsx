@@ -19,6 +19,10 @@ import {
   Info,
   Lightbulb,
   Zap,
+  Plus,
+  Minus,
+  X,
+  Divide,
 } from "lucide-react";
 
 type NumberSystem = "hex" | "decimal" | "binary" | "octal";
@@ -31,10 +35,19 @@ interface ConversionResult {
 }
 
 export default function HexConverterPage() {
+  // State for Number System Converter
   const [inputValue, setInputValue] = useState("");
   const [inputType, setInputType] = useState<NumberSystem>("hex");
   const [result, setResult] = useState<ConversionResult | null>(null);
   const [error, setError] = useState("");
+
+  // State for Bitwise Operations
+  const [bitwiseFirstValue, setBitwiseFirstValue] = useState("");
+  const [bitwiseFirstType, setBitwiseFirstType] = useState<NumberSystem>("decimal");
+  const [bitwiseSecondValue, setBitwiseSecondValue] = useState("");
+  const [bitwiseOperation, setBitwiseOperation] = useState("&");
+  const [bitwiseResult, setBitwiseResult] = useState<number | null>(null);
+  const [bitwiseError, setBitwiseError] = useState<string | null>(null);
 
   const convert = () => {
     setError("");
@@ -82,6 +95,82 @@ export default function HexConverterPage() {
     }
   };
 
+  const performBitwiseOperation = () => {
+    setBitwiseError("");
+
+    if (!bitwiseFirstValue.trim() || (!bitwiseSecondValue.trim() && bitwiseOperation !== "~")) {
+      setBitwiseError("Please enter both values");
+      return;
+    }
+
+    try {
+      let firstDecimal: number;
+      let secondDecimal: number;
+
+      // Convert first input to decimal
+      switch (bitwiseFirstType) {
+        case "hex":
+          firstDecimal = parseInt(bitwiseFirstValue.replace(/^0x/i, ""), 16);
+          break;
+        case "decimal":
+          firstDecimal = parseInt(bitwiseFirstValue, 10);
+          break;
+        case "binary":
+          firstDecimal = parseInt(bitwiseFirstValue.replace(/^0b/i, ""), 2);
+          break;
+        case "octal":
+          firstDecimal = parseInt(bitwiseFirstValue.replace(/^0o/i, ""), 8);
+          break;
+        default:
+          throw new Error("Invalid input type");
+      }
+
+      // Convert second input to decimal (for unary operations, use 0)
+      if (bitwiseOperation === "~") {
+        secondDecimal = 0; // Not used for NOT operation
+      } else {
+        secondDecimal = parseInt(bitwiseSecondValue, 10);
+      }
+
+      if (isNaN(firstDecimal) || (bitwiseOperation !== "~" && isNaN(secondDecimal))) {
+        throw new Error("Invalid input values");
+      }
+
+      // Perform bitwise operation
+      let operationResult: number;
+      switch (bitwiseOperation) {
+        case "&":
+          operationResult = firstDecimal & secondDecimal;
+          break;
+        case "|":
+          operationResult = firstDecimal | secondDecimal;
+          break;
+        case "^":
+          operationResult = firstDecimal ^ secondDecimal;
+          break;
+        case "<<":
+          operationResult = firstDecimal << secondDecimal;
+          break;
+        case ">>":
+          operationResult = firstDecimal >> secondDecimal;
+          break;
+        case ">>>":
+          operationResult = firstDecimal >>> secondDecimal;
+          break;
+        case "~":
+          operationResult = ~firstDecimal;
+          break;
+        default:
+          throw new Error("Invalid operation");
+      }
+
+      setBitwiseResult(operationResult);
+      setBitwiseError(null);
+    } catch (err) {
+      setBitwiseError((err as Error).message || "Invalid input");
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
@@ -99,6 +188,16 @@ export default function HexConverterPage() {
       placeholder: "e.g., 11111111 or 0b11111111",
     },
     { type: "octal", label: "Octal", placeholder: "e.g., 377 or 0o377" },
+  ];
+
+  const bitwiseOperations = [
+    { op: "&", name: "AND" },
+    { op: "|", name: "OR" },
+    { op: "^", name: "XOR" },
+    { op: "<<", name: "Left Shift" },
+    { op: ">>", name: "Right Shift" },
+    { op: ">>>", name: "Unsigned Right Shift" },
+    { op: "~", name: "NOT (Unary)" },
   ];
 
   return (
@@ -206,6 +305,153 @@ export default function HexConverterPage() {
                 </h3>
                 <div className="grid gap-3">
                   {Object.entries(result).map(([key, value], index) => (
+                    <motion.div
+                      key={key}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="group flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 border border-border/50 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all"
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-medium capitalize text-muted-foreground mb-1">
+                          {key}
+                        </p>
+                        <p className="text-lg font-mono font-semibold">
+                          {value}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => copyToClipboard(value)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-500/10 hover:text-purple-600"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Bitwise Operations Card */}
+        <Card className="mb-8 border-border/50 shadow-xl shadow-purple-500/5">
+          <CardHeader>
+            <CardTitle>Bitwise Operations</CardTitle>
+            <CardDescription>
+              Perform bitwise operations on numbers
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* First operand */}
+              <div>
+                <label className="text-sm font-medium mb-3 block">
+                  First Operand Format
+                </label>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {systemButtons.map((system) => (
+                    <Badge
+                      key={system.type}
+                      variant={bitwiseFirstType === system.type ? "default" : "outline"}
+                      className={`cursor-pointer px-3 py-1.5 text-xs font-medium transition-all hover:scale-105 ${
+                        bitwiseFirstType === system.type
+                          ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0 shadow-lg shadow-purple-500/30"
+                          : "hover:border-purple-500/50 hover:bg-purple-500/5"
+                      }`}
+                      onClick={() => setBitwiseFirstType(system.type)}
+                    >
+                      {system.label}
+                    </Badge>
+                  ))}
+                </div>
+                <Input
+                  type="text"
+                  placeholder={
+                    systemButtons.find((s) => s.type === bitwiseFirstType)?.placeholder
+                  }
+                  value={bitwiseFirstValue}
+                  onChange={(e) => setBitwiseFirstValue(e.target.value)}
+                  className="h-11 border-border/50 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
+                />
+              </div>
+
+              {/* Operation selection */}
+              <div>
+                <label className="text-sm font-medium mb-3 block">
+                  Operation
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {bitwiseOperations.map((op) => (
+                    <Button
+                      key={op.op}
+                      variant={bitwiseOperation === op.op ? "default" : "outline"}
+                      className={`h-11 ${
+                        bitwiseOperation === op.op
+                          ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0 shadow-lg shadow-purple-500/30"
+                          : ""
+                      }`}
+                      onClick={() => setBitwiseOperation(op.op)}
+                    >
+                      {op.op}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Second operand - hidden for unary operations */}
+              {bitwiseOperation !== "~" && (
+                <div>
+                  <label className="text-sm font-medium mb-3 block">
+                    Second Operand (decimal)
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g., 5"
+                    value={bitwiseSecondValue}
+                    onChange={(e) => setBitwiseSecondValue(e.target.value)}
+                    className="h-11 border-border/50 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
+                  />
+                </div>
+              )}
+
+              {/* Calculate button */}
+              <div className="flex items-end">
+                <Button
+                  onClick={performBitwiseOperation}
+                  className="h-11 w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/30"
+                >
+                  <Calculator className="h-4 w-4 mr-2" />
+                  Calculate
+                </Button>
+              </div>
+            </div>
+
+            {/* Bitwise Errors */}
+            {bitwiseError !== null && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm text-red-500 mt-3 flex items-center gap-2"
+              >
+                <span>⚠️</span> {bitwiseError}
+              </motion.p>
+            )}
+
+            {/* Bitwise Results */}
+            {bitwiseResult && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4 pt-6 border-t border-border/50"
+              >
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <span>⚡</span> Bitwise Operation Result
+                </h3>
+                <div className="grid gap-3">
+                  {Object.entries(bitwiseResult).map(([key, value], index) => (
                     <motion.div
                       key={key}
                       initial={{ opacity: 0, x: -20 }}

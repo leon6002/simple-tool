@@ -14,7 +14,9 @@ export type ToolCategory =
   | 'text'
   | '3d'
   | 'developer'
-  | 'all';
+  | 'all'
+  | 'security'
+  | 'design';
 
 export interface ToolCardProps {
   tool: Tool;
@@ -27,3 +29,27 @@ export interface SearchState {
   setCategory: (category: ToolCategory) => void;
 }
 
+export interface UserPreferences {
+  // Theme settings
+  theme: 'light' | 'dark' | 'system';
+  animations: boolean;
+  
+  // Search history
+  searchHistory: string[];
+  
+  // Tool preferences
+  favoriteTools: string[];
+  recentlyUsedTools: string[];
+  
+  // Methods
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  setAnimations: (animations: boolean) => void;
+  addToSearchHistory: (query: string) => void;
+  removeFromSearchHistory: (query: string) => void;
+  clearSearchHistory: () => void;
+  addFavoriteTool: (toolId: string) => void;
+  removeFavoriteTool: (toolId: string) => void;
+  addRecentlyUsedTool: (toolId: string) => void;
+  removeRecentlyUsedTool: (toolId: string) => void;
+  clearRecentlyUsedTools: () => void;
+}
