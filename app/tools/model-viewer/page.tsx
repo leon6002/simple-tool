@@ -9,7 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Box, Cube, RotateCcw, Palette, Grid3x3, Sparkles } from "lucide-react";
+import {
+  Box,
+  Package,
+  RotateCcw,
+  Palette,
+  Grid3x3,
+  Sparkles,
+} from "lucide-react";
 
 export default function ModelViewerPage() {
   return (
@@ -52,7 +59,7 @@ export default function ModelViewerPage() {
             <p className="font-medium">The 3D Model Viewer will support:</p>
             <ul className="space-y-3 text-muted-foreground">
               <li className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                <Cube className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
+                <Package className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
                 <span>View GLB, GLTF, OBJ, and FBX models</span>
               </li>
               <li className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
