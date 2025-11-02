@@ -219,7 +219,7 @@ export default function PreferencesPage() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">User Agent</span>
                   <span className="text-sm font-mono max-w-[60%] truncate">
-                    {navigator.userAgent}
+                    {typeof navigator !== "undefined" ? navigator.userAgent : "Unknown"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -233,7 +233,7 @@ export default function PreferencesPage() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Color Depth</span>
                   <span>
-                    {typeof window !== "undefined"
+                    {typeof window !== "undefined" && typeof window.screen !== "undefined"
                       ? window.screen.colorDepth
                       : "Unknown"}{" "}
                     bit
