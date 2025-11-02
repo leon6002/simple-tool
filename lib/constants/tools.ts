@@ -1,0 +1,66 @@
+import { Tool } from "@/types";
+
+export const TOOLS: Tool[] = [
+  {
+    id: "hex-converter",
+    name: "Hex Calculator",
+    description:
+      "Convert between hexadecimal, decimal, binary, and octal number systems",
+    category: "converter",
+    icon: "Calculator",
+    href: "/tools/hex-converter",
+    featured: true,
+  },
+  {
+    id: "image-converter",
+    name: "Image Converter",
+    description: "Convert images between JPG, PNG, WebP, and other formats",
+    category: "image",
+    icon: "Image",
+    href: "/tools/image-converter",
+    featured: true,
+  },
+  {
+    id: "ocr",
+    name: "OCR Tool",
+    description: "Extract text from images using optical character recognition",
+    category: "image",
+    icon: "ScanText",
+    href: "/tools/ocr",
+    featured: true,
+  },
+  {
+    id: "model-viewer",
+    name: "3D Model Viewer",
+    description: "View and interact with 3D models in your browser",
+    category: "3d",
+    icon: "Box",
+    href: "/tools/model-viewer",
+    featured: true,
+  },
+  {
+    id: "base64-encoder",
+    name: "Base64 Encoder/Decoder",
+    description: "Encode and decode text to/from Base64 format",
+    category: "text",
+    icon: "Binary",
+    href: "/tools/text-utils",
+  },
+  {
+    id: "hash-generator",
+    name: "Hash Generator",
+    description: "Generate MD5, SHA-1, SHA-256 hashes from text",
+    category: "text",
+    icon: "Hash",
+    href: "/tools/text-utils",
+  },
+];
+
+export const CATEGORIES = [
+  { id: "all", name: "All Tools", icon: "LayoutGrid" },
+  { id: "converter", name: "Converters", icon: "RefreshCw" },
+  { id: "image", name: "Image Tools", icon: "Image" },
+  { id: "text", name: "Text Tools", icon: "FileText" },
+  { id: "3d", name: "3D Tools", icon: "Box" },
+  { id: "developer", name: "Developer", icon: "Code" },
+] as const;
