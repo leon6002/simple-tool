@@ -1,5 +1,11 @@
 # SimpleTool 部署指南
 
+## 重要说明
+
+- **本地开发**：推荐使用 pnpm（`pnpm dev`）
+- **Docker 构建**：使用 npm（无需额外安装，更简洁）
+- 两种方式互不影响，依赖版本由 `package.json` 控制
+
 ## Docker 部署
 
 ### 方式一：直接使用 Docker（推荐）
