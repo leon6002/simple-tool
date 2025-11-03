@@ -8,15 +8,16 @@ export interface Tool {
   featured?: boolean;
 }
 
-export type ToolCategory = 
-  | 'converter'
-  | 'image'
-  | 'text'
-  | '3d'
-  | 'developer'
-  | 'all'
-  | 'security'
-  | 'design';
+export type ToolCategory =
+  | "converter"
+  | "image"
+  | "text"
+  | "3d"
+  | "developer"
+  | "all"
+  | "security"
+  | "design"
+  | "productivity";
 
 export interface ToolCardProps {
   tool: Tool;

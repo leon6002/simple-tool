@@ -99,6 +99,24 @@ export const TOOLS: Tool[] = [
     href: "/tools/image-cropper",
     featured: true,
   },
+  {
+    id: "encoder-decoder",
+    name: "Encoder/Decoder",
+    description: "Encode and decode Base64, URLs, and generate MD5 hashes",
+    category: "developer",
+    icon: "FileText",
+    href: "/tools/encoder-decoder",
+    featured: true,
+  },
+  {
+    id: "pomodoro-timer",
+    name: "Pomodoro Timer",
+    description: "Boost your productivity with the Pomodoro Technique",
+    category: "productivity",
+    icon: "Zap",
+    href: "/tools/pomodoro-timer",
+    featured: true,
+  },
 ] as const;
 
 export const CATEGORIES = [
