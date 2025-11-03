@@ -117,6 +117,15 @@ export const TOOLS: Tool[] = [
     href: "/tools/pomodoro-timer",
     featured: true,
   },
+  {
+    id: "cat-gallery",
+    name: "Cat Gallery",
+    description: "Browse beautiful cat pictures from The Cat API",
+    category: "image",
+    icon: "Image",
+    href: "/tools/cat-gallery",
+    featured: true,
+  },
 ] as const;
 
 export const CATEGORIES = [
