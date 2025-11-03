@@ -1,5 +1,5 @@
 # Dependencies stage
-FROM node:20-alpine AS deps
+FROM registry.cn-hangzhou.aliyuncs.com/glbase/node:22.21-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY package.json ./
 RUN npm install
 
 # Build stage
-FROM node:20-alpine AS builder
+FROM registry.cn-hangzhou.aliyuncs.com/glbase/node:22.21-alpine AS builder
 WORKDIR /app
 
 # Copy dependencies from deps stage
@@ -27,7 +27,7 @@ ENV NODE_ENV production
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS runner
+FROM registry.cn-hangzhou.aliyuncs.com/glbase/node:22.21-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production

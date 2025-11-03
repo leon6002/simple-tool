@@ -126,6 +126,15 @@ export const TOOLS: Tool[] = [
     href: "/tools/cat-gallery",
     featured: true,
   },
+  {
+    id: "timestamp-converter",
+    name: "Timestamp Converter",
+    description: "Convert between timestamps and human-readable dates",
+    category: "developer",
+    icon: "Clock",
+    href: "/tools/timestamp-converter",
+    featured: true,
+  },
 ] as const;
 
 export const CATEGORIES = [
