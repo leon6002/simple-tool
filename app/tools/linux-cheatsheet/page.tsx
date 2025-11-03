@@ -330,6 +330,38 @@ const COMMANDS: Command[] = [
     category: "networking"
   },
   {
+    id: "netstat",
+    name: "netstat",
+    description: "Display network connections, listening ports, and related statistics",
+    command: "netstat [options]",
+    example: "netstat -tuln  # List all listening ports\nnetstat -tulnp  # List listening ports with process info\nnetstat -an | grep :80  # Check connections on port 80",
+    category: "networking"
+  },
+  {
+    id: "ss",
+    name: "ss",
+    description: "Another utility to investigate sockets (modern replacement for netstat)",
+    command: "ss [options]",
+    example: "ss -tuln  # List all listening ports\nss -tulnp  # List listening ports with process info\nss -tulnp | grep :80  # Check connections on port 80",
+    category: "networking"
+  },
+  {
+    id: "lsof",
+    name: "lsof",
+    description: "List open files, including network connections",
+    command: "lsof [options]",
+    example: "lsof -i :80  # List processes using port 80\nlsof -i :8080  # List processes using port 8080\nlsof -iTCP -sTCP:LISTEN  # List all listening TCP ports",
+    category: "networking"
+  },
+  {
+    id: "fuser",
+    name: "fuser",
+    description: "Identify processes using files or sockets",
+    command: "fuser [options] [file|port]",
+    example: "fuser 80/tcp  # Show processes using port 80\nfuser -k 80/tcp  # Kill processes using port 80\nfuser -v 80/tcp  # Verbose output for port 80",
+    category: "networking"
+  },
+  {
     id: "wget",
     name: "wget",
     description: "Non-interactive network downloader",
