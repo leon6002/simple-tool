@@ -103,6 +103,9 @@ See [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) for detailed documentation.
 
 See [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) for detailed guidelines.
 
+## how to add icon
+for cheatsheet icons, they are from "lib/utils/IconMap.ts", you can add your icon to this file. Currently, we introduce two types of icons: LucideIcon and SimpleIcon. First add them in the IconMap, then go to "data/commands-data.ts", type the icon name in the icon field.
+
 ## 🎨 Design System
 
 - **Colors**: Blue to Purple gradient for primary actions
@@ -142,3 +145,6 @@ This project is licensed under the MIT License.
 ---
 
 Built with ❤️ using Next.js 16
+
+
+
