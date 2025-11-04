@@ -1,0 +1,250 @@
+{
+  "id": "nginx",
+  "icon": "siNginx",
+  "title": "Nginx Cheatsheet",
+  "description": "Quick reference for Nginx configs. Never forget how to use Git again!",
+  "commands": [
+    {
+      "id": "cmd-start",
+      "category": "management",
+      "language": "bash",
+      "name": "Start NGINX",
+      "description": "启动NGINX服务",
+      "command": "sudo systemctl start nginx",
+      "example": ""
+    },
+    {
+      "id": "cmd-stop",
+      "category": "management",
+      "language": "bash",
+      "name": "Stop NGINX",
+      "description": "停止NGINX服务",
+      "command": "sudo systemctl stop nginx",
+      "example": ""
+    },
+    {
+      "id": "cmd-restart",
+      "category": "management",
+      "language": "bash",
+      "name": "Restart NGINX",
+      "description": "重启NGINX服务",
+      "command": "sudo systemctl restart nginx",
+      "example": ""
+    },
+    {
+      "id": "cmd-reload",
+      "category": "management",
+      "language": "bash",
+      "name": "Reload NGINX",
+      "description": "重新加载NGINX配置",
+      "command": "sudo systemctl reload nginx",
+      "example": ""
+    },
+    {
+      "id": "cmd-status",
+      "category": "management",
+      "language": "bash",
+      "name": "Check Status",
+      "description": "检查NGINX服务状态",
+      "command": "sudo systemctl status nginx",
+      "example": ""
+    },
+    {
+      "id": "cmd-enable",
+      "category": "management",
+      "language": "bash",
+      "name": "Enable at Boot",
+      "description": "设置NGINX开机自启",
+      "command": "sudo systemctl enable nginx",
+      "example": ""
+    },
+    {
+      "id": "cmd-disable",
+      "category": "management",
+      "language": "bash",
+      "name": "Disable at Boot",
+      "description": "取消NGINX开机自启",
+      "command": "sudo systemctl disable nginx",
+      "example": ""
+    },
+    {
+      "id": "cmd-test",
+      "category": "test",
+      "language": "bash",
+      "name": "Test Configuration",
+      "description": "测试NGINX配置文件语法",
+      "command": "sudo nginx -t",
+      "example": ""
+    },
+    {
+      "id": "cmd-test-quiet",
+      "category": "test",
+      "language": "bash",
+      "name": "Test Configuration (Quiet)",
+      "description": "静默测试NGINX配置文件语法",
+      "command": "sudo nginx -t -q",
+      "example": ""
+    },
+    {
+      "id": "cmd-config-path",
+      "category": "test",
+      "language": "bash",
+      "name": "Configuration Path",
+      "description": "查看配置文件路径",
+      "command": "nginx -t",
+      "example": ""
+    },
+    {
+      "id": "cmd-version",
+      "category": "information",
+      "language": "bash",
+      "name": "Check Version",
+      "description": "查看NGINX版本",
+      "command": "nginx -v",
+      "example": ""
+    },
+    {
+      "id": "cmd-version-full",
+      "category": "information",
+      "language": "bash",
+      "name": "Check Version (Detailed)",
+      "description": "查看NGINX详细版本信息",
+      "command": "nginx -V",
+      "example": ""
+    },
+    {
+      "id": "cmd-processes",
+      "category": "information",
+      "language": "bash",
+      "name": "List Processes",
+      "description": "列出NGINX进程",
+      "command": "ps aux | grep nginx",
+      "example": ""
+    },
+    {
+      "id": "cmd-logs-error",
+      "category": "logging",
+      "language": "bash",
+      "name": "View Error Logs",
+      "description": "查看错误日志",
+      "command": "sudo tail -f /var/log/nginx/error.log",
+      "example": ""
+    },
+    {
+      "id": "cmd-logs-access",
+      "language": "bash",
+      "category": "logging",
+      "name": "View Access Logs",
+      "description": "查看访问日志",
+      "command": "sudo tail -f /var/log/nginx/access.log",
+      "example": ""
+    },
+    {
+      "id": "cmd-logs-rotate",
+      "category": "logging",
+      "language": "bash",
+      "name": "Rotate Logs",
+      "description": "轮转日志文件",
+      "command": "sudo logrotate /etc/logrotate.d/nginx",
+      "example": ""
+    }
+  ],
+  "categories": [
+    {
+      "id": "Config Template",
+      "name": "Config Template",
+      "type": "command",
+      "description": ""
+    },
+    {
+      "id": "management",
+      "name": "management",
+      "type": "command",
+      "description": ""
+    },
+    {
+      "id": "test",
+      "name": "test",
+      "type": "command",
+      "description": ""
+    },
+    {
+      "id": "information",
+      "name": "information",
+      "type": "command",
+      "description": ""
+    },
+    {
+      "id": "logging",
+      "name": "logging",
+      "type": "command",
+      "description": ""
+    }
+  ],
+  "templates": [
+    {
+      "id": "config-basic",
+      "category": "Config Template",
+      "language": "nginx",
+      "name": "Basic Configuration",
+      "description": "基础NGINX配置模板",
+      "content": "server {\n    listen 80;\n    server_name example.com;\n    root /var/www/example.com;\n    index index.html index.htm index.php;\n\n    location / {\n        try_files $uri $uri/ =404;\n    }\n\n    location ~ \\.php$ {\n        include snippets/fastcgi-php.conf;\n        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;\n    }\n\n    location ~ /\\.ht {\n        deny all;\n    }\n}"
+    },
+    {
+      "id": "config-ssl",
+      "category": "Config Template",
+      "language": "nginx",
+      "name": "SSL Configuration",
+      "description": "SSL/HTTPS配置模板",
+      "content": "server {\n    listen 443 ssl http2;\n    server_name example.com;\n\n    ssl_certificate /path/to/certificate.crt;\n    ssl_certificate_key /path/to/private.key;\n    ssl_protocols TLSv1.2 TLSv1.3;\n    ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512;\n    ssl_prefer_server_ciphers off;\n    ssl_session_cache shared:SSL:10m;\n\n    root /var/www/example.com;\n    index index.html;\n\n    location / {\n        try_files $uri $uri/ =404;\n    }\n    }\n\n    server {\n        listen 80;\n        server_name example.com;\n        return 301 https://$server_name$request_uri;\n    }"
+    },
+    {
+      "id": "config-reverse-proxy",
+      "category": "Config Template",
+      "language": "nginx",
+      "name": "Reverse Proxy",
+      "description": "反向代理配置模板",
+      "content": "server {\n    listen 80;\n    server_name api.example.com;\n\n    location / {\n        proxy_pass http://localhost:3000;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Connection 'upgrade';\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n        proxy_cache_bypass $http_upgrade;\n    }\n}"
+    },
+    {
+      "id": "config-load-balancing",
+      "category": "Config Template",
+      "language": "nginx",
+      "name": "Load Balancing",
+      "description": "负载均衡配置模板",
+      "content": "upstream backend {\n    server backend1.example.com;\n    server backend2.example.com;\n    server backend3.example.com;\n}\n\nserver {\n    listen 80;\n    server_name example.com;\n\n    location / {\n        proxy_pass http://backend;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n    }\n}"
+    },
+    {
+      "id": "config-static-files",
+      "category": "Config Template",
+      "language": "nginx",
+      "name": "Static Files",
+      "description": "静态文件服务配置模板",
+      "content": "server {\n    listen 80;\n    server_name static.example.com;\n    root /var/www/static;\n\n    location / {\n        expires 1y;\n        add_header Cache-Control \"public, immutable\";\n        try_files $uri $uri/ =404;\n    }\n\n    location ~* .(css|js|png|jpg|jpeg|gif|ico|svg)$ {\n        expires 1y;\n        add_header Cache-Control \"public, immutable\";\n    }\n}"
+    },
+    {
+      "id": "config-security-headers",
+      "category": "Config Template",
+      "language": "nginx",
+      "name": "Security Headers",
+      "description": "安全头配置模板",
+      "content": "server {\n    listen 80;\n    server_name example.com;\n    root /var/www/example.com;\n\n    add_header X-Frame-Options \"SAMEORIGIN\" always;\n    add_header X-XSS-Protection \"1; mode=block\" always;\n    add_header X-Content-Type-Options \"nosniff\" always;\n    add_header Referrer-Policy \"no-referrer-when-downgrade\" always;\n    add_header Content-Security-Policy \"default-src 'self' http: https: data: blob: 'unsafe-inline'\" always;\n    add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;\n\n    location / {\n        try_files $uri $uri/ =404;\n    }\n}"
+    },
+    {
+      "id": "config-gzip",
+      "category": "Config Template",
+      "language": "nginx",
+      "name": "Gzip Compression",
+      "description": "Gzip压缩配置模板",
+      "content": "server {\n    listen 80;\n    server_name example.com;\n    root /var/www/example.com;\n\n    gzip on;\n    gzip_vary on;\n    gzip_min_length 1024;\n    gzip_proxied expired no-cache no-store private must-revalidate auth;\n    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss;\n    gzip_comp_level 6;\n\n    location / {\n        try_files $uri $uri/ =404;\n    }\n}"
+    },
+    {
+      "id": "config-redirects",
+      "category": "Config Template",
+      "language": "nginx",
+      "name": "Redirects",
+      "description": "重定向配置模板",
+      "content": "server {\n    listen 80;\n    server_name example.com www.example.com;\n\n    # 301重定向到新域名\n    return 301 https://newdomain.com$request_uri;\n}\n\nserver {\n    listen 80;\n    server_name newdomain.com;\n\n    location / {\n        # 重定向特定路径\n        location /old-path {\n            return 301 /new-path;\n        }\n        \n        root /var/www/newdomain.com;\n        try_files $uri $uri/ =404;\n    }\n}"
+    }
+  ]
+}
