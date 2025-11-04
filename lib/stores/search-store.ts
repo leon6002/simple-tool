@@ -1,10 +1,9 @@
-import { create } from 'zustand';
-import { SearchState, ToolCategory } from '@/types';
+import { create } from "zustand";
+import { SearchState } from "@/types";
 
 export const useSearchStore = create<SearchState>((set) => ({
-  query: '',
-  category: 'all',
+  query: "",
+  category: "all",
   setQuery: (query: string) => set({ query }),
-  setCategory: (category: ToolCategory) => set({ category }),
+  setCategory: (category: string) => set({ category }),
 }));
-

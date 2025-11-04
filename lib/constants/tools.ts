@@ -87,7 +87,7 @@ export const TOOLS: Tool[] = [
     description: "Essential Linux commands with examples",
     category: "developer",
     icon: "Terminal",
-    href: "/tools/linux-cheatsheet",
+    href: "/cheatsheets/linux",
     featured: true,
   },
   {
@@ -135,7 +135,43 @@ export const TOOLS: Tool[] = [
     href: "/tools/timestamp-converter",
     featured: true,
   },
-] as const;
+  {
+    id: "docker-cheatsheet",
+    name: "Docker Cheatsheet",
+    description: "Quick reference for Docker commands",
+    category: "developer",
+    icon: "Shell",
+    href: "/cheatsheets/docker",
+    featured: true,
+  },
+  {
+    id: "git-cheatsheet",
+    name: "Git Cheatsheet",
+    description: "Quick reference for Git commands",
+    category: "developer",
+    icon: "GitBranch",
+    href: "/cheatsheets/git",
+    featured: true,
+  },
+  {
+    id: "nginx-cheatsheet",
+    name: "NGINX Cheatsheet",
+    description: "Quick reference for NGINX configurations and commands",
+    category: "developer",
+    icon: "Server",
+    href: "/cheatsheets/nginx",
+    featured: true,
+  },
+  {
+    id: "preferences",
+    name: "Preferences",
+    description: "Manage your preferences and settings",
+    category: "developer",
+    icon: "Palette",
+    href: "/tools/preferences",
+    featured: false,
+  },
+];
 
 export const CATEGORIES = [
   { id: "all", name: "All Tools", icon: "LayoutGrid" },
@@ -146,4 +182,5 @@ export const CATEGORIES = [
   { id: "security", name: "Security Tools", icon: "Shield" },
   { id: "design", name: "Design Tools", icon: "Palette" },
   { id: "developer", name: "Developer", icon: "Code" },
+  { id: "productivity", name: "Productivity", icon: "Zap" },
 ] as const;

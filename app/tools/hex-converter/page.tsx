@@ -43,11 +43,14 @@ export default function HexConverterPage() {
 
   // State for Bitwise Operations
   const [bitwiseFirstValue, setBitwiseFirstValue] = useState("");
-  const [bitwiseFirstType, setBitwiseFirstType] = useState<NumberSystem>("decimal");
+  const [bitwiseFirstType, setBitwiseFirstType] =
+    useState<NumberSystem>("decimal");
   const [bitwiseSecondValue, setBitwiseSecondValue] = useState("");
   const [bitwiseOperation, setBitwiseOperation] = useState("&");
-  const [bitwiseResult, setBitwiseResult] = useState<number | null>(null);
-  const [bitwiseError, setBitwiseError] = useState<string | null>(null);
+  const [bitwiseResult, setBitwiseResult] = useState<ConversionResult | null>(
+    null
+  );
+  const [bitwiseError, setBitwiseError] = useState("");
 
   const convert = () => {
     setError("");
@@ -98,7 +101,10 @@ export default function HexConverterPage() {
   const performBitwiseOperation = () => {
     setBitwiseError("");
 
-    if (!bitwiseFirstValue.trim() || (!bitwiseSecondValue.trim() && bitwiseOperation !== "~")) {
+    if (
+      !bitwiseFirstValue.trim() ||
+      (!bitwiseSecondValue.trim() && bitwiseOperation !== "~")
+    ) {
       setBitwiseError("Please enter both values");
       return;
     }
@@ -132,7 +138,10 @@ export default function HexConverterPage() {
         secondDecimal = parseInt(bitwiseSecondValue, 10);
       }
 
-      if (isNaN(firstDecimal) || (bitwiseOperation !== "~" && isNaN(secondDecimal))) {
+      if (
+        isNaN(firstDecimal) ||
+        (bitwiseOperation !== "~" && isNaN(secondDecimal))
+      ) {
         throw new Error("Invalid input values");
       }
 
@@ -164,10 +173,18 @@ export default function HexConverterPage() {
           throw new Error("Invalid operation");
       }
 
-      setBitwiseResult(operationResult);
-      setBitwiseError(null);
+      // Convert result to all formats
+      setBitwiseResult({
+        hex: "0x" + operationResult.toString(16).toUpperCase(),
+        decimal: operationResult.toString(10),
+        binary: "0b" + operationResult.toString(2),
+        octal: "0o" + operationResult.toString(8),
+      });
     } catch (err) {
-      setBitwiseError((err as Error).message || "Invalid input");
+      setBitwiseError(
+        "Invalid input or operation. Please check your values and try again."
+      );
+      setBitwiseResult(null);
     }
   };
 
@@ -355,7 +372,9 @@ export default function HexConverterPage() {
                   {systemButtons.map((system) => (
                     <Badge
                       key={system.type}
-                      variant={bitwiseFirstType === system.type ? "default" : "outline"}
+                      variant={
+                        bitwiseFirstType === system.type ? "default" : "outline"
+                      }
                       className={`cursor-pointer px-3 py-1.5 text-xs font-medium transition-all hover:scale-105 ${
                         bitwiseFirstType === system.type
                           ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0 shadow-lg shadow-purple-500/30"
@@ -370,7 +389,8 @@ export default function HexConverterPage() {
                 <Input
                   type="text"
                   placeholder={
-                    systemButtons.find((s) => s.type === bitwiseFirstType)?.placeholder
+                    systemButtons.find((s) => s.type === bitwiseFirstType)
+                      ?.placeholder
                   }
                   value={bitwiseFirstValue}
                   onChange={(e) => setBitwiseFirstValue(e.target.value)}
@@ -387,7 +407,9 @@ export default function HexConverterPage() {
                   {bitwiseOperations.map((op) => (
                     <Button
                       key={op.op}
-                      variant={bitwiseOperation === op.op ? "default" : "outline"}
+                      variant={
+                        bitwiseOperation === op.op ? "default" : "outline"
+                      }
                       className={`h-11 ${
                         bitwiseOperation === op.op
                           ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0 shadow-lg shadow-purple-500/30"
@@ -430,7 +452,7 @@ export default function HexConverterPage() {
             </div>
 
             {/* Bitwise Errors */}
-            {bitwiseError !== null && (
+            {bitwiseError && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -120,3 +120,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Shiki 代码高亮样式 */
+.shiki-wrapper {
+  @apply rounded-lg overflow-hidden;
+}
+
+.shiki-wrapper pre {
+  @apply m-0 p-4 overflow-auto text-xs leading-relaxed font-mono;
+  max-height: 400px;
+}
+
+.shiki-wrapper code {
+  @apply font-mono;
+}
