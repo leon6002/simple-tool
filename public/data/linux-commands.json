@@ -1,499 +1,772 @@
 {
-  "id": "linux",
-  "icon": "siLinux",
-  "title": "Linux Cheatsheet",
-  "description": "Quick reference for Linux commands. Never forget how to use Git again!",
-  "commands": [
-    {
-      "id": "ls",
-      "name": "ls",
-      "language": "bash",
-      "description": "List directory contents",
-      "command": "ls [options] [directory]",
-      "example": "ls -la /home/user\nls -lh\nls -F",
-      "category": "file-system"
-    },
-    {
-      "id": "cd",
-      "name": "cd",
-      "language": "bash",
-      "description": "Change directory",
-      "command": "cd [directory]",
-      "example": "cd /home/user\ncd ..\ncd ~\ncd -",
-      "category": "file-system"
-    },
-    {
-      "id": "pwd",
-      "name": "pwd",
-      "language": "bash",
-      "description": "Print working directory",
-      "command": "pwd",
-      "example": "pwd",
-      "category": "file-system"
-    },
-    {
-      "id": "mkdir",
-      "name": "mkdir",
-      "language": "bash",
-      "description": "Create directories",
-      "command": "mkdir [options] directory...",
-      "example": "mkdir new_dir\nmkdir -p path/to/new_dir\nmkdir -m 755 secure_dir",
-      "category": "file-system"
-    },
-    {
-      "id": "rm",
-      "language": "bash",
-      "name": "rm",
-      "description": "Remove files or directories",
-      "command": "rm [options] file...",
-      "example": "rm file.txt\nrm -r directory\nrm -f file.txt\nrm -rf directory",
-      "category": "file-system"
-    },
-    {
-      "id": "cp",
-      "name": "cp",
-      "language": "bash",
-      "description": "Copy files or directories",
-      "command": "cp [options] source destination",
-      "example": "cp file1.txt file2.txt\ncp -r dir1 dir2\ncp -v file.txt /backup/",
-      "category": "file-system"
-    },
-    {
-      "id": "mv",
-      "name": "mv",
-      "language": "bash",
-      "description": "Move or rename files/directories",
-      "command": "mv [options] source destination",
-      "example": "mv old_name.txt new_name.txt\nmv file.txt /home/user/\nmv dir1 dir2",
-      "category": "file-system"
-    },
-    {
-      "id": "cat",
-      "name": "cat",
-      "language": "bash",
-      "description": "Concatenate and display file content",
-      "command": "cat [options] [file...]",
-      "example": "cat file.txt\ncat file1.txt file2.txt > combined.txt\ncat -n file.txt",
-      "category": "text-processing"
-    },
-    {
-      "id": "less",
-      "name": "less",
-      "language": "bash",
-      "description": "View file content one page at a time",
-      "command": "less [options] file",
-      "example": "less large_file.txt\nless +100 file.txt\nless -N file.txt",
-      "category": "text-processing"
-    },
-    {
-      "id": "head",
-      "name": "head",
-      "language": "bash",
-      "description": "Output the first part of files",
-      "command": "head [options] [file...]",
-      "example": "head file.txt\nhead -n 20 file.txt\nhead -c 100 file.txt",
-      "category": "text-processing"
-    },
-    {
-      "id": "tail",
-      "name": "tail",
-      "language": "bash",
-      "description": "Output the last part of files",
-      "command": "tail [options] [file...]",
-      "example": "tail file.txt\ntail -n 20 file.txt\ntail -f log.txt",
-      "category": "text-processing"
-    },
-    {
-      "id": "wc",
-      "name": "wc",
-      "language": "bash",
-      "description": "Print newline, word, and byte counts",
-      "command": "wc [options] [file...]",
-      "example": "wc file.txt\nwc -l file.txt\nwc -w file.txt\nwc -c file.txt",
-      "category": "text-processing"
-    },
-    {
-      "id": "sort",
-      "name": "sort",
-      "language": "bash",
-      "description": "Sort lines of text files",
-      "command": "sort [options] [file...]",
-      "example": "sort file.txt\nsort -r file.txt\nsort -k2 file.txt\nsort -u file.txt",
-      "category": "text-processing"
-    },
-    {
-      "id": "uniq",
-      "name": "uniq",
-      "language": "bash",
-      "description": "Report or omit repeated lines",
-      "command": "uniq [options] [file]",
-      "example": "uniq file.txt\nuniq -c file.txt\nuniq -d file.txt\nuniq -u file.txt",
-      "category": "text-processing"
-    },
-    {
-      "id": "grep-basic",
-      "name": "grep (Basic)",
-      "language": "bash",
-      "description": "Search for patterns in files",
-      "command": "grep [options] pattern [file...]",
-      "example": "grep 'pattern' file.txt\ngrep 'error' /var/log/syslog\ngrep -i 'Error' file.txt",
-      "category": "text-processing"
-    },
-    {
-      "id": "grep-recursive",
-      "name": "grep (Recursive)",
-      "language": "bash",
-      "description": "Search recursively in directories",
-      "command": "grep -r [options] pattern directory",
-      "example": "grep -r 'function' .\ngrep -r --include='*.js' 'console.log' src/\ngrep -r -i 'TODO' .",
-      "category": "text-processing"
-    },
-    {
-      "id": "grep-regex",
-      "name": "grep (Regex)",
-      "language": "bash",
-      "description": "Use regular expressions with grep",
-      "command": "grep -E [options] pattern [file...]",
-      "example": "grep -E '^[0-9]{3}-[0-9]{3}-[0-9]{4}$' file.txt\ngrep -E '\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b' file.txt",
-      "category": "text-processing"
-    },
-    {
-      "id": "grep-context",
-      "name": "grep (Context)",
-      "language": "bash",
-      "description": "Show context around matches",
-      "command": "grep [options] pattern [file...]",
-      "example": "grep -A 3 'error' log.txt  # Show 3 lines after match\ngrep -B 3 'error' log.txt  # Show 3 lines before match\ngrep -C 3 'error' log.txt  # Show 3 lines before and after match",
-      "category": "text-processing"
-    },
-    {
-      "id": "grep-invert",
-      "name": "grep (Invert)",
-      "language": "bash",
-      "description": "Show lines that don't match",
-      "command": "grep -v [options] pattern [file...]",
-      "example": "grep -v '^#' config.txt  # Show non-comment lines\ngrep -v -E '^(#|$)' config.txt  # Show non-comment and non-empty lines",
-      "category": "text-processing"
-    },
-    {
-      "id": "grep-count",
-      "name": "grep (Count)",
-      "language": "bash",
-      "description": "Count matching lines",
-      "command": "grep -c [options] pattern [file...]",
-      "example": "grep -c 'error' log.txt\ngrep -c -r 'TODO' .",
-      "category": "text-processing"
-    },
-    {
-      "id": "grep-files",
-      "name": "grep (Files)",
-      "language": "bash",
-      "description": "List files containing matches",
-      "command": "grep -l [options] pattern [file...]",
-      "example": "grep -l 'function' *.js\ngrep -l -r 'import' src/",
-      "category": "text-processing"
-    },
-    {
-      "id": "grep-line-numbers",
-      "name": "grep (Line Numbers)",
-      "language": "bash",
-      "description": "Show line numbers of matches",
-      "command": "grep -n [options] pattern [file...]",
-      "example": "grep -n 'error' log.txt\ngrep -n -r 'TODO' .",
-      "category": "text-processing"
-    },
-    {
-      "id": "ps",
-      "name": "ps",
-      "language": "bash",
-      "description": "Report a snapshot of current processes",
-      "command": "ps [options]",
-      "example": "ps\nps aux\nps -ef\nps -u username",
-      "category": "system-info"
-    },
-    {
-      "id": "top",
-      "name": "top",
-      "language": "bash",
-      "description": "Display Linux processes",
-      "command": "top [options]",
-      "example": "top\ntop -u username",
-      "category": "system-info"
-    },
-    {
-      "id": "htop",
-      "name": "htop",
-      "description": "Interactive process viewer",
-      "command": "htop",
-      "example": "htop",
-      "category": "system-info"
-    },
-    {
-      "id": "df",
-      "name": "df",
-      "description": "Report file system disk space usage",
-      "command": "df [options] [file...]",
-      "example": "df\ndf -h\ndf -h /home",
-      "category": "system-info"
-    },
-    {
-      "id": "du",
-      "name": "du",
-      "description": "Estimate file space usage",
-      "command": "du [options] [file...]",
-      "example": "du\ndu -h\ndu -sh *\ndu -h --max-depth=1",
-      "category": "system-info"
-    },
-    {
-      "id": "free",
-      "name": "free",
-      "description": "Display amount of free and used memory",
-      "command": "free [options]",
-      "example": "free\nfree -h\nfree -m",
-      "category": "system-info"
-    },
-    {
-      "id": "uname",
-      "name": "uname",
-      "description": "Print system information",
-      "command": "uname [options]",
-      "example": "uname\nuname -a\nuname -r",
-      "category": "system-info"
-    },
-    {
-      "id": "ping",
-      "name": "ping",
-      "description": "Send ICMP ECHO_REQUEST to network hosts",
-      "command": "ping [options] destination",
-      "example": "ping google.com\nping -c 4 google.com",
-      "category": "networking"
-    },
-    {
-      "id": "netstat",
-      "name": "netstat",
-      "description": "Display network connections, listening ports, and related statistics",
-      "command": "netstat [options]",
-      "example": "netstat -tuln  # List all listening ports\nnetstat -tulnp  # List listening ports with process info\nnetstat -an | grep :80  # Check connections on port 80",
-      "category": "networking"
-    },
-    {
-      "id": "ss",
-      "name": "ss",
-      "description": "Another utility to investigate sockets (modern replacement for netstat)",
-      "command": "ss [options]",
-      "example": "ss -tuln  # List all listening ports\nss -tulnp  # List listening ports with process info\nss -tulnp | grep :80  # Check connections on port 80",
-      "category": "networking"
-    },
-    {
-      "id": "lsof",
-      "name": "lsof",
-      "description": "List open files, including network connections",
-      "command": "lsof [options]",
-      "example": "lsof -i :80  # List processes using port 80\nlsof -i :8080  # List processes using port 8080\nlsof -iTCP -sTCP:LISTEN  # List all listening TCP ports",
-      "category": "networking"
-    },
-    {
-      "id": "fuser",
-      "name": "fuser",
-      "description": "Identify processes using files or sockets",
-      "command": "fuser [options] [file|port]",
-      "example": "fuser 80/tcp  # Show processes using port 80\nfuser -k 80/tcp  # Kill processes using port 80\nfuser -v 80/tcp  # Verbose output for port 80",
-      "category": "networking"
-    },
-    {
-      "id": "wget",
-      "name": "wget",
-      "description": "Non-interactive network downloader",
-      "command": "wget [options] [URL...]",
-      "example": "wget https://example.com/file.txt\nwget -r https://example.com/\nwget -c large_file.zip",
-      "category": "networking"
-    },
-    {
-      "id": "curl",
-      "name": "curl",
-      "description": "Transfer data from or to a server",
-      "command": "curl [options] [URL...]",
-      "example": "curl https://api.example.com/data\ncurl -O https://example.com/file.txt\ncurl -X POST -d 'key=value' https://api.example.com/endpoint",
-      "category": "networking"
-    },
-    {
-      "id": "ssh",
-      "name": "ssh",
-      "description": "OpenSSH remote login client",
-      "command": "ssh [options] [user@]hostname [command]",
-      "example": "ssh user@server.com\nssh -p 2222 user@server.com\nssh user@server.com 'ls -la'",
-      "category": "networking"
-    },
-    {
-      "id": "scp",
-      "name": "scp",
-      "description": "Secure copy (remote file copy program)",
-      "command": "scp [options] [[user@]host1:]file1 [[user@]host2:]file2",
-      "example": "scp file.txt user@server.com:/home/user/\nscp user@server.com:/home/user/file.txt .\nscp -r dir/ user@server.com:/home/user/",
-      "category": "networking"
-    },
-    {
-      "id": "kill",
-      "name": "kill",
-      "description": "Send a signal to a process",
-      "command": "kill [options] PID...",
-      "example": "kill 1234\nkill -9 1234\nkillall firefox",
-      "category": "process-management"
-    },
-    {
-      "id": "killall",
-      "name": "killall",
-      "description": "Kill processes by name",
-      "command": "killall [options] name...",
-      "example": "killall firefox\nkillall -9 chrome",
-      "category": "process-management"
-    },
-    {
-      "id": "nohup",
-      "name": "nohup",
-      "description": "Run a command immune to hangups",
-      "command": "nohup command [args]",
-      "example": "nohup python script.py > output.log 2>&1 &\nnohup ./long_running_process &",
-      "category": "process-management"
-    },
-    {
-      "id": "chmod",
-      "name": "chmod",
-      "description": "Change file mode bits",
-      "command": "chmod [options] mode[,mode] file...",
-      "example": "chmod 755 script.sh\nchmod +x script.sh\nchmod -R 755 directory/",
-      "category": "permissions"
-    },
-    {
-      "id": "chown",
-      "name": "chown",
-      "description": "Change file owner and group",
-      "command": "chown [options] [owner][:group] file...",
-      "example": "chown user file.txt\nchown user:group file.txt\nchown -R user:group directory/",
-      "category": "permissions"
-    },
-    {
-      "id": "chgrp",
-      "name": "chgrp",
-      "description": "Change group ownership",
-      "command": "chgrp [options] group file...",
-      "example": "chgrp developers file.txt\nchgrp -R developers directory/",
-      "category": "permissions"
-    },
-    {
-      "id": "tar",
-      "name": "tar",
-      "description": "Manipulate tar archive files",
-      "command": "tar [options] [archive-file] [file...]",
-      "example": "tar -cvf archive.tar file1 file2\ntar -xvf archive.tar\ntar -czvf archive.tar.gz directory/\ntar -xzvf archive.tar.gz",
-      "category": "compression"
-    },
-    {
-      "id": "gzip",
-      "name": "gzip",
-      "description": "Compress or expand files",
-      "command": "gzip [options] [file...]",
-      "example": "gzip file.txt\ngzip -d file.txt.gz\ngzip -k file.txt  # Keep original file",
-      "category": "compression"
-    },
-    {
-      "id": "zip",
-      "name": "zip",
-      "description": "Package and compress files",
-      "command": "zip [options] zipfile files...",
-      "example": "zip archive.zip file1.txt file2.txt\nzip -r archive.zip directory/\nzip -e secure.zip file.txt  # Encrypt",
-      "category": "compression"
-    },
-    {
-      "id": "unzip",
-      "name": "unzip",
-      "description": "List, test and extract compressed files",
-      "command": "unzip [options] file[.zip]",
-      "example": "unzip archive.zip\nunzip -l archive.zip  # List contents\nunzip -d /extract/here/ archive.zip",
-      "category": "compression"
-    },
-    {
-      "id": "find",
-      "name": "find",
-      "description": "Search for files in a directory hierarchy",
-      "command": "find [path...] [expression]",
-      "example": "find . -name 'file.txt'\nfind /home -type f -name '*.log'\nfind . -mtime -7  # Files modified in last 7 days\nfind . -size +100M  # Files larger than 100MB",
-      "category": "search"
-    },
-    {
-      "id": "locate",
-      "name": "locate",
-      "description": "Find files by name (uses database)",
-      "command": "locate [options] pattern...",
-      "example": "locate file.txt\nlocate -i file.txt  # Case insensitive\nlocate *.conf",
-      "category": "search"
-    },
-    {
-      "id": "which",
-      "name": "which",
-      "description": "Locate a command",
-      "command": "which [options] [--] programname [...]",
-      "example": "which python\nwhich -a python  # Show all matching executables",
-      "category": "search"
-    },
-    {
-      "id": "whereis",
-      "name": "whereis",
-      "description": "Locate the binary, source, and manual page files",
-      "command": "whereis [options] name...",
-      "example": "whereis python\nwhereis -b python  # Only show binary\nwhereis -m python  # Only show manual",
-      "category": "search"
-    }
-  ],
-  "categories": [
-    {
-      "id": "file-system",
-      "name": "File System",
-      "type": "command",
-      "description": "File and directory management commands"
-    },
-    {
-      "id": "text-processing",
-      "name": "Text Processing",
-      "type": "command",
-      "description": "Commands for processing and manipulating text"
-    },
-    {
-      "id": "system-info",
-      "name": "System Info",
-      "type": "command",
-      "description": "Commands for system information and monitoring"
-    },
-    {
-      "id": "networking",
-      "name": "Networking",
-      "type": "command",
-      "description": "Network related commands"
-    },
-    {
-      "id": "process-management",
-      "name": "Process Management",
-      "type": "command",
-      "description": "Process control and management commands"
-    },
-    {
-      "id": "permissions",
-      "name": "Permissions",
-      "type": "command",
-      "description": "File and directory permission commands"
-    },
-    {
-      "id": "compression",
-      "name": "Compression",
-      "type": "command",
-      "description": "File compression and archiving commands"
-    },
-    {
-      "id": "search",
-      "name": "Search",
-      "type": "command",
-      "description": "File and text search commands"
-    }
-  ],
-  "templates": []
+    "id": "linux",
+    "icon": "siLinux",
+    "title": "Linux Cheatsheet",
+    "description": "Quick reference for Linux commands. Never forget how to use Git again!",
+    "commands": [
+        {
+            "id": "ls",
+            "name": "ls",
+            "language": "bash",
+            "description": "List directory contents",
+            "command": "ls [options] [directory]",
+            "example": "ls -la /home/user\nls -lh\nls -F",
+            "category": "file-system"
+        },
+        {
+            "id": "cd",
+            "name": "cd",
+            "language": "bash",
+            "description": "Change directory",
+            "command": "cd [directory]",
+            "example": "cd /home/user\ncd ..\ncd ~\ncd -",
+            "category": "file-system"
+        },
+        {
+            "id": "pwd",
+            "name": "pwd",
+            "language": "bash",
+            "description": "Print working directory",
+            "command": "pwd",
+            "example": "pwd",
+            "category": "file-system"
+        },
+        {
+            "id": "mkdir",
+            "name": "mkdir",
+            "language": "bash",
+            "description": "Create directories",
+            "command": "mkdir [options] directory...",
+            "example": "mkdir new_dir\nmkdir -p path/to/new_dir\nmkdir -m 755 secure_dir",
+            "category": "file-system"
+        },
+        {
+            "id": "rm",
+            "language": "bash",
+            "name": "rm",
+            "description": "Remove files or directories",
+            "command": "rm [options] file...",
+            "example": "rm file.txt\nrm -r directory\nrm -f file.txt\nrm -rf directory",
+            "category": "file-system"
+        },
+        {
+            "id": "cp",
+            "name": "cp",
+            "language": "bash",
+            "description": "Copy files or directories",
+            "command": "cp [options] source destination",
+            "example": "cp file1.txt file2.txt\ncp -r dir1 dir2\ncp -v file.txt /backup/",
+            "category": "file-system"
+        },
+        {
+            "id": "mv",
+            "name": "mv",
+            "language": "bash",
+            "description": "Move or rename files/directories",
+            "command": "mv [options] source destination",
+            "example": "mv old_name.txt new_name.txt\nmv file.txt /home/user/\nmv dir1 dir2",
+            "category": "file-system"
+        },
+        {
+            "id": "cat",
+            "name": "cat",
+            "language": "bash",
+            "description": "Concatenate and display file content",
+            "command": "cat [options] [file...]",
+            "example": "cat file.txt\ncat file1.txt file2.txt > combined.txt\ncat -n file.txt",
+            "category": "text-processing"
+        },
+        {
+            "id": "less",
+            "name": "less",
+            "language": "bash",
+            "description": "View file content one page at a time",
+            "command": "less [options] file",
+            "example": "less large_file.txt\nless +100 file.txt\nless -N file.txt",
+            "category": "text-processing"
+        },
+        {
+            "id": "head",
+            "name": "head",
+            "language": "bash",
+            "description": "Output the first part of files",
+            "command": "head [options] [file...]",
+            "example": "head file.txt\nhead -n 20 file.txt\nhead -c 100 file.txt",
+            "category": "text-processing"
+        },
+        {
+            "id": "tail",
+            "name": "tail",
+            "language": "bash",
+            "description": "Output the last part of files",
+            "command": "tail [options] [file...]",
+            "example": "tail file.txt\ntail -n 20 file.txt\ntail -f log.txt",
+            "category": "text-processing"
+        },
+        {
+            "id": "wc",
+            "name": "wc",
+            "language": "bash",
+            "description": "Print newline, word, and byte counts",
+            "command": "wc [options] [file...]",
+            "example": "wc file.txt\nwc -l file.txt\nwc -w file.txt\nwc -c file.txt",
+            "category": "text-processing"
+        },
+        {
+            "id": "sort",
+            "name": "sort",
+            "language": "bash",
+            "description": "Sort lines of text files",
+            "command": "sort [options] [file...]",
+            "example": "sort file.txt\nsort -r file.txt\nsort -k2 file.txt\nsort -u file.txt",
+            "category": "text-processing"
+        },
+        {
+            "id": "uniq",
+            "name": "uniq",
+            "language": "bash",
+            "description": "Report or omit repeated lines",
+            "command": "uniq [options] [file]",
+            "example": "uniq file.txt\nuniq -c file.txt\nuniq -d file.txt\nuniq -u file.txt",
+            "category": "text-processing"
+        },
+        {
+            "id": "grep-basic",
+            "name": "grep (Basic)",
+            "language": "bash",
+            "description": "Search for patterns in files",
+            "command": "grep [options] pattern [file...]",
+            "example": "grep 'pattern' file.txt\ngrep 'error' /var/log/syslog\ngrep -i 'Error' file.txt",
+            "category": "text-processing"
+        },
+        {
+            "id": "grep-recursive",
+            "name": "grep (Recursive)",
+            "language": "bash",
+            "description": "Search recursively in directories",
+            "command": "grep -r [options] pattern directory",
+            "example": "grep -r 'function' .\ngrep -r --include='*.js' 'console.log' src/\ngrep -r -i 'TODO' .",
+            "category": "text-processing"
+        },
+        {
+            "id": "grep-regex",
+            "name": "grep (Regex)",
+            "language": "bash",
+            "description": "Use regular expressions with grep",
+            "command": "grep -E [options] pattern [file...]",
+            "example": "grep -E '^[0-9]{3}-[0-9]{3}-[0-9]{4}$' file.txt\ngrep -E '\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b' file.txt",
+            "category": "text-processing"
+        },
+        {
+            "id": "grep-context",
+            "name": "grep (Context)",
+            "language": "bash",
+            "description": "Show context around matches",
+            "command": "grep [options] pattern [file...]",
+            "example": "grep -A 3 'error' log.txt  # Show 3 lines after match\ngrep -B 3 'error' log.txt  # Show 3 lines before match\ngrep -C 3 'error' log.txt  # Show 3 lines before and after match",
+            "category": "text-processing"
+        },
+        {
+            "id": "grep-invert",
+            "name": "grep (Invert)",
+            "language": "bash",
+            "description": "Show lines that don't match",
+            "command": "grep -v [options] pattern [file...]",
+            "example": "grep -v '^#' config.txt  # Show non-comment lines\ngrep -v -E '^(#|$)' config.txt  # Show non-comment and non-empty lines",
+            "category": "text-processing"
+        },
+        {
+            "id": "grep-count",
+            "name": "grep (Count)",
+            "language": "bash",
+            "description": "Count matching lines",
+            "command": "grep -c [options] pattern [file...]",
+            "example": "grep -c 'error' log.txt\ngrep -c -r 'TODO' .",
+            "category": "text-processing"
+        },
+        {
+            "id": "grep-files",
+            "name": "grep (Files)",
+            "language": "bash",
+            "description": "List files containing matches",
+            "command": "grep -l [options] pattern [file...]",
+            "example": "grep -l 'function' *.js\ngrep -l -r 'import' src/",
+            "category": "text-processing"
+        },
+        {
+            "id": "grep-line-numbers",
+            "name": "grep (Line Numbers)",
+            "language": "bash",
+            "description": "Show line numbers of matches",
+            "command": "grep -n [options] pattern [file...]",
+            "example": "grep -n 'error' log.txt\ngrep -n -r 'TODO' .",
+            "category": "text-processing"
+        },
+        {
+            "id": "ps",
+            "name": "ps",
+            "language": "bash",
+            "description": "Report a snapshot of current processes",
+            "command": "ps [options]",
+            "example": "ps\nps aux\nps -ef\nps -u username",
+            "category": "system-info"
+        },
+        {
+            "id": "top",
+            "name": "top",
+            "language": "bash",
+            "description": "Display Linux processes",
+            "command": "top [options]",
+            "example": "top\ntop -u username",
+            "category": "system-info"
+        },
+        {
+            "id": "htop",
+            "name": "htop",
+            "description": "Interactive process viewer",
+            "command": "htop",
+            "example": "htop",
+            "category": "system-info"
+        },
+        {
+            "id": "df",
+            "name": "df",
+            "description": "Report file system disk space usage",
+            "command": "df [options] [file...]",
+            "example": "df\ndf -h\ndf -h /home",
+            "category": "system-info"
+        },
+        {
+            "id": "du",
+            "name": "du",
+            "description": "Estimate file space usage",
+            "command": "du [options] [file...]",
+            "example": "du\ndu -h\ndu -sh *\ndu -h --max-depth=1",
+            "category": "system-info"
+        },
+        {
+            "id": "free",
+            "name": "free",
+            "description": "Display amount of free and used memory",
+            "command": "free [options]",
+            "example": "free\nfree -h\nfree -m",
+            "category": "system-info"
+        },
+        {
+            "id": "uname",
+            "name": "uname",
+            "description": "Print system information",
+            "command": "uname [options]",
+            "example": "uname\nuname -a\nuname -r",
+            "category": "system-info"
+        },
+        {
+            "id": "ping",
+            "name": "ping",
+            "description": "Send ICMP ECHO_REQUEST to network hosts",
+            "command": "ping [options] destination",
+            "example": "ping google.com\nping -c 4 google.com",
+            "category": "networking"
+        },
+        {
+            "id": "netstat",
+            "name": "netstat",
+            "description": "Display network connections, listening ports, and related statistics",
+            "command": "netstat [options]",
+            "example": "netstat -tuln  # List all listening ports\nnetstat -tulnp  # List listening ports with process info\nnetstat -an | grep :80  # Check connections on port 80",
+            "category": "networking"
+        },
+        {
+            "id": "ss",
+            "name": "ss",
+            "description": "Another utility to investigate sockets (modern replacement for netstat)",
+            "command": "ss [options]",
+            "example": "ss -tuln  # List all listening ports\nss -tulnp  # List listening ports with process info\nss -tulnp | grep :80  # Check connections on port 80",
+            "category": "networking"
+        },
+        {
+            "id": "lsof",
+            "name": "lsof",
+            "description": "List open files, including network connections",
+            "command": "lsof [options]",
+            "example": "lsof -i :80  # List processes using port 80\nlsof -i :8080  # List processes using port 8080\nlsof -iTCP -sTCP:LISTEN  # List all listening TCP ports",
+            "category": "networking"
+        },
+        {
+            "id": "fuser",
+            "name": "fuser",
+            "description": "Identify processes using files or sockets",
+            "command": "fuser [options] [file|port]",
+            "example": "fuser 80/tcp  # Show processes using port 80\nfuser -k 80/tcp  # Kill processes using port 80\nfuser -v 80/tcp  # Verbose output for port 80",
+            "category": "networking"
+        },
+        {
+            "id": "wget",
+            "name": "wget",
+            "description": "Non-interactive network downloader",
+            "command": "wget [options] [URL...]",
+            "example": "wget https://example.com/file.txt\nwget -r https://example.com/\nwget -c large_file.zip",
+            "category": "networking"
+        },
+        {
+            "id": "curl",
+            "name": "curl",
+            "description": "Transfer data from or to a server",
+            "command": "curl [options] [URL...]",
+            "example": "curl https://api.example.com/data\ncurl -O https://example.com/file.txt\ncurl -X POST -d 'key=value' https://api.example.com/endpoint",
+            "category": "networking"
+        },
+        {
+            "id": "ssh",
+            "name": "ssh",
+            "description": "OpenSSH remote login client",
+            "command": "ssh [options] [user@]hostname [command]",
+            "example": "ssh user@server.com\nssh -p 2222 user@server.com\nssh user@server.com 'ls -la'",
+            "category": "networking"
+        },
+        {
+            "id": "scp",
+            "name": "scp",
+            "description": "Secure copy (remote file copy program)",
+            "command": "scp [options] [[user@]host1:]file1 [[user@]host2:]file2",
+            "example": "scp file.txt user@server.com:/home/user/\nscp user@server.com:/home/user/file.txt .\nscp -r dir/ user@server.com:/home/user/",
+            "category": "networking"
+        },
+        {
+            "id": "kill",
+            "name": "kill",
+            "description": "Send a signal to a process",
+            "command": "kill [options] PID...",
+            "example": "kill 1234\nkill -9 1234\nkillall firefox",
+            "category": "process-management"
+        },
+        {
+            "id": "killall",
+            "name": "killall",
+            "description": "Kill processes by name",
+            "command": "killall [options] name...",
+            "example": "killall firefox\nkillall -9 chrome",
+            "category": "process-management"
+        },
+        {
+            "id": "nohup",
+            "name": "nohup",
+            "description": "Run a command immune to hangups",
+            "command": "nohup command [args]",
+            "example": "nohup python script.py > output.log 2>&1 &\nnohup ./long_running_process &",
+            "category": "process-management"
+        },
+        {
+            "id": "chmod",
+            "name": "chmod",
+            "description": "Change file mode bits",
+            "command": "chmod [options] mode[,mode] file...",
+            "example": "chmod 755 script.sh\nchmod +x script.sh\nchmod -R 755 directory/",
+            "category": "permissions"
+        },
+        {
+            "id": "chown",
+            "name": "chown",
+            "description": "Change file owner and group",
+            "command": "chown [options] [owner][:group] file...",
+            "example": "chown user file.txt\nchown user:group file.txt\nchown -R user:group directory/",
+            "category": "permissions"
+        },
+        {
+            "id": "chgrp",
+            "name": "chgrp",
+            "description": "Change group ownership",
+            "command": "chgrp [options] group file...",
+            "example": "chgrp developers file.txt\nchgrp -R developers directory/",
+            "category": "permissions"
+        },
+        {
+            "id": "tar",
+            "name": "tar",
+            "description": "Manipulate tar archive files",
+            "command": "tar [options] [archive-file] [file...]",
+            "example": "tar -cvf archive.tar file1 file2\ntar -xvf archive.tar\ntar -czvf archive.tar.gz directory/\ntar -xzvf archive.tar.gz",
+            "category": "compression"
+        },
+        {
+            "id": "gzip",
+            "name": "gzip",
+            "description": "Compress or expand files",
+            "command": "gzip [options] [file...]",
+            "example": "gzip file.txt\ngzip -d file.txt.gz\ngzip -k file.txt  # Keep original file",
+            "category": "compression"
+        },
+        {
+            "id": "zip",
+            "name": "zip",
+            "description": "Package and compress files",
+            "command": "zip [options] zipfile files...",
+            "example": "zip archive.zip file1.txt file2.txt\nzip -r archive.zip directory/\nzip -e secure.zip file.txt  # Encrypt",
+            "category": "compression"
+        },
+        {
+            "id": "unzip",
+            "name": "unzip",
+            "description": "List, test and extract compressed files",
+            "command": "unzip [options] file[.zip]",
+            "example": "unzip archive.zip\nunzip -l archive.zip  # List contents\nunzip -d /extract/here/ archive.zip",
+            "category": "compression"
+        },
+        {
+            "id": "find",
+            "name": "find",
+            "description": "Search for files in a directory hierarchy",
+            "command": "find [path...] [expression]",
+            "example": "find . -name 'file.txt'\nfind /home -type f -name '*.log'\nfind . -mtime -7  # Files modified in last 7 days\nfind . -size +100M  # Files larger than 100MB",
+            "category": "search"
+        },
+        {
+            "id": "locate",
+            "name": "locate",
+            "description": "Find files by name (uses database)",
+            "command": "locate [options] pattern...",
+            "example": "locate file.txt\nlocate -i file.txt  # Case insensitive\nlocate *.conf",
+            "category": "search"
+        },
+        {
+            "id": "which",
+            "name": "which",
+            "description": "Locate a command",
+            "command": "which [options] [--] programname [...]",
+            "example": "which python\nwhich -a python  # Show all matching executables",
+            "category": "search"
+        },
+        {
+            "id": "whereis",
+            "name": "whereis",
+            "description": "Locate the binary, source, and manual page files",
+            "command": "whereis [options] name...",
+            "example": "whereis python\nwhereis -b python  # Only show binary\nwhereis -m python  # Only show manual",
+            "category": "search"
+        }
+    ],
+    "templates": [
+        {
+            "id": "print_time",
+            "category": "系统工具",
+            "language": "shell",
+            "name": "时间格式脚本",
+            "description": "显示多种日期和时间格式的Shell脚本",
+            "content": "#!/bin/bash\n\n# 打印各种时间格式 \n\necho \"显示星期简称(如:Sun)\"\ndate +%a\necho \"显示星期全称(如:Sunday)\"\ndate +%A\necho \"显示月份简称(如:Jan)\"\ndate +%b\necho \"显示月份全称(如:January)\"\ndate +%B\necho \"显示数字月份(如:12)\"\ndate +%m\necho \"显示数字日期(如:01 号)\"\ndate +%d\necho \"显示数字年(如:01 号)\"\ndate +%Y echo \"显示年‐月‐日\"\ndate +%F\necho \"显示小时(24 小时制)\"\ndate +%H\necho \"显示分钟(00..59)\"\ndate +%M\necho \"显示秒\"\ndate +%S\necho \"显示纳秒\"\ndate +%N\necho \"组合显示\"\ndate +\"%Y%m%d %H:%M:%S\""
+        },
+        {
+            "id": "basic",
+            "category": "学习示例",
+            "language": "shell",
+            "name": "Bash脚本基础示例",
+            "description": "展示变量、函数、条件判断和文件操作的基础Shell脚本",
+            "content": "#!/bin/bash\n# The first bin/bash line tells the system to use the Bash interpreter.\n\n# This is a comment,Comments start with # and are ignored by the shell.\n# echo is used to print text to the console.\necho \"Hello, World!\"\n\n# This is a variable,Variables are used to store values.\nvar=\"value\"\nname=\"DevOps\"\n\n# Bash has no explicit data types. Variables are treated as strings by default, but you can perform arithmetic operations using (( )):\ncount=5\n((count++))\necho \"Count: $count\"\n\n\n\n# This is a function,Functions are defined using the function keyword followed by the function name and parentheses.\nfunction greet() {\n  # The  variable is used to access the first argument passed to the function.\n  echo \"Hello, $1!\"\n}\n\n# Calling the function and passing an argument.\ngreet \"John\"\n\n# This is an if statement,If statements are used to execute a block of code if a condition is true.\nif [ \"$var\" == \"value\" ]; then\n    echo \"Variable is equal to 'value'\"\nfi\n\n# while loop\ncount=0\nwhile [ $count -lt 5 ]; do\n    echo \"Count: $count\"\n    ((count++))\ndone\n\n# ----- 7.file operations ------\n\n# reading from a file\nwhile read line; do\n    echo \"Line: $line\"\ndone < file.txt\n\n# writing to a file\necho \"Hello, World!\" > output.txt\n\n\n\n\n"
+        },
+        {
+            "id": "disk_space",
+            "category": "系统监控",
+            "language": "shell",
+            "name": "磁盘空间监控",
+            "description": "检查磁盘空间使用情况并在超过阈值时发出警告",
+            "content": "#!/bin/bash\n# This script check the disk space usage and issue a warning if it's above the threshold.\n\n# Set the threshold for disk usage (in percentage)\nthreshold=90\n# Get the disk usage percentage\n# We use the df command to get disk usage information for the root filesystem (/).\n# tail -n 1 extracts the last line of the df output.\n# awk '{print $5}' extracts the fifth column, which contains the usage percentage.\ndisk_usage=$(df -h / | tail -n 1 | awk '{print $5}' | sed 's/%//')\n# We compare the usage percentage to the threshold and provide a warning if it exceeds the limit.\nif [ \"$disk_usage\" -ge \"$threshold\" ]; then\n    echo \"Disk space is running low! Disk Usage: $disk_usage%\"\nelse\n    echo \"Disk space is within acceptable limits. Disk Usage: $disk_usage%\"\nfi"
+        },
+        {
+            "id": "read_write_file",
+            "category": "文件操作",
+            "language": "shell",
+            "name": "文件处理脚本",
+            "description": "逐行读取文件内容并输出，写入字符串到文件",
+            "content": "# 使用while循环逐行读取file.txt文件的内容\n# read line 读取每一行内容到line变量中\n# done < file.txt 通过输入重定向从file.txt文件中读取数据\nwhile read line; do\n    # 输出当前行的内容\n    echo \"Line: $line\"\n# 从file.txt文件中读取数据\ndone < file.txt\n\n\n# 将\"Hello, World!\"字符串写入output.txt文件\n# > 符号表示覆盖写入，如果文件存在则清空原内容，如果不存在则创建新文件\necho \"Hello, World!\" > output.txt"
+        },
+        {
+            "id": "cpu_monitor",
+            "category": "系统监控",
+            "language": "shell",
+            "name": "CPU使用率检测",
+            "description": "使用top命令获取并显示CPU总使用率百分比",
+            "content": "#!/bin/bash\n\n# Get CPU usage percentage\n# We use the top command to get CPU usage information.\n# `top -bn1` runs top in batch mode for a single iteration.\n# `grep \"Cpu(s)\"` filters out the CPU usage line.\n# `awk '{print $2 + $4}'` extracts the CPU usage percentage from the line.\ncpu_usage=$(top -bn1 | grep \"Cpu(s)\" | awk '{print $2 + $4}')\necho \"CPU Usage: $cpu_usage%\""
+        },
+        {
+            "id": "error_handling",
+            "category": "系统配置",
+            "language": "shell",
+            "name": "脚本错误处理",
+            "description": "设置脚本在发生错误时立即退出",
+            "content": "#!/bin/bash\n\nset -e\n# Your script logic here\n# If an error occurs, the script will exit here"
+        },
+        {
+            "id": "install_memcache",
+            "category": "软件部署",
+            "language": "shell",
+            "name": "Memcached部署脚本",
+            "description": "用于自动化源码编译安装Memcached服务器",
+            "content": "#!/bin/bash\n\n# 一键部署 memcached \n# 脚本用源码来安装 memcached 服务器\n# 注意:如果软件的下载链接过期了,请更新 memcached 的下载链接\nwget http://www.memcached.org/files/memcached-1.5.1.tar.gz\nyum -y install gcc\ntar -xf  memcached‐1.5.1.tar.gz\ncd memcached‐1.5.1\n./configure\nmake\nmake install"
+        },
+        {
+            "id": "parse_csv",
+            "category": "数据处理",
+            "language": "shell",
+            "name": "CSV文件解析脚本",
+            "description": "逐行读取并解析CSV文件内容的脚本",
+            "content": "#!/bin/bash\n\n# 定义要处理的CSV文件名\ncsv_file=\"data.csv\"\n\n# 使用while循环逐行读取CSV文件\n# IFS=',' 设置字段分隔符为逗号\n# read -r 以原始模式读取，防止反斜杠转义\n# col1 col2 col3 分别代表第一、二、三列的数据变量\n# done < \"$csv_file\" 将文件内容重定向到while循环作为输入\nwhile IFS=',' read -r col1 col2 col3; do\n    # 输出每行各列的数据\n    echo \"Column 1: $col1, Column 2: $col2, Column 3: $col3\"\n# 从指定的CSV文件中读取数据\ndone < \"$csv_file\""
+        },
+        {
+            "id": "env_variables",
+            "category": "配置管理",
+            "language": "shell",
+            "name": "环境变量配置脚本",
+            "description": "定义并使用数据库连接环境变量",
+            "content": "#!/bin/bash\n\n# Define environment variables\nexport DATABASE_URL=\"mysql://username:password@localhost/database\"\n# Use environment variables in your scripts\necho \"Database URL: $DATABASE_URL\""
+        },
+        {
+            "id": "search_in_file",
+            "category": "日志分析",
+            "language": "shell",
+            "name": "日志关键词检测",
+            "description": "在日志文件中搜索指定关键词并输出结果",
+            "content": "#!/bin/bash\n\n# 定义要搜索的关键词\nsearch_term=\"error\"\n# 定义要搜索的日志文件名\nlog_file=\"application.log\"\n\n# 使用grep命令在日志文件中搜索指定关键词\n# -q 参数表示静默模式，只返回退出状态码而不输出匹配内容\nif grep -q \"$search_term\" \"$log_file\"; then\n    # 如果找到关键词，则输出成功信息\n    echo \"Found '$search_term' in $log_file\"\nelse\n    # 如果未找到关键词，则输出未找到信息\n    echo \"No '$search_term' found in $log_file\"\nfi"
+        },
+        {
+            "id": "check_open_ports",
+            "category": "系统安全",
+            "language": "shell",
+            "name": "端口检测脚本",
+            "description": "显示Linux系统上所有开放的端口列表",
+            "content": "#!/bin/bash\n\n# 显示本机 Linux 系统上所有开放的端口列表 \n\n# 从端口列表中观测有没有没用的端口,有的话可以将该端口对应的服务关闭,防止意外的攻击可能性\nss -nutlp | awk '{print $1,$5}' | awk -F\"[: ]\" '{print \"协议:\"$1,\"端口号:\"$NF}' | grep \"[0‐9]\" | uniq"
+        },
+        {
+            "id": "nginx_log_partition",
+            "category": "日志管理",
+            "language": "shell",
+            "name": "Nginx日志切割",
+            "description": "用于切割Nginx日志文件防止过大",
+            "content": "#mkdir  /data/scripts\n#vim   /data/scripts/nginx_log.sh  \n#!/bin/bash\n\n# 切割 Nginx 日志文件(防止单个文件过大,后期处理很困难) \nlogs_path=\"/usr/local/nginx/logs/\"\nmv ${logs_path}access.log ${logs_path}access_$(date -d \"yesterday\" +\"%Y%m%d\").log\nkill -USR1  `cat /usr/local/nginx/logs/nginx.pid`\n\n# chmod +x  /data/scripts/nginx_log.sh\n# crontab  ‐e                    #脚本写完后,将脚本放入计划任务每天执行一次脚本\n0  1  *  *   *   /data/scripts/nginx_log.sh"
+        },
+        {
+            "id": "check_connection",
+            "category": "网络监控",
+            "language": "shell",
+            "name": "远程连接统计",
+            "description": "统计连接到本机的远程IP地址数量",
+            "content": "#!/bin/bash\n\n# 查看有多少远程的 IP 在连接本机(不管是通过 ssh 还是 web 还是 ftp 都统计) \n# 使用 netstat ‐atn 可以查看本机所有连接的状态,‐a 查看所有,\n# -t仅显示 tcp 连接的信息,‐n 数字格式显示\n# Local Address(第四列是本机的 IP 和端口信息)\n# Foreign Address(第五列是远程主机的 IP 和端口信息)\n# 使用 awk 命令仅显示第 5 列数据,再显示第 1 列 IP 地址的信息\n# sort 可以按数字大小排序,最后使用 uniq 将多余重复的删除,并统计重复的次数\nnetstat -atn  |  awk  '{print $5}'  | awk  '{print $1}' | sort -nr  |  uniq -c"
+        },
+        {
+            "id": "check_web_status",
+            "category": "网络工具",
+            "language": "shell",
+            "name": "网站状态检查",
+            "description": "通过HTTP状态码检查网站是否可访问",
+            "content": "#!/bin/bash\n\n# Define a function to check the status of a website\ncheck_website() {\n    local url=\"$1\"\n    \n    # The `-s` flag makes curl operate in silent mode, suppressing progress and error messages.\n    # `-o /dev/null` discards the response body.\n    # `-w \"%{http_code}\"` instructs curl to print only the HTTP response code.\n    local response=$(curl -s -o /dev/null -w \"%{http_code}\" \"$url\")\n    \n    if [ \"$response\" == \"200\" ]; then\n        echo \"Website $url is up and running!\"\n    else\n        echo \"Website $url is down!\"\n    fi\n}\n# Call the function with a sample website\ncheck_website \"https://www.example.com\""
+        },
+        {
+            "id": "backup",
+            "category": "备份",
+            "language": "shell",
+            "name": "网站备份脚本",
+            "description": "使用rsync备份网站目录到指定位置",
+            "content": "#!/bin/bash\n\nbackup_dir=\"/backup\"\nsource_dir=\"/var/www/html\"\n# Create a backup directory\nmkdir -p \"$backup_dir\"\n# Perform the backup\nrsync -av \"$source_dir\" \"$backup_dir\""
+        },
+        {
+            "id": "archive_log",
+            "category": "日志管理",
+            "language": "shell",
+            "name": "日志归档压缩",
+            "description": "自动归档并压缩30天前的日志文件",
+            "content": "#!/bin/bash\n# 定义日志目录和归档目录的路径变量\nLOG_DIR=\"/var/log/myapp/\"\nARCHIVE_DIR=\"/var/log/myapp/archive/\"\n# 查找日志目录中修改时间超过30天的日志文件，并将其移动到归档目录\nfind $LOG_DIR -name \"*.log\" -mtime +30 -exec mv {} $ARCHIVE_DIR \\;\n# 将归档目录中的所有日志文件进行gzip压缩\ngzip $ARCHIVE_DIR/*.log\n# 输出操作完成的信息\necho \"Log files older than 30 days archived and compressed.\""
+        },
+        {
+            "id": "logging",
+            "category": "日志管理",
+            "language": "shell",
+            "name": "脚本日志记录",
+            "description": "重定向脚本输出到日志文件并记录执行时间",
+            "content": "#!/bin/bash\n\nlog_file=\"/var/log/my_script.log\"\n# Redirect stdout and stderr to a log file\nexec > \"$log_file\" 2>&1\necho \"Script started at $(date)\"\n# Your script logic here\necho \"Script finished at $(date)\""
+        },
+        {
+            "id": "cron_job",
+            "category": "定时任务",
+            "language": "shell",
+            "name": "定时任务配置",
+            "description": "每日午夜执行指定脚本的定时任务",
+            "content": "# Edit the crontab using 'crontab -e'\n# This script will run every day at midnight\n0 0 * * * /path/to/your/script.sh"
+        },
+        {
+            "id": "check_file_foler",
+            "category": "系统工具",
+            "language": "shell",
+            "name": "文件目录检测",
+            "description": "检测指定文件或目录是否存在的Shell脚本",
+            "content": "#!/bin/bash\n\n# 判断文件或目录是否存在 \nif [ $# -eq 0 ] ;then\necho \"未输入任何参数,请输入参数\"\necho \"用法:$0 [文件名|目录名]\"\nfi\nif [ -f $1 ];then\n  echo \"该文件,存在\"\n  ls -l $1\nelse\n  echo \"没有该文件\"\nfi\nif [ -d  $1 ];then\n     echo \"该目录,存在\"\n     ls -ld  $2\nelse\n     echo \"没有该目录\"\nfi"
+        },
+        {
+            "id": "nginx_starter",
+            "category": "服务管理",
+            "language": "shell",
+            "name": "Nginx服务管理脚本",
+            "description": "用于启动、停止、重启和查看Nginx服务状态的脚本",
+            "content": "#!/bin/bash\n\n# 编写 nginx 启动脚本 \n# 本脚本编写完成后,放置在/etc/init.d/目录下,就可以被 Linux 系统自动识别到该脚本\n# 如果本脚本名为/etc/init.d/nginx,则 service nginx start 就可以启动该服务\n# service nginx stop 就可以关闭服务\n# service nginx restart 可以重启服务\n# service nginx status 可以查看服务状态\nprogram=/usr/local/nginx/sbin/nginx\npid=/usr/local/nginx/logs/nginx.pid\nstart(){\nif [ -f $pid ];then\n  echo  \"nginx 服务已经处于开启状态\"\nelse\n  $program\nfi\nstop(){\nif [ -! -f $pid ];then\n  echo \"nginx 服务已经关闭\"\nelse\n  $program -s stop\n  echo \"关闭服务 ok\"\nfi\n}\nstatus(){\nif [ -f $pid ];then\n  echo \"服务正在运行...\"\nelse\n  echo \"服务已经关闭\"\nfi\n}\n\ncase $1 in\nstart)\n  start;;\nstop)\n  stop;;\nrestart)\n  stop\n  sleep 1\n  start;;\nstatus)\n  status;;\n*)\n  echo  \"你输入的语法格式错误\"\nesac"
+        },
+        {
+            "id": "monitor_eth0",
+            "category": "网络监控",
+            "language": "shell",
+            "name": "网卡流量监控",
+            "description": "实时监控eth0网卡收发数据包流量",
+            "content": "#!/bin/bash\n\n# 使用死循环实时显示 eth0 网卡发送的数据包流量 \nwhile :\ndo\n   echo  '本地网卡 eth0 流量信息如下: '\n    ifconfig eth0 | grep \"RX pack\" | awk '{print $5}'\n    ifconfig eth0 | grep \"TX pack\" | awk '{print $5}'\n     sleep 1\ndone"
+        },
+        {
+            "id": "check_zombie_process",
+            "category": "系统监控",
+            "language": "shell",
+            "name": "僵尸进程检测",
+            "description": "查找并显示Linux系统中的僵尸进程PID和命令",
+            "content": "#!/bin/bash\n\n# 查找 Linux 系统中的僵尸进程\n# awk 判断 ps 命令输出的第 8 列为 Z 是,显示该进程的 PID 和进程命令\nps aux | awk '{if($8 == \"Z\"){print $2,$11}}'"
+        }
+    ],
+    "categories": [
+        {
+            "id": "networking",
+            "name": "networking",
+            "type": "command",
+            "description": ""
+        },
+        {
+            "id": "search",
+            "name": "search",
+            "type": "command",
+            "description": ""
+        },
+        {
+            "id": "text-processing",
+            "name": "text-processing",
+            "type": "command",
+            "description": ""
+        },
+        {
+            "id": "process-management",
+            "name": "process-management",
+            "type": "command",
+            "description": ""
+        },
+        {
+            "id": "permissions",
+            "name": "permissions",
+            "type": "command",
+            "description": ""
+        },
+        {
+            "id": "compression",
+            "name": "compression",
+            "type": "command",
+            "description": ""
+        },
+        {
+            "id": "system-info",
+            "name": "system-info",
+            "type": "command",
+            "description": ""
+        },
+        {
+            "id": "file-system",
+            "name": "file-system",
+            "type": "command",
+            "description": ""
+        },
+        {
+            "id": "备份",
+            "name": "备份",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "学习示例",
+            "name": "学习示例",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "系统工具",
+            "name": "系统工具",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "软件部署",
+            "name": "软件部署",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "服务管理",
+            "name": "服务管理",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "系统安全",
+            "name": "系统安全",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "网络工具",
+            "name": "网络工具",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "网络监控",
+            "name": "网络监控",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "系统监控",
+            "name": "系统监控",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "数据处理",
+            "name": "数据处理",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "配置管理",
+            "name": "配置管理",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "定时任务",
+            "name": "定时任务",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "系统配置",
+            "name": "系统配置",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "日志分析",
+            "name": "日志分析",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "日志管理",
+            "name": "日志管理",
+            "type": "template",
+            "description": ""
+        },
+        {
+            "id": "文件操作",
+            "name": "文件操作",
+            "type": "template",
+            "description": ""
+        }
+    ]
 }
