@@ -23,6 +23,7 @@ cp .env.example .env.local
 ```env
 # NextAuth Configuration
 AUTH_SECRET=your-secret-key-here
+AUTH_TRUST_HOST=true
 
 # Admin Credentials
 ADMIN_USERNAME=admin
@@ -36,22 +37,29 @@ openssl rand -base64 32
 
 ### Docker 部署
 
-在 `docker-compose.yml` 中配置环境变量：
+**方法 1：使用环境变量**
 
-```yaml
-services:
-  simple-tool:
-    environment:
-      # NextAuth Configuration
-      - AUTH_SECRET=${AUTH_SECRET:-change-this-to-a-random-secret-in-production}
-      # Admin Credentials
-      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
+在启动 Docker 容器前设置环境变量：
+
+```bash
+# 生成安全的密钥
+export AUTH_SECRET=$(openssl rand -base64 32)
+export AUTH_TRUST_HOST=true
+export NEXTAUTH_URL=https://yourdomain.com  # 你的实际域名
+export ADMIN_USERNAME=admin
+export ADMIN_PASSWORD=your-secure-password
+
+# 启动容器
+docker-compose up -d
 ```
 
-或者创建 `.env.production` 文件：
+**方法 2：创建 .env.production 文件**
+
+创建 `.env.production` 文件：
 ```env
 AUTH_SECRET=your-production-secret-key
+AUTH_TRUST_HOST=true
+NEXTAUTH_URL=https://yourdomain.com
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your-secure-password
 ```
@@ -63,6 +71,13 @@ services:
     env_file:
       - .env.production
 ```
+
+**重要配置说明：**
+
+- `AUTH_SECRET`: 必须设置，用于加密 session
+- `AUTH_TRUST_HOST=true`: **必须设置**，否则会出现 UntrustedHost 错误
+- `NEXTAUTH_URL`: 建议设置为你的实际域名（如 `https://yourdomain.com`）
+- 如果使用反向代理（如 Nginx），确保正确转发 Host 头
 
 ## 使用方法
 
@@ -150,9 +165,40 @@ services:
 
 ## 故障排查
 
+### UntrustedHost 错误
+
+**错误信息：**
+```
+[auth][error] UntrustedHost: Host must be trusted. URL was: http://yourdomain.com/api/auth/session
+```
+
+**解决方法：**
+
+1. 设置 `AUTH_TRUST_HOST=true` 环境变量
+2. 或者设置 `NEXTAUTH_URL` 为你的完整域名
+
+```bash
+# Docker 部署
+export AUTH_TRUST_HOST=true
+export NEXTAUTH_URL=https://yourdomain.com
+docker-compose up -d
+```
+
+3. 如果使用 Nginx 反向代理，确保配置正确：
+```nginx
+location / {
+    proxy_pass http://localhost:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
 ### 无法登录
 - 检查环境变量是否正确设置
 - 确认 AUTH_SECRET 已配置
+- 确认 AUTH_TRUST_HOST=true 已设置
 - 查看浏览器控制台和服务器日志
 
 ### 编辑后内容未更新

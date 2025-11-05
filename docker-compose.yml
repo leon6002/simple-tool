@@ -14,6 +14,8 @@ services:
       - NEXT_TELEMETRY_DISABLED=1
       # NextAuth Configuration
       - AUTH_SECRET=${AUTH_SECRET:-change-this-to-a-random-secret-in-production}
+      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-true}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
       # Admin Credentials - Change these in production!
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
