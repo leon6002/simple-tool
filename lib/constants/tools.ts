@@ -64,6 +64,15 @@ export const TOOLS: Tool[] = [
     featured: true,
   },
   {
+    id: "text-compressor",
+    name: "Text Compressor",
+    description: "Compress multi-line text into single line",
+    category: "text",
+    icon: "Minimize2",
+    href: "/tools/text-compressor",
+    featured: true,
+  },
+  {
     id: "password-generator",
     name: "Password Generator",
     description: "Generate secure passwords or memorable passphrases",

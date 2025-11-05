@@ -8,8 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { TOOLS, CATEGORIES } from "@/lib/constants/tools";
 import { useSearchStore } from "@/lib/stores/search-store";
 import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
-import { ToolCategory } from "@/types";
-import { Sparkles, Rocket, Search as SearchIcon, Star, Clock } from "lucide-react";
+import { Star, Clock } from "lucide-react";
 
 export default function Home() {
   const { query, category } = useSearchStore();
@@ -18,23 +17,32 @@ export default function Home() {
 
   useEffect(() => {
     let result = TOOLS;
-    
+
     if (query) {
-      result = result.filter(tool => 
-        tool.name.toLowerCase().includes(query.toLowerCase()) ||
-        tool.description.toLowerCase().includes(query.toLowerCase())
+      result = result.filter(
+        (tool) =>
+          tool.name.toLowerCase().includes(query.toLowerCase()) ||
+          tool.description.toLowerCase().includes(query.toLowerCase())
       );
     }
-    
+
     if (category !== "all") {
-      result = result.filter(tool => tool.category === category);
+      result = result.filter((tool) => tool.category === category);
     }
-    
+
     setFilteredTools(result);
   }, [query, category]);
 
-  const favoriteToolsList = TOOLS.filter(tool => favoriteTools.includes(tool.id));
-  const recentlyUsedToolsList = TOOLS.filter(tool => recentlyUsedTools.includes(tool.id));
+  const favoriteToolsList = TOOLS.filter(
+    (tool) =>
+      favoriteTools.includes(tool.id) &&
+      filteredTools.filter((ele) => ele.id === tool.id).length > 0
+  );
+  const recentlyUsedToolsList = TOOLS.filter(
+    (tool) =>
+      recentlyUsedTools.includes(tool.id) &&
+      filteredTools.filter((ele) => ele.id === tool.id).length > 0
+  );
 
   return (
     <div className="container mx-auto max-w-6xl py-12 md:py-16 lg:py-20 px-4 md:px-8">
@@ -44,7 +52,7 @@ export default function Home() {
         transition={{ duration: 0.5 }}
       >
         <div className="mb-16 text-center">
-          <motion.h1 
+          <motion.h1
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -52,19 +60,20 @@ export default function Home() {
           >
             SimpleTool
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
           >
-            A collection of modern, easy-to-use online tools to boost your productivity
+            A collection of modern, easy-to-use online tools to boost your
+            productivity
           </motion.p>
         </div>
 
         {/* User Preference Sections */}
         {favoriteToolsList.length > 0 && (
-          <motion.section 
+          <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -94,7 +103,7 @@ export default function Home() {
         )}
 
         {recentlyUsedToolsList.length > 0 && (
-          <motion.section 
+          <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
@@ -124,7 +133,7 @@ export default function Home() {
         )}
 
         {/* Categories */}
-        <motion.section 
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
@@ -145,14 +154,14 @@ export default function Home() {
         </motion.section>
 
         {/* Tools Grid */}
-        <motion.section 
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
           <AnimatePresence mode="wait">
             {filteredTools.length > 0 ? (
-              <motion.div 
+              <motion.div
                 key="tools-grid"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -171,7 +180,7 @@ export default function Home() {
                 ))}
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 key="no-results"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
