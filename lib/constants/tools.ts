@@ -180,6 +180,16 @@ export const TOOLS: Tool[] = [
     href: "/tools/preferences",
     featured: false,
   },
+  {
+    id: "lottery",
+    name: "Lottery Tools",
+    description:
+      "Lottery prize calculator and number generator for DLT, SSQ, and FC8",
+    category: "entertainment",
+    icon: "Ticket",
+    href: "/tools/lottery",
+    featured: true,
+  },
 ];
 
 export const CATEGORIES = [
@@ -192,4 +202,5 @@ export const CATEGORIES = [
   { id: "design", name: "Design Tools", icon: "Palette" },
   { id: "developer", name: "Developer", icon: "Code" },
   { id: "productivity", name: "Productivity", icon: "Zap" },
+  { id: "entertainment", name: "Entertainment", icon: "Sparkles" },
 ] as const;

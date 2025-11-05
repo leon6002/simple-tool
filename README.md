@@ -163,6 +163,10 @@ If you encounter the `UntrustedHost` error during authentication after deploymen
   * [ ] PWA support (Offline mode)
   * [ ] More tools (QR Code generator, Color Picker, JSON Formatter, etc.)
 
+
+# TODO
+- [ ] Add tailwindcss component library tool
+- [ ] Add lottorey toll
 -----
 
 ## 📜 License & Acknowledgments
