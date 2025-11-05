@@ -32,7 +32,7 @@ export function Navbar() {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60"
     >
       <div className="container flex h-20 items-center justify-between px-4 md:px-8">
         <div className="flex items-center gap-8">
@@ -42,10 +42,10 @@ export function Navbar() {
               whileTap={{ scale: 0.95 }}
               className="flex items-center space-x-3"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/20">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 SimpleTool
               </span>
             </motion.div>
