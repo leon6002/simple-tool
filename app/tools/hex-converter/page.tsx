@@ -12,6 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Copy,
   ArrowLeftRight,
@@ -19,10 +21,6 @@ import {
   Info,
   Lightbulb,
   Zap,
-  Plus,
-  Minus,
-  X,
-  Divide,
 } from "lucide-react";
 
 type NumberSystem = "hex" | "decimal" | "binary" | "octal";
@@ -40,6 +38,7 @@ export default function HexConverterPage() {
   const [inputType, setInputType] = useState<NumberSystem>("hex");
   const [result, setResult] = useState<ConversionResult | null>(null);
   const [error, setError] = useState("");
+  const [useUnsigned, setUseUnsigned] = useState(true); // 是否使用无符号数
 
   // State for Bitwise Operations
   const [bitwiseFirstValue, setBitwiseFirstValue] = useState("");
@@ -85,12 +84,18 @@ export default function HexConverterPage() {
         throw new Error("Invalid input value");
       }
 
+      // 如果使用无符号数且值为负数,转换为32位无符号整数
+      let displayValue = decimalValue;
+      if (useUnsigned && decimalValue < 0) {
+        displayValue = decimalValue >>> 0; // 转换为32位无符号整数
+      }
+
       // Convert to all formats
       setResult({
-        hex: "0x" + decimalValue.toString(16).toUpperCase(),
-        decimal: decimalValue.toString(10),
-        binary: "0b" + decimalValue.toString(2),
-        octal: "0o" + decimalValue.toString(8),
+        hex: "0x" + displayValue.toString(16).toUpperCase(),
+        decimal: displayValue.toString(10),
+        binary: "0b" + displayValue.toString(2),
+        octal: "0o" + displayValue.toString(8),
       });
     } catch (err) {
       setError("Invalid input. Please check your value and try again.");
@@ -192,6 +197,69 @@ export default function HexConverterPage() {
     navigator.clipboard.writeText(text);
   };
 
+  // 格式化二进制数字,每4位添加空格
+  // const formatBinary = (binary: string) => {
+  //   const withoutPrefix = binary.replace(/^0b/, "");
+  //   const formatted =
+  //     withoutPrefix.match(/.{1,4}/g)?.join(" ") || withoutPrefix;
+  //   return { prefix: "0b", value: formatted };
+  // };
+
+  const formatBinary = (binary: string) => {
+    const withoutPrefix = binary.replace(/^0b/, "");
+
+    // 1. 反转整个字符串，使 LSB 变为最左边
+    const reversedBinary = withoutPrefix.split("").reverse().join("");
+
+    // 2. 从左边（现在是 LSB）开始，每 4 位一组进行匹配
+    const groupedReversed = reversedBinary.match(/.{1,4}/g) || [reversedBinary];
+
+    // 3. 将每组内部的字符反转回来，恢复原始位序，并用空格连接
+    const formatted = groupedReversed
+      .map((group) => group.split("").reverse().join("")) // 恢复每组内部的顺序
+      .reverse() // 反转组的顺序，使最高位组重新回到最前面
+      .join(" ");
+
+    return { prefix: "0b", value: formatted };
+  };
+
+  const formatHex = (hex: string) => {
+    // 注意：这里我们命名为 hex 而不是 binary
+    const withoutPrefix = hex.replace(/^0x/, "");
+
+    // 1. 反转整个字符串，使最低有效字节（LSB）变为最左边
+    const reversedHex = withoutPrefix.split("").reverse().join("");
+
+    // 2. 从左边（现在是 LSB）开始，每 2 个字符一组进行匹配
+    const groupedReversed = reversedHex.match(/.{1,2}/g) || [reversedHex];
+
+    // 3. 将每组内部的字符反转回来，恢复原始字节序，并用空格连接
+    const formatted = groupedReversed
+      .map((group) => group.split("").reverse().join("")) // 恢复每组内部的顺序 (例如 'BA' 变回 'AB')
+      .reverse() // 反转组的顺序，使最高位字节组回到最前面
+      .join(" ");
+
+    return { prefix: "0x", value: formatted };
+  };
+
+  // 格式化其他进制数字
+  const formatNumber = (num: string, type: string) => {
+    if (type === "binary") {
+      return formatBinary(num);
+    }
+    if (type === "hex") {
+      return formatHex(num);
+    }
+    const prefixMap: { [key: string]: string } = {
+      hex: "0x",
+      octal: "0o",
+      decimal: "",
+    };
+    const prefix = prefixMap[type] || "";
+    const value = num.replace(/^(0x|0o|0b)/i, "");
+    return { prefix, value };
+  };
+
   const systemButtons: {
     type: NumberSystem;
     label: string;
@@ -257,7 +325,7 @@ export default function HexConverterPage() {
               <label className="text-sm font-medium mb-3 block">
                 Input Format
               </label>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 mb-4">
                 {systemButtons.map((system) => (
                   <Badge
                     key={system.type}
@@ -273,6 +341,27 @@ export default function HexConverterPage() {
                   </Badge>
                 ))}
               </div>
+
+              {/* Unsigned/Signed Toggle */}
+              <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/30 border border-border/50">
+                <Checkbox
+                  id="unsigned-mode"
+                  checked={useUnsigned}
+                  onCheckedChange={(checked) =>
+                    setUseUnsigned(checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor="unsigned-mode"
+                  className="text-sm font-medium cursor-pointer select-none"
+                >
+                  Treat negative numbers as unsigned (32-bit)
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                When enabled, negative numbers like -10 will be converted to
+                their 32-bit unsigned representation (e.g., 4294967286)
+              </p>
             </div>
 
             {/* Input Field */}
@@ -321,32 +410,42 @@ export default function HexConverterPage() {
                   <span>✨</span> Results
                 </h3>
                 <div className="grid gap-3">
-                  {Object.entries(result).map(([key, value], index) => (
-                    <motion.div
-                      key={key}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="group flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 border border-border/50 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all"
-                    >
-                      <div className="flex-1">
-                        <p className="text-sm font-medium capitalize text-muted-foreground mb-1">
-                          {key}
-                        </p>
-                        <p className="text-lg font-mono font-semibold">
-                          {value}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => copyToClipboard(value)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-500/10 hover:text-purple-600"
+                  {Object.entries(result).map(([key, value], index) => {
+                    const formatted = formatNumber(value, key);
+                    return (
+                      <motion.div
+                        key={key}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="group flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 border border-border/50 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all"
                       >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </motion.div>
-                  ))}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium capitalize text-muted-foreground mb-2">
+                            {key}
+                          </p>
+                          <div className="flex items-center gap-1 font-mono text-sm break-all">
+                            {formatted.prefix && (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold shrink-0">
+                                {formatted.prefix}
+                              </span>
+                            )}
+                            <span className="font-semibold">
+                              {formatted.value}
+                            </span>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => copyToClipboard(value)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-500/10 hover:text-purple-600 shrink-0"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
@@ -473,32 +572,42 @@ export default function HexConverterPage() {
                   <span>⚡</span> Bitwise Operation Result
                 </h3>
                 <div className="grid gap-3">
-                  {Object.entries(bitwiseResult).map(([key, value], index) => (
-                    <motion.div
-                      key={key}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="group flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 border border-border/50 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all"
-                    >
-                      <div className="flex-1">
-                        <p className="text-sm font-medium capitalize text-muted-foreground mb-1">
-                          {key}
-                        </p>
-                        <p className="text-lg font-mono font-semibold">
-                          {value}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => copyToClipboard(value)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-500/10 hover:text-purple-600"
+                  {Object.entries(bitwiseResult).map(([key, value], index) => {
+                    const formatted = formatNumber(value, key);
+                    return (
+                      <motion.div
+                        key={key}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="group flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 border border-border/50 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all"
                       >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </motion.div>
-                  ))}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium capitalize text-muted-foreground mb-2">
+                            {key}
+                          </p>
+                          <div className="flex items-center gap-1 font-mono text-sm break-all">
+                            {formatted.prefix && (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold shrink-0">
+                                {formatted.prefix}
+                              </span>
+                            )}
+                            <span className="font-semibold">
+                              {formatted.value}
+                            </span>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => copyToClipboard(value)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-500/10 hover:text-purple-600 shrink-0"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}

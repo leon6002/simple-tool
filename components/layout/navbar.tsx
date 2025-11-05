@@ -4,29 +4,19 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { Moon, Sun, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useSearchStore } from "@/lib/stores/search-store";
-import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { SearchDialog } from "./search-dialog";
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
-  const { query, setQuery } = useSearchStore();
-  const { addToSearchHistory } = useUserPreferencesStore();
-  const [localQuery, setLocalQuery] = useState(query);
+  const [searchOpen, setSearchOpen] = useState(false);
 
+  // 检测操作系统
+  const [isMac, setIsMac] = useState(false);
   useEffect(() => {
-    setLocalQuery(query);
-  }, [query]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setQuery(localQuery);
-    if (localQuery.trim()) {
-      addToSearchHistory(localQuery.trim());
-    }
-  };
+    setIsMac(/(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent));
+  }, []);
 
   return (
     <motion.header
@@ -53,17 +43,20 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex flex-1 items-center justify-center px-8 max-w-2xl">
-          <form onSubmit={handleSearch} className="relative w-full">
-            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search tools..."
-              className="h-11 pl-11 pr-4 rounded-full border-border/50 bg-muted/50 backdrop-blur-sm transition-all focus:bg-background focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
-              value={localQuery}
-              onChange={(e) => setLocalQuery(e.target.value)}
-            />
-          </form>
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="relative w-full h-11 pl-11 pr-4 rounded-full border border-border/50 bg-muted/50 backdrop-blur-sm transition-all hover:bg-background hover:border-primary/50 text-left text-sm text-muted-foreground cursor-pointer"
+          >
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+            <span>Search tools...</span>
+            <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+              <span className="text-xs">{isMac ? "⌘" : "Ctrl"}</span>K
+            </kbd>
+          </button>
         </div>
+
+        {/* Search Dialog */}
+        <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 
         <div className="flex items-center gap-2">
           <Button
