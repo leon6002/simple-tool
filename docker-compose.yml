@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   simple-tool:
@@ -12,7 +12,12 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
-    # Uncomment if you need environment variables
+      # NextAuth Configuration
+      - AUTH_SECRET=${AUTH_SECRET:-change-this-to-a-random-secret-in-production}
+      # Admin Credentials - Change these in production!
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
+    # Uncomment if you need environment variables from file
     # env_file:
     #   - .env.production
 
@@ -31,4 +36,3 @@ services:
   #     # - ./ssl:/etc/nginx/ssl
   #   depends_on:
   #     - simple-tool
-

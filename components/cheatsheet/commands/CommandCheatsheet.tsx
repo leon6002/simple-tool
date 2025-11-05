@@ -14,7 +14,10 @@ import { Header } from "../Header";
 import { EmptyCard } from "./EmptyCard";
 import { TemplateCard } from "../TemplateCard";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Shield, Plus } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { EditDialog } from "../EditDialog";
+import { Badge } from "@/components/ui/badge";
 
 interface CommandCheatsheetProps {
   id: string;
@@ -28,9 +31,19 @@ export const CommandCheatsheet = (props: CommandCheatsheetProps) => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Command | Template | null>(
+    null
+  );
+  const [editingType, setEditingType] = useState<"command" | "template">(
+    "command"
+  );
+  const [dialogMode, setDialogMode] = useState<"edit" | "create">("edit");
 
   const { addRecentlyUsedTool } = useUserPreferencesStore();
   const { copyToClipboard } = useCopyToClipboard();
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === "admin";
 
   // 记录最近使用的工具
   useEffect(() => {
@@ -122,6 +135,28 @@ export const CommandCheatsheet = (props: CommandCheatsheetProps) => {
     }
   };
 
+  const handleEdit = (
+    item: Command | Template,
+    type: "command" | "template"
+  ) => {
+    setEditingItem(item);
+    setEditingType(type);
+    setDialogMode("edit");
+    setEditDialogOpen(true);
+  };
+
+  const handleAdd = (type: "command" | "template") => {
+    setEditingItem(null);
+    setEditingType(type);
+    setDialogMode("create");
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    // Refresh the data after saving
+    window.location.reload();
+  };
+
   return (
     <div className="container mx-auto max-w-6xl py-12 md:py-16 lg:py-20 px-4 md:px-8">
       <motion.div
@@ -134,6 +169,41 @@ export const CommandCheatsheet = (props: CommandCheatsheetProps) => {
           description={data.description}
           iconName={data.icon}
         />
+
+        {/* Admin Mode Indicator and Add Buttons */}
+        {isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 space-y-4"
+          >
+            <div className="flex justify-center">
+              <Badge
+                variant="outline"
+                className="gap-2 px-4 py-2 text-sm border-purple-500/50 bg-purple-500/10 text-purple-600"
+              >
+                <Shield className="h-4 w-4" />
+                Admin Mode - You can edit cheatsheet content
+              </Badge>
+            </div>
+            <div className="flex justify-center gap-3">
+              <Button
+                onClick={() => handleAdd("command")}
+                className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              >
+                <Plus className="h-4 w-4" />
+                Add Command
+              </Button>
+              <Button
+                onClick={() => handleAdd("template")}
+                className="gap-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+              >
+                <Plus className="h-4 w-4" />
+                Add Template
+              </Button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Search and Filter Section */}
         <SearchCard
@@ -175,6 +245,8 @@ export const CommandCheatsheet = (props: CommandCheatsheetProps) => {
                           categories={data.categories}
                           onCopy={handleCopy}
                           copiedId={copiedId}
+                          isAdmin={isAdmin}
+                          onEdit={(cmd) => handleEdit(cmd, "command")}
                         />
                       ) : (
                         <TemplateCard
@@ -182,6 +254,8 @@ export const CommandCheatsheet = (props: CommandCheatsheetProps) => {
                           categories={data.categories}
                           onCopy={handleCopy}
                           copiedId={copiedId}
+                          isAdmin={isAdmin}
+                          onEdit={(tpl) => handleEdit(tpl, "template")}
                         />
                       )}
                     </motion.div>
@@ -210,6 +284,18 @@ export const CommandCheatsheet = (props: CommandCheatsheetProps) => {
             )}
           </>
         )}
+
+        {/* Edit Dialog */}
+        <EditDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          item={editingItem}
+          type={editingType}
+          categories={data.categories}
+          cheatsheetId={props.id}
+          onSave={handleSaveEdit}
+          mode={dialogMode}
+        />
       </motion.div>
     </div>
   );

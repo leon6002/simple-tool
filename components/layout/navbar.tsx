@@ -2,21 +2,39 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Moon, Sun, Search, Sparkles } from "lucide-react";
+import {
+  Moon,
+  Sun,
+  Search,
+  Sparkles,
+  LogIn,
+  LogOut,
+  Shield,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { SearchDialog } from "./search-dialog";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
+  const { data: session } = useSession();
+  const router = useRouter();
 
   // 检测操作系统
   const [isMac, setIsMac] = useState(false);
   useEffect(() => {
     setIsMac(/(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent));
   }, []);
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <motion.header
@@ -59,6 +77,35 @@ export function Navbar() {
         <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 
         <div className="flex items-center gap-2">
+          {session ? (
+            <>
+              <div className="hidden md:flex items-center gap-2 mr-2">
+                <Shield className="h-4 w-4 text-purple-600" />
+                <span className="text-sm font-medium text-purple-600">
+                  Admin
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden md:inline">Sign Out</span>
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push("/auth/signin")}
+              className="gap-2"
+            >
+              <LogIn className="h-4 w-4" />
+              <span className="hidden md:inline">Admin</span>
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

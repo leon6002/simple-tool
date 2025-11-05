@@ -38,6 +38,9 @@ dependencies:
   '@radix-ui/react-tabs':
     specifier: ^1.1.13
     version: 1.1.13(@types/react-dom@19.2.2)(@types/react@19.2.2)(react-dom@19.2.0)(react@19.2.0)
+  bcryptjs:
+    specifier: ^3.0.3
+    version: 3.0.3
   class-variance-authority:
     specifier: ^0.7.1
     version: 0.7.1
@@ -59,6 +62,9 @@ dependencies:
   next:
     specifier: 16.0.1
     version: 16.0.1(@babel/core@7.28.5)(react-dom@19.2.0)(react@19.2.0)
+  next-auth:
+    specifier: 5.0.0-beta.30
+    version: 5.0.0-beta.30(next@16.0.1)(react@19.2.0)
   next-seo:
     specifier: ^7.0.1
     version: 7.0.1(next@16.0.1)(react@19.2.0)
@@ -106,6 +112,9 @@ devDependencies:
   '@tailwindcss/postcss':
     specifier: ^4
     version: 4.1.16
+  '@types/bcryptjs':
+    specifier: ^3.0.0
+    version: 3.0.0
   '@types/crypto-js':
     specifier: ^4.2.2
     version: 4.2.2
@@ -143,6 +152,27 @@ packages:
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==, tarball: https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.2.0.tgz}
     engines: {node: '>=10'}
     dev: true
+
+  /@auth/core@0.41.0:
+    resolution: {integrity: sha512-Wd7mHPQ/8zy6Qj7f4T46vg3aoor8fskJm6g2Zyj064oQ3+p0xNZXAV60ww0hY+MbTesfu29kK14Zk5d5JTazXQ==, tarball: https://registry.npmjs.org/@auth/core/-/core-0.41.0.tgz}
+    peerDependencies:
+      '@simplewebauthn/browser': ^9.0.1
+      '@simplewebauthn/server': ^9.0.2
+      nodemailer: ^6.8.0
+    peerDependenciesMeta:
+      '@simplewebauthn/browser':
+        optional: true
+      '@simplewebauthn/server':
+        optional: true
+      nodemailer:
+        optional: true
+    dependencies:
+      '@panva/hkdf': 1.2.1
+      jose: 6.1.0
+      oauth4webapi: 3.8.2
+      preact: 10.24.3
+      preact-render-to-string: 6.5.11(preact@10.24.3)
+    dev: false
 
   /@babel/code-frame@7.27.1:
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==, tarball: https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.27.1.tgz}
@@ -1020,6 +1050,10 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==, tarball: https://registry.npmjs.org/@nolyfill/is-core-module/-/is-core-module-1.0.39.tgz}
     engines: {node: '>=12.4.0'}
     dev: true
+
+  /@panva/hkdf@1.2.1:
+    resolution: {integrity: sha512-6oclG6Y3PiDFcoyk8srjLfVKyMfVCKJ27JwNPViuXziFpmdz+MZnZN/aKY0JGXgYuO/VghU0jcOAZgWXZ1Dmrw==, tarball: https://registry.npmjs.org/@panva/hkdf/-/hkdf-1.2.1.tgz}
+    dev: false
 
   /@radix-ui/number@1.1.1:
     resolution: {integrity: sha512-MkKCwxlXTgz6CFoJx3pCwn07GKp36+aZyu/u2Ln2VrA5DcdyCZkASEDBTd8x5whTQQL5CiYf4prXKLcgQdv29g==, tarball: https://registry.npmjs.org/@radix-ui/number/-/number-1.1.1.tgz}
@@ -1989,6 +2023,13 @@ packages:
     dev: true
     optional: true
 
+  /@types/bcryptjs@3.0.0:
+    resolution: {integrity: sha512-WRZOuCuaz8UcZZE4R5HXTco2goQSI2XxjGY3hbM/xDvwmqFWd4ivooImsMx65OKM6CtNKbnZ5YL+YwAwK7c1dg==, tarball: https://registry.npmjs.org/@types/bcryptjs/-/bcryptjs-3.0.0.tgz}
+    deprecated: This is a stub types definition. bcryptjs provides its own type definitions, so you do not need this installed.
+    dependencies:
+      bcryptjs: 3.0.3
+    dev: true
+
   /@types/crypto-js@4.2.2:
     resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==, tarball: https://registry.npmjs.org/@types/crypto-js/-/crypto-js-4.2.2.tgz}
     dev: true
@@ -2508,6 +2549,10 @@ packages:
 
   /baseline-browser-mapping@2.8.23:
     resolution: {integrity: sha512-616V5YX4bepJFzNyOfce5Fa8fDJMfoxzOIzDCZwaGL8MKVpFrXqfNUoIpRn9YMI5pXf/VKgzjB4htFMsFKKdiQ==, tarball: https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.8.23.tgz}
+    hasBin: true
+
+  /bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==, tarball: https://registry.npmjs.org/bcryptjs/-/bcryptjs-3.0.3.tgz}
     hasBin: true
 
   /brace-expansion@1.1.12:
@@ -3826,6 +3871,10 @@ packages:
     hasBin: true
     dev: true
 
+  /jose@6.1.0:
+    resolution: {integrity: sha512-TTQJyoEoKcC1lscpVDCSsVgYzUDg/0Bt3WE//WiTPK6uOCQC2KZS4MpugbMWt/zyjkopgZoXhZuCi00gLudfUA==, tarball: https://registry.npmjs.org/jose/-/jose-6.1.0.tgz}
+    dev: false
+
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==, tarball: https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz}
 
@@ -4159,6 +4208,27 @@ packages:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==, tarball: https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz}
     dev: true
 
+  /next-auth@5.0.0-beta.30(next@16.0.1)(react@19.2.0):
+    resolution: {integrity: sha512-+c51gquM3F6nMVmoAusRJ7RIoY0K4Ts9HCCwyy/BRoe4mp3msZpOzYMyb5LAYc1wSo74PMQkGDcaghIO7W6Xjg==, tarball: https://registry.npmjs.org/next-auth/-/next-auth-5.0.0-beta.30.tgz}
+    peerDependencies:
+      '@simplewebauthn/browser': ^9.0.1
+      '@simplewebauthn/server': ^9.0.2
+      next: ^14.0.0-0 || ^15.0.0 || ^16.0.0
+      nodemailer: ^7.0.7
+      react: ^18.2.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@simplewebauthn/browser':
+        optional: true
+      '@simplewebauthn/server':
+        optional: true
+      nodemailer:
+        optional: true
+    dependencies:
+      '@auth/core': 0.41.0
+      next: 16.0.1(@babel/core@7.28.5)(react-dom@19.2.0)(react@19.2.0)
+      react: 19.2.0
+    dev: false
+
   /next-seo@7.0.1(next@16.0.1)(react@19.2.0):
     resolution: {integrity: sha512-NxcnWaT7dLZdPjWOD6JZm1pUpJ1zxoDBOuXBR72fTTMqqO/bchcjkBJpx27MDACDJrIVwxfKPq5qGcv17qZiBQ==, tarball: https://registry.npmjs.org/next-seo/-/next-seo-7.0.1.tgz}
     peerDependencies:
@@ -4227,6 +4297,10 @@ packages:
 
   /normalize-wheel@1.0.1:
     resolution: {integrity: sha512-1OnlAPZ3zgrk8B91HyRj+eVv+kS5u+Z0SCsak6Xil/kmgEia50ga7zfkumayonZrImffAxPU/5WcyGhzetHNPA==, tarball: https://registry.npmjs.org/normalize-wheel/-/normalize-wheel-1.0.1.tgz}
+    dev: false
+
+  /oauth4webapi@3.8.2:
+    resolution: {integrity: sha512-FzZZ+bht5X0FKe7Mwz3DAVAmlH1BV5blSak/lHMBKz0/EBMhX6B10GlQYI51+oRp8ObJaX0g6pXrAxZh5s8rjw==, tarball: https://registry.npmjs.org/oauth4webapi/-/oauth4webapi-3.8.2.tgz}
     dev: false
 
   /object-assign@4.1.1:
@@ -4398,6 +4472,18 @@ packages:
       picocolors: 1.1.1
       source-map-js: 1.2.1
     dev: true
+
+  /preact-render-to-string@6.5.11(preact@10.24.3):
+    resolution: {integrity: sha512-ubnauqoGczeGISiOh6RjX0/cdaF8v/oDXIjO85XALCQjwQP+SB4RDXXtvZ6yTYSjG+PC1QRP2AhPgCEsM2EvUw==, tarball: https://registry.npmjs.org/preact-render-to-string/-/preact-render-to-string-6.5.11.tgz}
+    peerDependencies:
+      preact: '>=10'
+    dependencies:
+      preact: 10.24.3
+    dev: false
+
+  /preact@10.24.3:
+    resolution: {integrity: sha512-Z2dPnBnMUfyQfSQ+GBdsGa16hz35YmLmtTLhM169uW944hYL6xzTYkJjC07j+Wosz733pMWx0fgON3JNw1jJQA==, tarball: https://registry.npmjs.org/preact/-/preact-10.24.3.tgz}
+    dev: false
 
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==, tarball: https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz}
