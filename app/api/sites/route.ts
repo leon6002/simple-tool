@@ -4,7 +4,10 @@ import fs from "fs/promises";
 import path from "path";
 import type { SiteNavigatorData, Site, SiteCategory } from "@/types";
 
-const SITES_FILE_PATH = path.join(process.cwd(), "public/sites/sites.json");
+const SITES_FILE_PATH = path.join(
+  process.cwd(),
+  "public/data/sites/sites.json"
+);
 
 // 读取网址数据
 async function readSitesData(): Promise<SiteNavigatorData> {

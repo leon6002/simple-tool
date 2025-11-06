@@ -343,7 +343,7 @@ export const TOOLS: Tool[] = [
     name: "Regex Tester",
     description: "Test and debug regular expressions with real-time matching",
     category: "developer",
-    icon: "Code2",
+    icon: "Regex",
     href: "/tools/regex-tester",
     featured: true,
     keywords: [
