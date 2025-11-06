@@ -43,6 +43,29 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* 1. 定义 @keyframes for the dot wave effect */
+@keyframes dot-wave {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(50px, 100px) scale(1.5); /* 稍微移动并放大 */
+    opacity: 1; /* 达到波峰 */
+  }
+  100% {
+    transform: translate(0, 0) scale(1); /* 回到原位 */
+    opacity: 0.8;
+  }
+}
+
+/* 2. 在 @layer utilities 中创建应用此动画的工具类 */
+@layer utilities {
+  .animate-dot-wave {
+    animation: dot-wave 4s ease-in-out infinite alternate; /* 4s 时长，往复循环 */
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);

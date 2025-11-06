@@ -1,7 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, px } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -26,9 +27,11 @@ import {
 } from "lucide-react";
 import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
 import toast from "react-hot-toast";
-import { ParseResult, LotteryResult } from "@/lib/utils/lottery";
+import { ParseResult, LotteryResult, SSQResult } from "@/lib/utils/lottery";
+import Image from "next/image";
 
-interface AIParsedLotteryData {
+// 大乐透AI解析数据
+interface DLTAIParsedData {
   lottery_type: string;
   issue_number: string;
   draw_date: string;
@@ -51,6 +54,34 @@ interface AIParsedLotteryData {
   ticket_id?: string;
   print_time?: string;
 }
+
+// 双色球AI解析数据
+interface SSQAIParsedData {
+  lottery_type: string;
+  issue_number: string;
+  draw_date: string;
+  ticket_type: string;
+  total_amount: number;
+  contribution_to_charity: number;
+  serial_numbers: string[];
+  bets: Array<{
+    sequence: number;
+    red_balls: string[];
+    blue_ball: string;
+    multiplier: number;
+  }>;
+  store_info?: {
+    station_id?: string;
+    transaction_id?: string;
+    address?: string;
+  };
+  ticket_id?: string;
+  print_time?: string;
+  issuer?: string;
+  center?: string;
+}
+
+type AIParsedLotteryData = DLTAIParsedData | SSQAIParsedData;
 
 type LotteryType = "dlt" | "ssq" | "fc8";
 
@@ -104,6 +135,9 @@ export default function LotteryPage() {
   const [aiParsedData, setAiParsedData] = useState<AIParsedLotteryData | null>(
     null
   );
+  const [scanningStage, setScanningStage] = useState<
+    "idle" | "ocr" | "parsing"
+  >("idle");
 
   // Prize calculator states
   const [matchedMain, setMatchedMain] = useState<number>(0);
@@ -122,8 +156,10 @@ export default function LotteryPage() {
     }>
   >([]);
 
-  // History states
-  const [historyData, setHistoryData] = useState<LotteryResult[]>([]);
+  // History states - 大乐透
+  const [dltHistoryData, setDltHistoryData] = useState<LotteryResult[]>([]);
+  // History states - 双色球
+  const [ssqHistoryData, setSsqHistoryData] = useState<SSQResult[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
@@ -138,19 +174,33 @@ export default function LotteryPage() {
   const fetchLotteryHistory = async () => {
     setHistoryLoading(true);
     try {
-      const response = await fetch("/api/lottery/history");
-      const data = await response.json();
+      // 并行加载大乐透和双色球历史数据
+      const [dltResponse, ssqResponse] = await Promise.all([
+        fetch("/api/lottery/history"),
+        fetch("/api/lottery/ssq-history"),
+      ]);
 
-      console.log("Lottery history API response:", data);
+      const dltData = await dltResponse.json();
+      const ssqData = await ssqResponse.json();
 
-      if (data.success && data.data) {
-        setHistoryData(data.data);
-        console.log("History data loaded:", data.data.length, "records");
-        console.log(
-          "Sample issues:",
-          data.data.slice(0, 5).map((d: { issue: string }) => d.issue)
-        );
-      } else {
+      console.log("DLT history API response:", dltData);
+      console.log("SSQ history API response:", ssqData);
+
+      if (dltData.success && dltData.data) {
+        setDltHistoryData(dltData.data);
+        console.log("DLT history data loaded:", dltData.data.length, "records");
+      }
+
+      // 双色球数据直接是数组
+      if (Array.isArray(ssqData) && ssqData.length > 0) {
+        setSsqHistoryData(ssqData);
+        console.log("SSQ history data loaded:", ssqData.length, "records");
+      }
+
+      if (
+        (!dltData.success || !dltData.data) &&
+        (!Array.isArray(ssqData) || ssqData.length === 0)
+      ) {
         toast.error("获取开奖数据失败");
       }
     } catch (error) {
@@ -219,13 +269,20 @@ export default function LotteryPage() {
   const autoCalculatePrizes = useCallback(
     (
       ocrEntries: Array<{ numbers: number[]; specialNumbers: number[] }>,
-      issueNumber: string | null
+      issueNumber: string | null,
+      lotteryType: string = "dlt"
     ) => {
       console.log("autoCalculatePrizes called with:", {
         issueNumber,
-        historyDataLength: historyData.length,
+        lotteryType,
+        dltHistoryDataLength: dltHistoryData.length,
+        ssqHistoryDataLength: ssqHistoryData.length,
         ocrEntriesLength: ocrEntries.length,
       });
+
+      // 根据彩票类型选择对应的历史数据
+      const historyData =
+        lotteryType === "ssq" ? ssqHistoryData : dltHistoryData;
 
       if (!issueNumber || historyData.length === 0) {
         console.log("Missing issueNumber or historyData");
@@ -240,41 +297,61 @@ export default function LotteryPage() {
         historyData.map((d) => d.issue)
       );
 
-      // Try to find exact match first, then try partial match
-      let winningDraw = historyData.find((draw) => draw.issue === issueNumber);
+      // 根据彩票类型查找开奖数据
+      let winningMainNumbers: number[] = [];
+      let winningSpecialNumbers: number[] = [];
 
-      // If not found, try matching the last 5 digits (e.g., "25092" matches "2025092")
-      if (!winningDraw && issueNumber.length === 5) {
-        winningDraw = historyData.find((draw) =>
-          draw.issue.endsWith(issueNumber)
+      if (lotteryType === "ssq") {
+        // 双色球：从 SSQResult 中查找
+        const ssqDraw = (historyData as SSQResult[]).find(
+          (draw) =>
+            draw.issue === issueNumber || draw.issue.endsWith(issueNumber)
         );
-        console.log("Trying partial match, found:", winningDraw);
-      }
 
-      // If still not found, try matching without year prefix
-      if (!winningDraw) {
-        const shortIssue = issueNumber.slice(-5); // Get last 5 digits
-        winningDraw = historyData.find((draw) =>
-          draw.issue.endsWith(shortIssue)
+        if (!ssqDraw) {
+          console.log("SSQ winning draw not found for issue:", issueNumber);
+          toast.error(`未找到第 ${issueNumber} 期的双色球开奖数据`);
+          return;
+        }
+
+        console.log("Found SSQ winning draw:", ssqDraw);
+        winningMainNumbers = ssqDraw.redBalls.map((n) => parseInt(n));
+        winningSpecialNumbers = [parseInt(ssqDraw.blueBall)];
+      } else {
+        // 大乐透：从 LotteryResult 中查找
+        let dltDraw = (historyData as LotteryResult[]).find(
+          (draw) => draw.issue === issueNumber
         );
-        console.log("Trying short issue match, found:", winningDraw);
-      }
 
-      if (!winningDraw) {
-        console.log("Winning draw not found for issue:", issueNumber);
-        toast.error(`未找到第 ${issueNumber} 期的开奖数据`);
-        return;
-      }
+        // If not found, try matching the last 5 digits (e.g., "25092" matches "2025092")
+        if (!dltDraw && issueNumber.length === 5) {
+          dltDraw = (historyData as LotteryResult[]).find((draw) =>
+            draw.issue.endsWith(issueNumber)
+          );
+          console.log("Trying partial match, found:", dltDraw);
+        }
 
-      console.log("Found winning draw:", winningDraw);
+        // If still not found, try matching without year prefix
+        if (!dltDraw) {
+          const shortIssue = issueNumber.slice(-5); // Get last 5 digits
+          dltDraw = (historyData as LotteryResult[]).find((draw) =>
+            draw.issue.endsWith(shortIssue)
+          );
+          console.log("Trying short issue match, found:", dltDraw);
+        }
+
+        if (!dltDraw) {
+          console.log("DLT winning draw not found for issue:", issueNumber);
+          toast.error(`未找到第 ${issueNumber} 期的大乐透开奖数据`);
+          return;
+        }
+
+        console.log("Found DLT winning draw:", dltDraw);
+        winningMainNumbers = dltDraw.numbers.map((n) => parseInt(n));
+        winningSpecialNumbers = dltDraw.specialNumbers.map((n) => parseInt(n));
+      }
 
       const results = ocrEntries.map((entry, index) => {
-        // Count matched numbers (convert string to number for comparison)
-        const winningMainNumbers = winningDraw.numbers.map((n) => parseInt(n));
-        const winningSpecialNumbers = winningDraw.specialNumbers.map((n) =>
-          parseInt(n)
-        );
-
         // Find which numbers matched
         const matchedMainNumbers = entry.numbers.filter((num) =>
           winningMainNumbers.includes(num)
@@ -288,7 +365,6 @@ export default function LotteryPage() {
 
         // Calculate prize based on lottery type
         let prize = "";
-        const lotteryType = ocrResult?.type || "dlt";
 
         if (lotteryType === "dlt") {
           if (matchedMain === 5 && matchedSpecial === 2) {
@@ -369,10 +445,10 @@ export default function LotteryPage() {
         toast("很遗憾，本次未中奖");
       }
     },
-    [historyData, ocrResult]
+    [dltHistoryData, ssqHistoryData]
   );
 
-  // Handle image upload for OCR
+  // Handle image upload for OCR - 两步识别
   const handleImageUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -391,6 +467,10 @@ export default function LotteryPage() {
       }
 
       setOcrLoading(true);
+      setOcrResult(null);
+      setAiParsedData(null);
+      setAutoPrizeResults([]);
+      setScanningStage("idle");
 
       try {
         // Convert to base64
@@ -399,47 +479,114 @@ export default function LotteryPage() {
           const base64 = event.target?.result as string;
           setOcrImage(base64);
 
-          // Call OCR API
-          const response = await fetch("/api/lottery/ocr", {
+          // 第一步：OCR文字识别
+          setScanningStage("ocr");
+          toast.loading("正在识别图片文字...", { id: "ocr-step1" });
+          const ocrResponse = await fetch("/api/lottery/ocr-text", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              imageBase64: base64,
+              image: base64,
             }),
           });
 
-          if (!response.ok) {
+          if (!ocrResponse.ok) {
             throw new Error("OCR识别失败");
           }
 
-          const data = await response.json();
-          console.log("OCR API response:", data);
+          const ocrData = await ocrResponse.json();
+          console.log("OCR text response:", ocrData);
 
-          if (data.success && data.parsedResult) {
-            setOcrResult(data.parsedResult);
-            setAiParsedData(data.aiParsedResult || null);
-            toast.success("识别成功！");
+          if (!ocrData.success || !ocrData.ocrText) {
+            toast.error("未能识别出文字", { id: "ocr-step1" });
+            return;
+          }
 
-            // Auto calculate prizes
-            if (
-              data.parsedResult.entries &&
-              data.parsedResult.entries.length > 0
-            ) {
-              console.log("Calling autoCalculatePrizes with:", {
-                entries: data.parsedResult.entries,
-                issueNumber: data.parsedResult.issueNumber,
-              });
-              autoCalculatePrizes(
-                data.parsedResult.entries,
-                data.parsedResult.issueNumber
-              );
-            } else {
-              console.log("No entries found in parsed result");
-            }
-          } else {
-            toast.error("未能识别出彩票号码");
+          toast.success(
+            `识别成功！检测到${
+              ocrData.lotteryType === "dlt"
+                ? "大乐透"
+                : ocrData.lotteryType === "ssq"
+                ? "双色球"
+                : "未知类型"
+            }彩票`,
+            { id: "ocr-step1" }
+          );
+
+          // 第二步：AI解析
+          setScanningStage("parsing");
+          toast.loading("正在AI解析识别结果...", { id: "ocr-step2" });
+          const parseResponse = await fetch("/api/lottery/parse-ai", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ocrText: ocrData.ocrText,
+              lotteryType: ocrData.lotteryType,
+            }),
+          });
+
+          if (!parseResponse.ok) {
+            throw new Error("AI解析失败");
+          }
+
+          const parseData = await parseResponse.json();
+          console.log("AI parse response:", parseData);
+
+          if (!parseData.success || !parseData.parsedData) {
+            toast.error("AI解析失败", { id: "ocr-step2" });
+            return;
+          }
+
+          toast.success("解析成功！", { id: "ocr-step2" });
+          setScanningStage("idle");
+
+          // 设置解析结果
+          const aiData = parseData.parsedData;
+          setAiParsedData(aiData);
+
+          // 转换为统一格式供后续使用
+          const lotteryType = parseData.lotteryType;
+          let entries: Array<{ numbers: number[]; specialNumbers: number[] }> =
+            [];
+
+          if (lotteryType === "dlt") {
+            // 大乐透格式
+            const dltData = aiData as DLTAIParsedData;
+            entries = dltData.bets.map((bet) => ({
+              numbers: bet.front_numbers,
+              specialNumbers: bet.back_numbers,
+            }));
+          } else if (lotteryType === "ssq") {
+            // 双色球格式：red_balls -> numbers, blue_ball -> specialNumbers
+            const ssqData = aiData as SSQAIParsedData;
+            entries = ssqData.bets.map((bet) => ({
+              numbers: bet.red_balls.map((n) => parseInt(n)),
+              specialNumbers: [parseInt(bet.blue_ball)],
+            }));
+          }
+
+          const parsedResult: ParseResult = {
+            type: lotteryType,
+            issueNumber: aiData.issue_number || null,
+            drawDate: aiData.draw_date || null,
+            totalCost: aiData.total_amount || null,
+            entries,
+          };
+
+          setOcrResult(parsedResult);
+
+          // Auto calculate prizes
+          if (entries.length > 0 && aiData.issue_number) {
+            console.log("Calling autoCalculatePrizes with:", {
+              entries,
+              issueNumber: aiData.issue_number,
+              lotteryType,
+            });
+            autoCalculatePrizes(entries, aiData.issue_number, lotteryType);
           }
         };
 
@@ -447,6 +594,7 @@ export default function LotteryPage() {
       } catch (error) {
         console.error("OCR error:", error);
         toast.error("图片识别失败，请重试");
+        setScanningStage("idle");
       } finally {
         setOcrLoading(false);
       }
@@ -643,12 +791,63 @@ export default function LotteryPage() {
                         <p className="text-sm font-medium text-muted-foreground">
                           预览图片：
                         </p>
-                        <div className="relative w-full max-w-xs">
+                        <div className="relative w-[320px] overflow-hidden rounded-lg">
                           <img
                             src={ocrImage}
                             alt="Uploaded lottery ticket"
                             className="w-full h-auto rounded-lg border border-border shadow-md"
                           />
+
+                          {/* 扫描动画覆盖层 */}
+                          {scanningStage !== "idle" && (
+                            <>
+                              {/* 玻璃质感扫描线 */}
+                              <motion.div
+                                className="absolute inset-0 pointer-events-none"
+                                style={{ overflow: "hidden" }}
+                              >
+                                <motion.div
+                                  className="absolute left-0 right-0 h-80 bg-linear-to-b from-transparent via-white/10 to-transparent"
+                                  style={{
+                                    boxShadow:
+                                      "0 0px 30px rgba(255, 255, 255, 0.5)",
+                                  }}
+                                  initial={{ y: "-100%" }}
+                                  animate={{ y: "150%" }}
+                                  transition={{
+                                    duration: 8,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                  }}
+                                />
+                              </motion.div>
+
+                              {/* 扫描状态文字覆盖层 */}
+                              <motion.div
+                                className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/50 rounded-lg "
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                              >
+                                <div className="text-center">
+                                  <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{
+                                      duration: 1,
+                                      repeat: Infinity,
+                                      ease: "linear",
+                                    }}
+                                    className="w-12 h-12 border-4 border-gray-300 dark:border-gray-600 border-t-gray-600 dark:border-t-gray-300 rounded-full mx-auto mb-3"
+                                  />
+                                  <p className="text-gray-800 dark:text-gray-200 font-semibold text-lg">
+                                    {scanningStage === "ocr"
+                                      ? "AI识别中..."
+                                      : "已识别，AI解析中..."}
+                                  </p>
+                                </div>
+                              </motion.div>
+                            </>
+                          )}
                         </div>
                       </div>
                     )}
@@ -660,197 +859,138 @@ export default function LotteryPage() {
                         </p>
 
                         {/* 彩票信息卡片 */}
-                        <div className="p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                          <div className="grid grid-cols-3 gap-4 text-center">
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-1">
-                                期数
-                              </p>
-                              <p className="font-semibold text-sm">
-                                {ocrResult.issueNumber || "未识别"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-1">
-                                开奖日期
-                              </p>
-                              <p className="font-semibold text-sm">
-                                {ocrResult.drawDate || "未识别"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-1">
-                                成本
-                              </p>
-                              <p className="font-semibold text-sm">
-                                {ocrResult.totalCost !== null
-                                  ? `${ocrResult.totalCost}元`
-                                  : "未识别"}
-                              </p>
+                        <motion.div>
+                          <div className="p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <div className="grid grid-cols-3 gap-4 text-center">
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">
+                                  期数
+                                </p>
+                                <p className="font-semibold text-sm">
+                                  {ocrResult.issueNumber || "未识别"}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">
+                                  开奖日期
+                                </p>
+                                <p className="font-semibold text-sm">
+                                  {ocrResult.drawDate || "未识别"}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">
+                                  成本
+                                </p>
+                                <p className="font-semibold text-sm">
+                                  {ocrResult.totalCost !== null
+                                    ? `${ocrResult.totalCost}元`
+                                    : "未识别"}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
 
                         {/* 开奖号码显示 */}
                         {ocrResult.issueNumber &&
                           (() => {
-                            // Find the winning draw for this issue
-                            let winningDraw = historyData.find(
-                              (draw) => draw.issue === ocrResult.issueNumber
-                            );
+                            const lotteryType = ocrResult.type || "dlt";
 
-                            // Try partial match if not found
-                            if (
-                              !winningDraw &&
-                              ocrResult.issueNumber &&
-                              ocrResult.issueNumber.length === 5
-                            ) {
-                              winningDraw = historyData.find((draw) =>
-                                draw.issue.endsWith(ocrResult.issueNumber!)
+                            // 根据彩票类型选择对应的历史数据
+                            if (lotteryType === "ssq") {
+                              // 双色球
+                              const ssqDraw = ssqHistoryData.find(
+                                (draw) =>
+                                  draw.issue === ocrResult.issueNumber ||
+                                  draw.issue.endsWith(ocrResult.issueNumber!)
                               );
-                            }
 
-                            if (!winningDraw && ocrResult.issueNumber) {
-                              const shortIssue =
-                                ocrResult.issueNumber.slice(-5);
-                              winningDraw = historyData.find((draw) =>
-                                draw.issue.endsWith(shortIssue)
-                              );
-                            }
-
-                            if (winningDraw) {
-                              return (
-                                <div className="p-4 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 rounded-lg border-2 border-amber-300 dark:border-amber-700">
-                                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-2 text-center">
-                                    第 {winningDraw.issue} 期开奖号码
-                                  </p>
-                                  <div className="flex flex-wrap items-center justify-center gap-1.5">
-                                    {winningDraw.numbers.map((num, idx) => (
-                                      <div
-                                        key={idx}
-                                        className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-700 text-white flex items-center justify-center font-bold text-xs shadow-md"
-                                      >
-                                        {num}
-                                      </div>
-                                    ))}
-                                    <span className="text-sm font-bold text-amber-700 dark:text-amber-400 mx-1">
-                                      +
-                                    </span>
-                                    {winningDraw.specialNumbers.map(
-                                      (num, idx) => (
+                              if (ssqDraw) {
+                                return (
+                                  <div className="p-4 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 rounded-lg border-2 border-amber-300 dark:border-amber-700">
+                                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-2 text-center">
+                                      第 {ssqDraw.issue} 期开奖号码（双色球）
+                                    </p>
+                                    <div className="flex flex-wrap items-center justify-center gap-1.5">
+                                      {ssqDraw.redBalls.map((num, idx) => (
                                         <div
                                           key={idx}
-                                          className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-800 text-white flex items-center justify-center font-bold text-xs shadow-md"
+                                          className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-700 text-white flex items-center justify-center font-bold text-xs shadow-md"
                                         >
                                           {num}
                                         </div>
-                                      )
-                                    )}
+                                      ))}
+                                      <span className="text-sm font-bold text-amber-700 dark:text-amber-400 mx-1">
+                                        +
+                                      </span>
+                                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-800 text-white flex items-center justify-center font-bold text-xs shadow-md">
+                                        {ssqDraw.blueBall}
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
+                                );
+                              }
+                            } else {
+                              // 大乐透
+                              let dltDraw = dltHistoryData.find(
+                                (draw) => draw.issue === ocrResult.issueNumber
                               );
+
+                              // Try partial match if not found
+                              if (
+                                !dltDraw &&
+                                ocrResult.issueNumber &&
+                                ocrResult.issueNumber.length === 5
+                              ) {
+                                dltDraw = dltHistoryData.find((draw) =>
+                                  draw.issue.endsWith(ocrResult.issueNumber!)
+                                );
+                              }
+
+                              if (!dltDraw && ocrResult.issueNumber) {
+                                const shortIssue =
+                                  ocrResult.issueNumber.slice(-5);
+                                dltDraw = dltHistoryData.find((draw) =>
+                                  draw.issue.endsWith(shortIssue)
+                                );
+                              }
+
+                              if (dltDraw) {
+                                return (
+                                  <div className="p-4 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 rounded-lg border-2 border-amber-300 dark:border-amber-700">
+                                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-2 text-center">
+                                      第 {dltDraw.issue} 期开奖号码（大乐透）
+                                    </p>
+                                    <div className="flex flex-wrap items-center justify-center gap-1.5">
+                                      {dltDraw.numbers.map((num, idx) => (
+                                        <div
+                                          key={idx}
+                                          className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-700 text-white flex items-center justify-center font-bold text-xs shadow-md"
+                                        >
+                                          {num}
+                                        </div>
+                                      ))}
+                                      <span className="text-sm font-bold text-amber-700 dark:text-amber-400 mx-1">
+                                        +
+                                      </span>
+                                      {dltDraw.specialNumbers.map(
+                                        (num, idx) => (
+                                          <div
+                                            key={idx}
+                                            className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-800 text-white flex items-center justify-center font-bold text-xs shadow-md"
+                                          >
+                                            {num}
+                                          </div>
+                                        )
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              }
                             }
                             return null;
                           })()}
-
-                        {/* AI解析的额外信息 */}
-                        {aiParsedData && (
-                          <div className="space-y-3">
-                            {/* 彩票类型和票据信息 */}
-                            <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg border border-green-200 dark:border-green-800">
-                              <div className="grid grid-cols-2 gap-3 text-sm">
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    彩票类型：
-                                  </span>
-                                  <span className="font-medium ml-1">
-                                    {aiParsedData.lottery_type}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    票据类型：
-                                  </span>
-                                  <span className="font-medium ml-1">
-                                    {aiParsedData.ticket_type}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    倍数：
-                                  </span>
-                                  <span className="font-medium ml-1">
-                                    {aiParsedData.multiple}倍
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    公益金：
-                                  </span>
-                                  <span className="font-medium ml-1">
-                                    {aiParsedData.contribution_to_charity}元
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* 奖池和店铺信息 */}
-                            {(aiParsedData.prize_pool ||
-                              aiParsedData.store_info) && (
-                              <div className="p-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                                <div className="space-y-2 text-sm">
-                                  {aiParsedData.prize_pool && (
-                                    <div>
-                                      <span className="text-muted-foreground">
-                                        奖池金额：
-                                      </span>
-                                      <span className="font-medium ml-1">
-                                        {(
-                                          aiParsedData.prize_pool / 100000000
-                                        ).toFixed(2)}
-                                        亿元
-                                      </span>
-                                    </div>
-                                  )}
-                                  {aiParsedData.previous_jackpot && (
-                                    <div>
-                                      <span className="text-muted-foreground">
-                                        上期头奖：
-                                      </span>
-                                      <span className="font-medium ml-1">
-                                        {(
-                                          aiParsedData.previous_jackpot / 10000
-                                        ).toFixed(0)}
-                                        万元
-                                      </span>
-                                    </div>
-                                  )}
-                                  {aiParsedData.store_info && (
-                                    <div>
-                                      <span className="text-muted-foreground">
-                                        销售点：
-                                      </span>
-                                      <span className="font-medium ml-1">
-                                        {aiParsedData.store_info.name} -{" "}
-                                        {aiParsedData.store_info.address}
-                                      </span>
-                                    </div>
-                                  )}
-                                  {aiParsedData.print_time && (
-                                    <div>
-                                      <span className="text-muted-foreground">
-                                        打印时间：
-                                      </span>
-                                      <span className="font-medium ml-1">
-                                        {aiParsedData.print_time}
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
 
                         {/* 号码列表 */}
                         <div className="space-y-2">
@@ -861,7 +1001,11 @@ export default function LotteryPage() {
 
                             return (
                               <div
-                                key={entry.numbers.join("-")}
+                                key={
+                                  entry.numbers.join("-") +
+                                  "-" +
+                                  entry.specialNumbers.join("-")
+                                }
                                 className={`p-3 rounded-lg border ${
                                   prizeResult && prizeResult.prize !== "未中奖"
                                     ? "bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 border-green-500/30"
@@ -901,7 +1045,7 @@ export default function LotteryPage() {
                                         key={idx}
                                         className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-xs shadow-sm ${
                                           isMatched
-                                            ? "bg-gradient-to-br from-yellow-400 to-amber-500 border-yellow-500 text-white shadow-yellow-500/50"
+                                            ? "bg-gradient-to-br from-red-500 to-red-600 border-red-500 text-white shadow-yellow-500/50"
                                             : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
                                         }`}
                                       >
@@ -924,8 +1068,8 @@ export default function LotteryPage() {
                                             key={idx}
                                             className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-md ${
                                               isMatched
-                                                ? "bg-gradient-to-br from-yellow-400 to-amber-500 border-2 border-yellow-500 text-white shadow-yellow-500/50"
-                                                : "bg-gradient-to-br from-blue-500 to-blue-600 text-white"
+                                                ? "bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-blue-500 text-white shadow-blue-500/50"
+                                                : "border-2 border-blue-500 text-white"
                                             }`}
                                           >
                                             {num}
@@ -939,6 +1083,186 @@ export default function LotteryPage() {
                             );
                           })}
                         </div>
+
+                        {/* AI解析的额外信息 */}
+                        {aiParsedData &&
+                          (() => {
+                            const isDLT = "multiple" in aiParsedData;
+                            const isSSQ = "issuer" in aiParsedData;
+
+                            return (
+                              <div className="space-y-3">
+                                {/* 彩票类型和票据信息 */}
+                                <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg border border-green-200 dark:border-green-800">
+                                  <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                      <span className="text-muted-foreground">
+                                        彩票类型：
+                                      </span>
+                                      <span className="font-medium ml-1">
+                                        {aiParsedData.lottery_type}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <span className="text-muted-foreground">
+                                        票据类型：
+                                      </span>
+                                      <span className="font-medium ml-1">
+                                        {aiParsedData.ticket_type}
+                                      </span>
+                                    </div>
+                                    {isDLT && (
+                                      <div>
+                                        <span className="text-muted-foreground">
+                                          倍数：
+                                        </span>
+                                        <span className="font-medium ml-1">
+                                          {
+                                            (aiParsedData as DLTAIParsedData)
+                                              .multiple
+                                          }
+                                          倍
+                                        </span>
+                                      </div>
+                                    )}
+                                    <div>
+                                      <span className="text-muted-foreground">
+                                        公益金：
+                                      </span>
+                                      <span className="font-medium ml-1">
+                                        {aiParsedData.contribution_to_charity}元
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* 大乐透：奖池和店铺信息 */}
+                                {isDLT &&
+                                  (() => {
+                                    const dltData =
+                                      aiParsedData as DLTAIParsedData;
+                                    return (
+                                      (dltData.prize_pool ||
+                                        dltData.store_info) && (
+                                        <div className="p-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                                          <div className="space-y-2 text-sm">
+                                            {dltData.prize_pool && (
+                                              <div>
+                                                <span className="text-muted-foreground">
+                                                  奖池金额：
+                                                </span>
+                                                <span className="font-medium ml-1">
+                                                  {(
+                                                    dltData.prize_pool /
+                                                    100000000
+                                                  ).toFixed(2)}
+                                                  亿元
+                                                </span>
+                                              </div>
+                                            )}
+                                            {dltData.previous_jackpot && (
+                                              <div>
+                                                <span className="text-muted-foreground">
+                                                  上期头奖：
+                                                </span>
+                                                <span className="font-medium ml-1">
+                                                  {(
+                                                    dltData.previous_jackpot /
+                                                    10000
+                                                  ).toFixed(0)}
+                                                  万元
+                                                </span>
+                                              </div>
+                                            )}
+                                            {dltData.store_info && (
+                                              <div>
+                                                <span className="text-muted-foreground">
+                                                  销售点：
+                                                </span>
+                                                <span className="font-medium ml-1">
+                                                  {dltData.store_info.name} -{" "}
+                                                  {dltData.store_info.address}
+                                                </span>
+                                              </div>
+                                            )}
+                                            {dltData.print_time && (
+                                              <div>
+                                                <span className="text-muted-foreground">
+                                                  打印时间：
+                                                </span>
+                                                <span className="font-medium ml-1">
+                                                  {dltData.print_time}
+                                                </span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )
+                                    );
+                                  })()}
+
+                                {/* 双色球：发行机构和店铺信息 */}
+                                {isSSQ &&
+                                  (() => {
+                                    const ssqData =
+                                      aiParsedData as SSQAIParsedData;
+                                    return (
+                                      (ssqData.issuer ||
+                                        ssqData.center ||
+                                        ssqData.store_info) && (
+                                        <div className="p-3 bg-linear-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                                          <div className="space-y-2 text-sm">
+                                            {ssqData.issuer && (
+                                              <div>
+                                                <span className="text-muted-foreground">
+                                                  发行机构：
+                                                </span>
+                                                <span className="font-medium ml-1">
+                                                  {ssqData.issuer}
+                                                </span>
+                                              </div>
+                                            )}
+                                            {ssqData.center && (
+                                              <div>
+                                                <span className="text-muted-foreground">
+                                                  承销中心：
+                                                </span>
+                                                <span className="font-medium ml-1">
+                                                  {ssqData.center}
+                                                </span>
+                                              </div>
+                                            )}
+                                            {ssqData.store_info && (
+                                              <div>
+                                                <span className="text-muted-foreground">
+                                                  销售点：
+                                                </span>
+                                                <span className="font-medium ml-1">
+                                                  {ssqData.store_info.address}
+                                                  {ssqData.store_info
+                                                    .station_id &&
+                                                    ` (站点号: ${ssqData.store_info.station_id})`}
+                                                </span>
+                                              </div>
+                                            )}
+                                            {ssqData.print_time && (
+                                              <div>
+                                                <span className="text-muted-foreground">
+                                                  打印时间：
+                                                </span>
+                                                <span className="font-medium ml-1">
+                                                  {ssqData.print_time}
+                                                </span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )
+                                    );
+                                  })()}
+                              </div>
+                            );
+                          })()}
                       </div>
                     )}
                   </div>
@@ -1125,50 +1449,105 @@ export default function LotteryPage() {
                       加载中...
                     </span>
                   </div>
-                ) : historyData.length === 0 ? (
+                ) : dltHistoryData.length === 0 &&
+                  ssqHistoryData.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     暂无数据
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {historyData
-                      .slice()
-                      .reverse()
-                      .map((item) => (
-                        <div
-                          key={item.issue}
-                          className="p-4 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-lg border border-border hover:border-purple-500/30 transition-colors"
-                        >
-                          <div className="flex flex-col md:flex-row md:items-center gap-3">
-                            <div className="flex-shrink-0">
-                              <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">
-                                第 {item.issue} 期
-                              </span>
-                            </div>
-                            <div className="flex-1 flex flex-wrap items-center gap-2">
-                              {item.numbers.map((num, idx) => (
-                                <div
-                                  key={idx}
-                                  className="w-9 h-9 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center font-bold text-sm shadow-sm"
-                                >
-                                  {num}
+                  <div className="space-y-6">
+                    {/* 大乐透历史 */}
+                    {dltHistoryData.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3 text-purple-600 dark:text-purple-400">
+                          大乐透开奖历史
+                        </h3>
+                        <div className="space-y-3">
+                          {dltHistoryData
+                            .slice()
+                            .reverse()
+                            .map((item) => (
+                              <div
+                                key={item.issue}
+                                className="p-4 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-lg border border-border hover:border-purple-500/30 transition-colors"
+                              >
+                                <div className="flex flex-col md:flex-row md:items-center gap-3">
+                                  <div className="flex-shrink-0">
+                                    <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+                                      第 {item.issue} 期
+                                    </span>
+                                  </div>
+                                  <div className="flex-1 flex flex-wrap items-center gap-2">
+                                    {item.numbers.map((num, idx) => (
+                                      <div
+                                        key={idx}
+                                        className="w-9 h-9 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center font-bold text-sm shadow-sm"
+                                      >
+                                        {num}
+                                      </div>
+                                    ))}
+                                    <span className="text-lg font-bold text-muted-foreground mx-1">
+                                      +
+                                    </span>
+                                    {item.specialNumbers.map((num, idx) => (
+                                      <div
+                                        key={idx}
+                                        className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md"
+                                      >
+                                        {num}
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
-                              ))}
-                              <span className="text-lg font-bold text-muted-foreground mx-1">
-                                +
-                              </span>
-                              {item.specialNumbers.map((num, idx) => (
-                                <div
-                                  key={idx}
-                                  className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md"
-                                >
-                                  {num}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
+                              </div>
+                            ))}
                         </div>
-                      ))}
+                      </div>
+                    )}
+
+                    {/* 双色球历史 */}
+                    {ssqHistoryData.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3 text-red-600 dark:text-red-400">
+                          双色球开奖历史
+                        </h3>
+                        <div className="space-y-3">
+                          {ssqHistoryData
+                            .slice()
+                            .reverse()
+                            .map((item) => (
+                              <div
+                                key={item.issue}
+                                className="p-4 bg-gradient-to-r from-red-500/5 via-pink-500/5 to-rose-500/5 rounded-lg border border-border hover:border-red-500/30 transition-colors"
+                              >
+                                <div className="flex flex-col md:flex-row md:items-center gap-3">
+                                  <div className="flex-shrink-0">
+                                    <span className="text-sm font-semibold text-red-600 dark:text-red-400">
+                                      第 {item.issue} 期
+                                    </span>
+                                  </div>
+                                  <div className="flex-1 flex flex-wrap items-center gap-2">
+                                    {item.redBalls.map((num, idx) => (
+                                      <div
+                                        key={idx}
+                                        className="w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-700 text-white flex items-center justify-center font-bold text-sm shadow-md"
+                                      >
+                                        {num}
+                                      </div>
+                                    ))}
+                                    <span className="text-lg font-bold text-muted-foreground mx-1">
+                                      +
+                                    </span>
+                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
+                                      {item.blueBall}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
