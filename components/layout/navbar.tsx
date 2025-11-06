@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { SearchDialog } from "./search-dialog";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -24,10 +24,11 @@ export function Navbar() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  // 检测操作系统
-  const [isMac, setIsMac] = useState(false);
-  useEffect(() => {
-    setIsMac(/(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent));
+  const isMac = useMemo(() => {
+    if (typeof navigator !== "undefined") {
+      return /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
+    }
+    return false;
   }, []);
 
   const handleSignOut = async () => {
@@ -82,7 +83,7 @@ export function Navbar() {
               <div className="hidden md:flex items-center gap-2 mr-2">
                 <Shield className="h-4 w-4 text-purple-600" />
                 <span className="text-sm font-medium text-purple-600">
-                  Admin
+                  Login
                 </span>
               </div>
               <Button
