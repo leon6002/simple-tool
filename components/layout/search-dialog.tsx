@@ -114,10 +114,18 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
           <CommandGroup key={categoryName} heading={categoryName}>
             {tools.map((tool) => {
               const Icon = iconMap[tool.icon] || FileText;
+              // 构建搜索值：包含名称、描述和关键词
+              const searchValue = [
+                tool.name,
+                tool.description,
+                ...(tool.keywords || []),
+              ].join(" ");
+
               return (
                 <CommandItem
                   key={tool.id}
-                  value={tool.name}
+                  value={searchValue}
+                  keywords={tool.keywords}
                   onSelect={() => {
                     runCommand(() => {
                       addToSearchHistory(tool.name);

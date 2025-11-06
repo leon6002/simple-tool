@@ -6,6 +6,7 @@ export interface Tool {
   icon: string;
   href: string;
   featured?: boolean;
+  keywords?: string[]; // 搜索关键词
 }
 
 export type ToolCategory = string;
