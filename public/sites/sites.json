@@ -1,0 +1,550 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-06T09:14:32.155Z",
+  "categories": [
+    {
+      "id": "dev",
+      "name": "开发工具",
+      "icon": "Code",
+      "order": 1
+    },
+    {
+      "id": "design",
+      "name": "设计资源",
+      "icon": "Palette",
+      "order": 2
+    },
+    {
+      "id": "ai",
+      "name": "AI 工具",
+      "icon": "Brain",
+      "order": 3
+    },
+    {
+      "id": "productivity",
+      "name": "效率工具",
+      "icon": "Zap",
+      "order": 4
+    },
+    {
+      "id": "learning",
+      "name": "学习资源",
+      "icon": "BookOpen",
+      "order": 5
+    },
+    {
+      "id": "entertainment",
+      "name": "娱乐休闲",
+      "icon": "Gamepad2",
+      "order": 6
+    }
+  ],
+  "sites": [
+    {
+      "id": "github",
+      "name": "GitHub",
+      "url": "https://github.com",
+      "description": "全球最大的代码托管平台",
+      "icon": "https://github.com/favicon.ico",
+      "categoryId": "dev",
+      "order": 1,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "stackoverflow",
+      "name": "Stack Overflow",
+      "url": "https://stackoverflow.com",
+      "description": "程序员问答社区",
+      "icon": "https://stackoverflow.com/favicon.ico",
+      "categoryId": "dev",
+      "order": 2,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "mdn",
+      "name": "MDN Web Docs",
+      "url": "https://developer.mozilla.org",
+      "description": "Web 开发文档",
+      "icon": "https://developer.mozilla.org/favicon.ico",
+      "categoryId": "dev",
+      "order": 3,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "figma",
+      "name": "Figma",
+      "url": "https://www.figma.com",
+      "description": "协作设计工具",
+      "icon": "https://www.figma.com/favicon.ico",
+      "categoryId": "design",
+      "order": 1,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "dribbble",
+      "name": "Dribbble",
+      "url": "https://dribbble.com",
+      "description": "设计师作品展示平台",
+      "icon": "https://dribbble.com/favicon.ico",
+      "categoryId": "design",
+      "order": 2,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "url": "https://chat.openai.com",
+      "description": "OpenAI 的 AI 对话助手",
+      "icon": "https://chat.openai.com/favicon.ico",
+      "categoryId": "ai",
+      "order": 1,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "midjourney",
+      "name": "Midjourney",
+      "url": "https://www.midjourney.com",
+      "description": "AI 图像生成工具",
+      "icon": "https://www.midjourney.com/favicon.ico",
+      "categoryId": "ai",
+      "order": 2,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "url": "https://www.notion.so",
+      "description": "全能笔记和协作工具",
+      "icon": "https://www.notion.so/favicon.ico",
+      "categoryId": "productivity",
+      "order": 1,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "trello",
+      "name": "Trello",
+      "url": "https://trello.com",
+      "description": "项目管理工具",
+      "icon": "https://trello.com/favicon.ico",
+      "categoryId": "productivity",
+      "order": 2,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "site_1762417335406",
+      "name": "Lucide React",
+      "url": "https://lucide.dev/icons/",
+      "description": "React Icon",
+      "icon": "https://lucide.dev/favicon.ico",
+      "categoryId": "design",
+      "order": 3,
+      "createdAt": "2025-11-06T08:22:15.406Z",
+      "updatedAt": "2025-11-06T08:22:15.406Z"
+    },
+    {
+      "id": "site_1762417942142",
+      "name": "DeepSeek",
+      "url": "https://chat.deepseek.com/",
+      "description": "Chat with DeepSeek AI.",
+      "icon": "https://chat.deepseek.com/favicon.svg",
+      "categoryId": "ai",
+      "order": 3,
+      "createdAt": "2025-11-06T08:32:22.142Z",
+      "updatedAt": "2025-11-06T08:32:22.142Z"
+    },
+    {
+      "id": "site_1762418028478",
+      "name": "豆包",
+      "url": "https://www.doubao.com/chat/",
+      "description": "豆包 是你的 AI 聊天智能对话问答助手，写作文案翻译编程全能工具。豆包为你答疑解惑，提供灵感，辅助创作，也可以和你畅聊任何你感兴趣的话题。",
+      "icon": "https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/doubao/web/logo-icon.png",
+      "categoryId": "ai",
+      "order": 4,
+      "createdAt": "2025-11-06T08:33:48.478Z",
+      "updatedAt": "2025-11-06T08:33:48.478Z"
+    },
+    {
+      "id": "site_1762418089229",
+      "name": "Kling AI",
+      "url": "https://app.klingai.com/",
+      "description": "AI Video & AI Image Generator",
+      "icon": "https://p2-kling.klingai.com/kcdn/cdn-kcdn112452/kling-web-prod/favicon.ico",
+      "categoryId": "ai",
+      "order": 5,
+      "createdAt": "2025-11-06T08:34:49.229Z",
+      "updatedAt": "2025-11-06T08:34:49.229Z"
+    },
+    {
+      "id": "site_1762418127989",
+      "name": "即梦AI - 即刻造梦",
+      "url": "https://jimeng.jianying.com/",
+      "description": "即梦AI一站式智能创作平台，即刻造梦。提供AI绘画和AIGC视频创作体验，拥有激发无限创作灵感的社区。让即梦AI开启您的智能创作之旅，探索梦境实现的无限可能！",
+      "icon": "https://lf3-lv-buz.vlabstatic.com/obj/image-lvweb-buz/common/images/dreamina-v1.ico",
+      "categoryId": "ai",
+      "order": 4,
+      "createdAt": "2025-11-06T08:35:27.989Z",
+      "updatedAt": "2025-11-06T08:35:37.079Z"
+    },
+    {
+      "id": "site_1762418220946",
+      "name": "perplexity",
+      "url": "https://www.perplexity.ai/",
+      "description": "AI搜索工具",
+      "icon": "https://www.perplexity.ai/favicon.ico",
+      "categoryId": "ai",
+      "order": 7,
+      "createdAt": "2025-11-06T08:37:00.946Z",
+      "updatedAt": "2025-11-06T08:37:00.946Z"
+    },
+    {
+      "id": "site_1762418260549",
+      "name": "博查AI搜索 - 多模态AI搜索，答案丰富多彩",
+      "url": "https://bochaai.com/",
+      "description": "博查是一个给AI用的搜索引擎，它可以让你的AI应用连接世界知识，获得干净、准确、高质量的搜索结果。",
+      "icon": "https://bochaai.com/icon.ico?d10c63b34b618305",
+      "categoryId": "ai",
+      "order": 8,
+      "createdAt": "2025-11-06T08:37:40.549Z",
+      "updatedAt": "2025-11-06T08:37:40.549Z"
+    },
+    {
+      "id": "site_1762418290181",
+      "name": "OpenRouter",
+      "url": "https://openrouter.ai/",
+      "description": "A router for LLMs and other AI models",
+      "icon": "https://openrouter.ai/favicon.ico",
+      "categoryId": "ai",
+      "order": 9,
+      "createdAt": "2025-11-06T08:38:10.181Z",
+      "updatedAt": "2025-11-06T08:38:10.181Z"
+    },
+    {
+      "id": "site_1762418368556",
+      "name": "硅基流动",
+      "url": "https://cloud.siliconflow.cn/me/models",
+      "description": "大模型api供应平台",
+      "icon": "https://cloud.siliconflow.cn/favicon.ico",
+      "categoryId": "ai",
+      "order": 10,
+      "createdAt": "2025-11-06T08:39:28.556Z",
+      "updatedAt": "2025-11-06T08:39:28.556Z"
+    },
+    {
+      "id": "site_1762418409944",
+      "name": "Ollama",
+      "url": "https://ollama.com/",
+      "description": "Get up and running with large language models.",
+      "icon": "https://ollama.com/public/icon-16x16.png",
+      "categoryId": "ai",
+      "order": 11,
+      "createdAt": "2025-11-06T08:40:09.944Z",
+      "updatedAt": "2025-11-06T08:40:09.944Z"
+    },
+    {
+      "id": "site_1762418582625",
+      "name": "PromptPilot",
+      "url": "https://promptpilot.volcengine.com/home",
+      "description": "专为大模型开发，PromptPilot为你提供更精准，专业，可持续迭代提示词！ ",
+      "icon": "https://lf3-static.bytednsdoc.com/obj/eden-cn/lm_sth/ljhwZthlaukjlkulzlp/autope/logo/prompt-pilot.png",
+      "categoryId": "ai",
+      "order": 12,
+      "createdAt": "2025-11-06T08:43:02.625Z",
+      "updatedAt": "2025-11-06T08:43:02.625Z"
+    },
+    {
+      "id": "site_1762418757671",
+      "name": "Flowbite - Tailwind CSS component library",
+      "url": "https://flowbite.com/docs/getting-started/introduction/",
+      "description": "Get started with the most popular open-source library of interactive UI components built with the utility classes from Tailwind CSS",
+      "icon": "https://flowbite.com/docs/android-icon-192x192.png",
+      "categoryId": "design",
+      "order": 4,
+      "createdAt": "2025-11-06T08:45:57.671Z",
+      "updatedAt": "2025-11-06T08:45:57.671Z"
+    },
+    {
+      "id": "site_1762418834519",
+      "name": "React Bits",
+      "url": "https://reactbits.dev/",
+      "description": "An open source collection of high quality, animated, interactive & fully customizable React components for building stunning, memorable user interfaces.",
+      "icon": "https://reactbits.dev/favicon.ico",
+      "categoryId": "design",
+      "order": 5,
+      "createdAt": "2025-11-06T08:47:14.519Z",
+      "updatedAt": "2025-11-06T08:47:14.519Z"
+    },
+    {
+      "id": "site_1762418884676",
+      "name": "Tailwind CSS Component Library ⸺ daisyUI",
+      "url": "https://daisyui.com/",
+      "description": "Tailwind CSS Components Library for 2026 - Tailwind CSS components examples, Tailwind themes and Tailwind blocks for fast UI development",
+      "icon": "https://img.daisyui.com/images/daisyui/mark.svg",
+      "categoryId": "design",
+      "order": 6,
+      "createdAt": "2025-11-06T08:48:04.676Z",
+      "updatedAt": "2025-11-06T08:48:04.676Z"
+    },
+    {
+      "id": "site_1762418910788",
+      "name": "The Foundation for your Design System - shadcn/ui",
+      "url": "https://ui.shadcn.com/",
+      "description": "A set of beautifully designed components that you can customize, extend, and build on. Start here then make it your own. Open Source. Open Code.",
+      "icon": "https://ui.shadcn.com/favicon.ico",
+      "categoryId": "design",
+      "order": 7,
+      "createdAt": "2025-11-06T08:48:30.788Z",
+      "updatedAt": "2025-11-06T08:48:30.788Z"
+    },
+    {
+      "id": "site_1762419040367",
+      "name": "SimpleTool - Modern Online Utilities",
+      "url": "https://guliucang.com",
+      "description": "A collection of modern, easy-to-use online tools including hex calculator, image converter, OCR, 3D model viewer, and text utilities.",
+      "icon": "https://guliucang.com/favicon.ico?favicon.0b3bf435.ico",
+      "categoryId": "productivity",
+      "order": 3,
+      "createdAt": "2025-11-06T08:50:40.367Z",
+      "updatedAt": "2025-11-06T08:50:40.367Z"
+    },
+    {
+      "id": "site_1762419084459",
+      "name": "Next.js by Vercel - The React Framework",
+      "url": "https://nextjs.org/",
+      "description": "Next.js by Vercel is the full-stack React framework for the web.",
+      "icon": "https://nextjs.org/favicon.ico?favicon.d29c4393.ico",
+      "categoryId": "dev",
+      "order": 4,
+      "createdAt": "2025-11-06T08:51:24.459Z",
+      "updatedAt": "2025-11-06T08:51:24.459Z"
+    },
+    {
+      "id": "site_1762419202196",
+      "name": "Data Structure Visualization",
+      "url": "https://www.cs.usfca.edu/~galles/visualization/Algorithms.html",
+      "description": "Data Structure Visualization",
+      "icon": "https://www.cs.usfca.edu/favicon.ico",
+      "categoryId": "learning",
+      "order": 1,
+      "createdAt": "2025-11-06T08:53:22.196Z",
+      "updatedAt": "2025-11-06T08:53:22.196Z"
+    },
+    {
+      "id": "site_1762419275104",
+      "name": "polymarket",
+      "url": "https://polymarket.com/",
+      "description": "online bet",
+      "icon": "https://polymarket.com/favicon.ico",
+      "categoryId": "entertainment",
+      "order": 1,
+      "createdAt": "2025-11-06T08:54:35.104Z",
+      "updatedAt": "2025-11-06T08:54:35.104Z"
+    },
+    {
+      "id": "site_1762419315853",
+      "name": "Rapid API",
+      "url": "https://rapidapi.com/",
+      "description": "Nokia today announced that it has acquired Rapid’s technology assets, including the world’s largest API marketplace, and its highly skilled team.",
+      "icon": "https://rapidapi.com/static-assets/default/favicon-8e7d522e-653f-4edd-ac27-3f6ed950e45d.png",
+      "categoryId": "dev",
+      "order": 5,
+      "createdAt": "2025-11-06T08:55:15.853Z",
+      "updatedAt": "2025-11-06T08:55:38.566Z"
+    },
+    {
+      "id": "site_1762419375815",
+      "name": "three.js manual",
+      "url": "https://threejs.org/manual/#en/creating-a-scene",
+      "description": "three.js manual",
+      "icon": "https://threejs.org/../files/favicon_white.ico",
+      "categoryId": "dev",
+      "order": 6,
+      "createdAt": "2025-11-06T08:56:15.815Z",
+      "updatedAt": "2025-11-06T08:56:15.815Z"
+    },
+    {
+      "id": "site_1762419409099",
+      "name": "Three.js – JavaScript 3D library",
+      "url": "https://threejs.org/",
+      "description": "JavaScript 3D library",
+      "icon": "https://threejs.org/files/favicon_white.ico",
+      "categoryId": "dev",
+      "order": 7,
+      "createdAt": "2025-11-06T08:56:49.099Z",
+      "updatedAt": "2025-11-06T08:56:49.099Z"
+    },
+    {
+      "id": "site_1762419469355",
+      "name": "Poimandres documentation",
+      "url": "https://r3f.docs.pmnd.rs/",
+      "description": "Index of documentation for pmndrs/* libraries",
+      "icon": "https://r3f.docs.pmnd.rs/data:image/svg+xml,%0A%20%20%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20version%3D%221.1%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20xmlns%3Asvgjs%3D%22http%3A%2F%2Fsvgjs.com%2Fsvgjs%22%20width%3D%22100%22%20height%3D%22100%22%3E%0A%20%20%20%20%0A%20%20%20%20%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%0A%20%20%20%20%20%20%3Ctext%20x%3D%2250%22%20y%3D%2250%22%20font-size%3D%22100%22%20dominant-baseline%3D%22central%22%20baseline-shift%3D%22-0%25%22%20text-anchor%3D%22middle%22%3E%F0%9F%96%A8%EF%B8%8F%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E%0A%20%20%20%20%0A%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%3Aroot%20%7B%0A%20%20%20%20%20%20--bg%3A%20%23f10055%3B%0A%20%20%20%20%20%20--txt%3A%20white%3B%0A%20%20%20%20%7D%0A%20%20%20%20.badge%20%7Bfill%3A%20var(--bg)%3B%7D%0A%20%20%20%20.shape%20%7Bfill%3A%20var(--txt)%3B%7D%0A%20%20%20%20%3C%2Fstyle%3E%0A%20%20%3C%2Fsvg%3E%0A%20%20",
+      "categoryId": "dev",
+      "order": 8,
+      "createdAt": "2025-11-06T08:57:49.355Z",
+      "updatedAt": "2025-11-06T08:57:49.355Z"
+    },
+    {
+      "id": "site_1762419533474",
+      "name": "Poly Haven • Poly Haven",
+      "url": "https://polyhaven.com/",
+      "description": "The Public 3D Asset Library",
+      "icon": "https://polyhaven.com/favicon.ico",
+      "categoryId": "design",
+      "order": 8,
+      "createdAt": "2025-11-06T08:58:53.474Z",
+      "updatedAt": "2025-11-06T08:58:53.474Z"
+    },
+    {
+      "id": "site_1762419562953",
+      "name": "QuickRef.ME - Quick Reference Cheat Sheet",
+      "url": "https://quickref.me/",
+      "description": "Share quick reference and cheat sheet for developers",
+      "icon": "https://quickref.me/images/favicon.png?v=1",
+      "categoryId": "productivity",
+      "order": 4,
+      "createdAt": "2025-11-06T08:59:22.953Z",
+      "updatedAt": "2025-11-06T08:59:22.953Z"
+    },
+    {
+      "id": "site_1762419606475",
+      "name": "Alpha Arena | AI Trading Benchmark",
+      "url": "https://nof1.ai/",
+      "description": "The first benchmark designed to measure AI's investing abilities. Watch AI models trade with real capital.",
+      "icon": "https://nof1.ai/logos/favicon.png",
+      "categoryId": "ai",
+      "order": 13,
+      "createdAt": "2025-11-06T09:00:06.475Z",
+      "updatedAt": "2025-11-06T09:00:06.475Z"
+    },
+    {
+      "id": "site_1762419646329",
+      "name": "讯飞智文 - AI在线生成PPT、Word",
+      "url": "https://zhiwen.xfyun.cn/ppt",
+      "description": "讯飞智文，由科大讯飞推出的一键生成ppt/word产品。根据一句话、长文本、音视频等指令智能生成文档，同时支持在线编辑、美化、排版、导出、一键动效、自动生成演讲稿等功能，让AI全流程服务到底。",
+      "icon": "https://zhiwen.xfyun.cn/favicon.png",
+      "categoryId": "ai",
+      "order": 14,
+      "createdAt": "2025-11-06T09:00:46.329Z",
+      "updatedAt": "2025-11-06T09:00:46.330Z"
+    },
+    {
+      "id": "site_1762419716444",
+      "name": "pixabay.com",
+      "url": "https://pixabay.com/",
+      "description": "",
+      "icon": "https://pixabay.com/favicon.ico",
+      "categoryId": "design",
+      "order": 9,
+      "createdAt": "2025-11-06T09:01:56.444Z",
+      "updatedAt": "2025-11-06T09:01:56.444Z"
+    },
+    {
+      "id": "site_1762419733479",
+      "name": "Beautiful Free Images & Pictures | Unsplash",
+      "url": "https://unsplash.com/",
+      "description": "Beautiful, free images and photos that you can download and use for any project. Better than any royalty free or stock photos.",
+      "icon": "https://unsplash.com/favicon-32x32.png",
+      "categoryId": "design",
+      "order": 10,
+      "createdAt": "2025-11-06T09:02:13.479Z",
+      "updatedAt": "2025-11-06T09:02:13.479Z"
+    },
+    {
+      "id": "site_1762419794946",
+      "name": "Remote Jobs in Programming, Design, Sales and more #OpenSalaries",
+      "url": "https://remoteok.com/",
+      "description": "Looking for a remote job? Remote OK® is the #1 Remote Job Platform and has 1,128,813+ remote jobs as a Developer, Designer, Copywriter, Customer Support Rep, Sales Professional, Project Manager and mo...",
+      "icon": "https://remoteok.com/assets/favicon-32x32.png?1756575589",
+      "categoryId": "entertainment",
+      "order": 2,
+      "createdAt": "2025-11-06T09:03:14.946Z",
+      "updatedAt": "2025-11-06T09:03:14.946Z"
+    },
+    {
+      "id": "site_1762419846703",
+      "name": "在线LaTeX公式编辑器-编辑器",
+      "url": "https://www.latexlive.com/##",
+      "description": "识别图片中的公式！免费的在线LaTeX公式编辑器。支持SVG、超大PNG、JPG、MathML、带有命名空间前缀的MathML、SVGCode、HTML、OMML、Word文档等多种格式导出。可以打出任何公式，不只是数学！支持物理physics、化学mhchem、unicode等常用扩展宏包加载。即时渲染，基于MathJax实现。Math formulas images OCR! A free o...",
+      "icon": "https://www.latexlive.com/data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANEAAADZCAIAAAAxC0LVAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAGOWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDUgNzkuMTYzNDk5LCAyMDE4LzA4LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczpBdHRyaWI9Imh0dHA6Ly9ucy5hdHRyaWJ1dGlvbi5jb20vYWRzLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgeG1wOkNyZWF0b3JUb29sPSJDYW52YSIgeG1wOkNyZWF0ZURhdGU9IjIwMjItMTAtMjdUMTE6NDI6MjcrMDg6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIyLTEwLTI3VDExOjQ0OjI2KzA4OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIyLTEwLTI3VDExOjQ0OjI2KzA4OjAwIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6ZTU2MmQ2OTItY2RhYy00YTRhLWE2MzItOWY2YmY5ZmViZjk5IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOmU1NjJkNjkyLWNkYWMtNGE0YS1hNjMyLTlmNmJmOWZlYmY5OSIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmU1NjJkNjkyLWNkYWMtNGE0YS1hNjMyLTlmNmJmOWZlYmY5OSI+IDxBdHRyaWI6QWRzPiA8cmRmOlNlcT4gPHJkZjpsaSBBdHRyaWI6Q3JlYXRlZD0iMjAyMi0xMC0yNiIgQXR0cmliOkV4dElkPSJiOGRmZmNhMi0wOGViLTRiMDUtOGIyZi01NTRhMGIzYTc0ZjIiIEF0dHJpYjpUb3VjaFR5cGU9IjIiLz4gPC9yZGY6U2VxPiA8L0F0dHJpYjpBZHM+IDxkYzp0aXRsZT4gPHJkZjpBbHQ+IDxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+SiAtIDE8L3JkZjpsaT4gPC9yZGY6QWx0PiA8L2RjOnRpdGxlPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDplNTYyZDY5Mi1jZGFjLTRhNGEtYTYzMi05ZjZiZjlmZWJmOTkiIHN0RXZ0OndoZW49IjIwMjItMTAtMjdUMTE6NDQ6MjYrMDg6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE5IChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4bDGLTAAAKeklEQVR42u3d+1dU1xkG4PyNrU1bNJWYJsaiNUgEpICACgUJZFR0SohVohQS8AKiKAQHBYsIogIDOAhIERCR20iGsYGve2dYCkYtwzlnn3153/X96FrqzDP7nH3/gBBEbD7AR4DAHAJzCAJzCMwhCMwhMIcgMIfAHAJzCAJzCMwhCMwhMIcgMIfA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",
+      "categoryId": "productivity",
+      "order": 5,
+      "createdAt": "2025-11-06T09:04:06.703Z",
+      "updatedAt": "2025-11-06T09:04:06.703Z"
+    },
+    {
+      "id": "site_1762419885462",
+      "name": "Code with Mosh",
+      "url": "https://codewithmosh.com/",
+      "description": "Become the software engineer that companies love to hire.",
+      "icon": "https://res.cloudinary.com/codewithmosh/image/upload/v1685118159/images/web-preview.jpg",
+      "categoryId": "learning",
+      "order": 2,
+      "createdAt": "2025-11-06T09:04:45.462Z",
+      "updatedAt": "2025-11-06T09:04:45.462Z"
+    },
+    {
+      "id": "site_1762419920859",
+      "name": "风变编程",
+      "url": "https://www.pypypy.cn/app#/",
+      "description": "",
+      "icon": "https://res.pandateacher.com/QOVZIK6T1594610025005.ico",
+      "categoryId": "learning",
+      "order": 3,
+      "createdAt": "2025-11-06T09:05:20.859Z",
+      "updatedAt": "2025-11-06T09:05:20.859Z"
+    },
+    {
+      "id": "site_1762420052984",
+      "name": "CloudConvert",
+      "url": "https://cloudconvert.com/",
+      "description": ">File converter service - more than 200 different audio, video, document, ebook, archive, image, spreadsheet and presentation formats supported.",
+      "icon": "https://cloudconvert.com/images/logo_flat_32.png",
+      "categoryId": "productivity",
+      "order": 6,
+      "createdAt": "2025-11-06T09:07:32.984Z",
+      "updatedAt": "2025-11-06T09:07:32.984Z"
+    },
+    {
+      "id": "site_1762420186951",
+      "name": "Railway",
+      "url": "https://railway.com/",
+      "description": "Railway is an infrastructure platform where you can provision infrastructure, develop with that infrastructure locally, and then deploy to the cloud.",
+      "icon": "https://railway.com/favicon.ico",
+      "categoryId": "dev",
+      "order": 9,
+      "createdAt": "2025-11-06T09:09:46.951Z",
+      "updatedAt": "2025-11-06T09:09:46.951Z"
+    },
+    {
+      "id": "site_1762420400967",
+      "name": "MD5免费在线解密破解_MD5在线加密-SOMD5",
+      "url": "https://www.somd5.com/",
+      "description": "MD5在线免费破解,支持md5,sha1,mysql,sha256,sha512,md4,织梦,vBulletin,Discuz,md5(Joomla),mssql(2012),ntlm,md5(base64),sha1(base64),md5(wordpress),md5(Phpbb3),md5(Unix),des(Unix)等数十种加密方式",
+      "icon": "https://www.somd5.com/favicon.ico",
+      "categoryId": "dev",
+      "order": 10,
+      "createdAt": "2025-11-06T09:13:20.967Z",
+      "updatedAt": "2025-11-06T09:13:20.967Z"
+    },
+    {
+      "id": "site_1762420472155",
+      "name": "similarweb",
+      "url": "https://www.similarweb.com/",
+      "description": "网站流量分析",
+      "icon": "https://www.similarweb.com/favicon.ico",
+      "categoryId": "dev",
+      "order": 11,
+      "createdAt": "2025-11-06T09:14:32.155Z",
+      "updatedAt": "2025-11-06T09:14:32.155Z"
+    }
+  ]
+}

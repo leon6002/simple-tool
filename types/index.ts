@@ -80,3 +80,30 @@ export interface UserPreferences {
   removeFavoriteTool: (toolId: string) => void;
   addRecentlyUsedTool: (toolId: string) => void;
 }
+
+// 网址导航相关类型
+export interface SiteCategory {
+  id: string;
+  name: string;
+  icon?: string;
+  order: number;
+}
+
+export interface Site {
+  id: string;
+  name: string;
+  url: string;
+  description?: string;
+  icon?: string; // 网站图标 URL
+  categoryId: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SiteNavigatorData {
+  categories: SiteCategory[];
+  sites: Site[];
+  version: string;
+  lastUpdated: string;
+}

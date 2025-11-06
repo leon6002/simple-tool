@@ -21,6 +21,8 @@ import {
   GitBranch,
   Server,
   Minimize2,
+  Compass,
+  Ticket,
 } from "lucide-react";
 import {
   CommandDialog,
@@ -53,6 +55,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   GitBranch,
   Server,
   Minimize2,
+  Compass,
+  Ticket,
 };
 
 interface SearchDialogProps {

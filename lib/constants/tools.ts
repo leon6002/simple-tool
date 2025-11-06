@@ -312,6 +312,32 @@ export const TOOLS: Tool[] = [
       "彩票号码",
     ],
   },
+  {
+    id: "site-navigator",
+    name: "Site Navigator",
+    description: "Bookmark and manage your favorite websites with categories",
+    category: "productivity",
+    icon: "Compass",
+    href: "/tools/site-navigator",
+    featured: true,
+    keywords: [
+      "网址",
+      "导航",
+      "书签",
+      "收藏",
+      "网站",
+      "链接",
+      "bookmark",
+      "site",
+      "website",
+      "link",
+      "navigator",
+      "favorites",
+      "网址导航",
+      "网站导航",
+      "网址收藏",
+    ],
+  },
 ];
 
 export const CATEGORIES = [
