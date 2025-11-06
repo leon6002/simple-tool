@@ -23,6 +23,7 @@ import {
   Minimize2,
   Compass,
   Ticket,
+  Code2,
 } from "lucide-react";
 import {
   CommandDialog,
@@ -57,6 +58,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Minimize2,
   Compass,
   Ticket,
+  Code2,
 };
 
 interface SearchDialogProps {

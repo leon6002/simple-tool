@@ -338,6 +338,30 @@ export const TOOLS: Tool[] = [
       "网址收藏",
     ],
   },
+  {
+    id: "regex-tester",
+    name: "Regex Tester",
+    description: "Test and debug regular expressions with real-time matching",
+    category: "developer",
+    icon: "Code2",
+    href: "/tools/regex-tester",
+    featured: true,
+    keywords: [
+      "正则",
+      "正则表达式",
+      "regex",
+      "regexp",
+      "pattern",
+      "匹配",
+      "测试",
+      "test",
+      "match",
+      "验证",
+      "validate",
+      "正则测试",
+      "表达式",
+    ],
+  },
 ];
 
 export const CATEGORIES = [
