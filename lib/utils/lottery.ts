@@ -72,7 +72,7 @@ const parseDLT = (html: string) => {
     // 6. 提取常规号码 (红球)
     //  class 为 'chartball01' 的 <td>
     const numbers: string[] = [];
-    row.find(".chartball01").each((i, numEl) => {
+    row.find("td.chartball01, td.chartball20").each((i, numEl) => {
       numbers.push($(numEl).text().trim());
     });
 
