@@ -226,8 +226,8 @@ export default function StatisticsPanel({
 
                     return (
                       <div key={num} className="flex items-center gap-1">
-                        <div className="w-4 h-4 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center font-bold flex-shrink-0">
-                          {num}
+                        <div className="w-6 h-6 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center font-bold flex-shrink-0">
+                          {`${num < 10 ? "0" : ""}${num}`}
                         </div>
                         <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                           <div
@@ -259,8 +259,8 @@ export default function StatisticsPanel({
 
                       return (
                         <div key={num} className="flex items-center gap-1">
-                          <div className="w-4 h-4 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-bold shrink-0">
-                            {num}
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-bold shrink-0">
+                            {`${num < 10 ? "0" : ""}${num}`}
                           </div>
                           <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                             <div
@@ -307,8 +307,8 @@ export default function StatisticsPanel({
 
                       return (
                         <div key={num} className="flex items-center gap-1">
-                          <div className="w-4 h-4 rounded-full bg-green-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0">
-                            {num}
+                          <div className="w-6 h-6 rounded-full bg-green-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0">
+                            {`${num < 10 ? "0" : ""}${num}`}
                           </div>
                           <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                             <div
@@ -342,8 +342,8 @@ export default function StatisticsPanel({
 
                         return (
                           <div key={num} className="flex items-center gap-1">
-                            <div className="w-4 h-4 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0">
-                              {num}
+                            <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0">
+                              {`${num < 10 ? "0" : ""}${num}`}
                             </div>
                             <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                               <div

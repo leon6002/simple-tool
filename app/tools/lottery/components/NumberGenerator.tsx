@@ -428,7 +428,6 @@ export default function NumberGenerator({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* 合并号码选择器 */}
         <div className="space-y-4">
           {/* 已选号码展示 */}
           <div className="flex justify-center items-center gap-2 p-3 bg-muted/30 rounded-lg h-[60px]">
@@ -439,7 +438,7 @@ export default function NumberGenerator({
                     key={idx}
                     className="w-10 h-10 rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md"
                   >
-                    {num}
+                    {`${num < 10 ? "0" : ""}${num}`}
                   </div>
                 ))}
                 {specialNumbers.length > 0 && (
@@ -452,7 +451,7 @@ export default function NumberGenerator({
                         key={idx}
                         className="w-10 h-10 rounded-full bg-linear-to-br from-pink-600 to-red-600 text-white flex items-center justify-center font-bold text-sm shadow-md"
                       >
-                        {num}
+                        {`${num < 10 ? "0" : ""}${num}`}
                       </div>
                     ))}
                   </>
