@@ -13,10 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Calculator,
-
-} from "lucide-react";
+import { Calculator } from "lucide-react";
 import toast from "react-hot-toast";
 
 // 导入类型和工具
@@ -43,6 +40,8 @@ import {
   NumberGenerator,
   HistoryDisplay,
 } from "./components";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { StatisticsPanelMobile } from "./components/mobile/StatisticsPanelMobile";
 
 export default function LotteryPage() {
   // Prize calculator states
@@ -51,6 +50,7 @@ export default function LotteryPage() {
   const [calculatedPrize, setCalculatedPrize] = useState<string | null>(null);
 
   // 基础状态
+  const isMobile = useIsMobile();
   const [selectedType, setSelectedType] = useState<LotteryType>("dlt");
   const [algorithm, setAlgorithm] = useState<AlgorithmType>("balanced");
   const [statistics, setStatistics] = useState<LotteryStatistics | null>(null);
@@ -355,13 +355,24 @@ export default function LotteryPage() {
               {/* 左侧：操作区 */}
               <div className="w-full lg:w-[30%] space-y-6">
                 {/* 统计分析面板 */}
-                <StatisticsPanel
-                  statistics={statistics}
-                  selectedType={selectedType}
-                  lotteryHistoryData={dltHistoryData}
-                  ssqHistoryData={ssqHistoryData}
-                  onRangeStatisticsUpdate={setRangeStatistics}
-                />
+                {isMobile && (
+                  <StatisticsPanelMobile
+                    statistics={statistics}
+                    selectedType={selectedType}
+                    lotteryHistoryData={dltHistoryData}
+                    ssqHistoryData={ssqHistoryData}
+                    onRangeStatisticsUpdate={setRangeStatistics}
+                  />
+                )}
+                {!isMobile && (
+                  <StatisticsPanel
+                    statistics={statistics}
+                    selectedType={selectedType}
+                    lotteryHistoryData={dltHistoryData}
+                    ssqHistoryData={ssqHistoryData}
+                    onRangeStatisticsUpdate={setRangeStatistics}
+                  />
+                )}
               </div>
 
               {/* 右侧：展示区 */}
@@ -380,8 +391,7 @@ export default function LotteryPage() {
                   historyRecords={historyRecords}
                   onHistoryUpdate={setHistoryRecords}
                 />
-
-                </div>
+              </div>
             </div>
           </TabsContent>
 
