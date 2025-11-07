@@ -689,9 +689,9 @@ export default function NumberGenerator({
                         }
                         setMainNumbers(newNumbers);
                       }}
-                      className={`h-9 w-9 p-0 text-xs font-bold transition-all duration-200 border-2 rounded-lg hover:scale-110 ${
+                      className={`h-9 w-9 p-0 cursor-pointer text-xs font-bold transition-all duration-200 border-2 rounded-lg hover:scale-110 ${
                         isSelected
-                          ? "ring-2 ring-blue-400 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
+                          ? "ring-3 ring-blue-100 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
                           : "hover:shadow-md"
                       }`}
                       style={{
@@ -705,7 +705,7 @@ export default function NumberGenerator({
                         e.currentTarget.style.backgroundColor = color.bg;
                       }}
                     >
-                      {num}
+                      {`${num < 10 ? "0" : ""}${num}`}
                     </button>
                   );
                 })}
@@ -847,9 +847,9 @@ export default function NumberGenerator({
                             }
                             setSpecialNumbers(newNumbers);
                           }}
-                          className={`h-9 w-9 p-0 text-xs font-bold transition-all duration-200 border-2 rounded-lg hover:scale-110 ${
+                          className={`h-9 w-9 p-0 text-xs  cursor-pointer font-bold transition-all duration-200 border-2 rounded-lg hover:scale-110 ${
                             isSelected
-                              ? "ring-2 ring-pink-400 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
+                              ? "ring-3 ring-blue-100 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
                               : "hover:shadow-md"
                           }`}
                           style={{
@@ -863,7 +863,7 @@ export default function NumberGenerator({
                             e.currentTarget.style.backgroundColor = color.bg;
                           }}
                         >
-                          {num}
+                          {`${num < 10 ? "0" : ""}${num}`}
                         </button>
                       );
                     })}
