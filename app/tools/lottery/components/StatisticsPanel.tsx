@@ -27,6 +27,34 @@ import {
 import { BarChart3, History } from "lucide-react";
 import { useState, useEffect } from "react";
 
+// Tooltip组件
+const Tooltip = ({
+  children,
+  text,
+}: {
+  children: React.ReactNode;
+  text: string;
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div className="relative block w-full">
+      <div
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+      </div>
+      {isVisible && (
+        <div className="absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg whitespace-nowrap -top-8 left-1/2 transform -translate-x-1/2 pointer-events-none">
+          {text}
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 interface StatisticsPanelProps {
   statistics: LotteryStatistics | null;
   selectedType: LotteryType;
@@ -126,7 +154,7 @@ export default function StatisticsPanel({
       </CardHeader>
       <CardContent className="pt-0 space-y-2">
         {/* 历史开奖号码 */}
-        <div className="p-3 bg-linear-to-r from-indigo-50/80 to-purple-50/80 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-lg border border-indigo-200/50 dark:border-indigo-800/30">
+        <div className="p-3 bg-gradient-to-r from-indigo-50/80 to-purple-50/80 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-lg border border-indigo-200/50 dark:border-indigo-800/30">
           <div className="flex items-center gap-2 mb-3">
             <History className="h-3 w-3 text-indigo-600" />
             <h4 className="text-xs font-bold text-indigo-700 dark:text-indigo-400">
@@ -199,14 +227,14 @@ export default function StatisticsPanel({
         <div className="space-y-3">
           {/* 主号码详细频次分析 */}
           <div className="p-3 bg-linear-to-r from-purple-50/80 to-indigo-50/80 dark:from-purple-950/30 dark:to-indigo-950/30 rounded-lg border border-purple-200/50 dark:border-purple-800/30">
-            <h4 className="text-xs font-bold text-purple-700 dark:text-purple-400 mb-2">
+            <h4 className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-2">
               {selectedType === "dlt" ? "前区" : "红球"}频次
             </h4>
 
             <div className="grid grid-cols-2 gap-3">
               {/* 频次排名 */}
               <div>
-                <h5 className="text-xs font-medium mb-1 text-purple-600">
+                <h5 className="text-xs font-medium mb-1 text-amber-400">
                   频次排名
                 </h5>
                 <div className="space-y-1">
@@ -225,17 +253,19 @@ export default function StatisticsPanel({
                       maxFreq > 0 ? (frequency / maxFreq) * 100 : 0;
 
                     return (
-                      <div key={num} className="flex items-center gap-1">
-                        <div className="w-6 h-6 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center font-bold flex-shrink-0">
-                          {`${num < 10 ? "0" : ""}${num}`}
+                      <Tooltip key={num} text={`出现${frequency}次`}>
+                        <div className="flex items-center gap-1">
+                          <div className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-amber-600 transition-colors">
+                            {`${num < 10 ? "0" : ""}${num}`}
+                          </div>
+                          <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
+                            <div
+                              className="h-full bg-linear-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-300 hover:from-amber-600 hover:to-amber-700"
+                              style={{ width: `${Math.max(percentage, 5)}%` }}
+                            ></div>
+                          </div>
                         </div>
-                        <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-linear-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-300"
-                            style={{ width: `${Math.max(percentage, 5)}%` }}
-                          ></div>
-                        </div>
-                      </div>
+                      </Tooltip>
                     );
                   })}
                 </div>
@@ -258,17 +288,19 @@ export default function StatisticsPanel({
                         maxOmission > 0 ? (omission / maxOmission) * 100 : 0;
 
                       return (
-                        <div key={num} className="flex items-center gap-1">
-                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-bold shrink-0">
-                            {`${num < 10 ? "0" : ""}${num}`}
+                        <Tooltip key={num} text={`遗漏${omission}期`}>
+                          <div className="flex items-center gap-1">
+                            <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-blue-600 transition-colors">
+                              {`${num < 10 ? "0" : ""}${num}`}
+                            </div>
+                            <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
+                              <div
+                                className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
+                                style={{ width: `${Math.max(percentage, 5)}%` }}
+                              ></div>
+                            </div>
                           </div>
-                          <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300"
-                              style={{ width: `${Math.max(percentage, 5)}%` }}
-                            ></div>
-                          </div>
-                        </div>
+                        </Tooltip>
                       );
                     }
                   )}
@@ -280,14 +312,14 @@ export default function StatisticsPanel({
           {/* 特殊号码详细分析 */}
           {config.specialCount && (
             <div className="p-3 bg-linear-to-r from-green-50/80 to-emerald-50/80 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg border border-green-200/50 dark:border-green-800/30">
-              <h4 className="text-xs font-bold text-green-700 dark:text-green-400 mb-2">
+              <h4 className="text-xs font-bold text-red-700 dark:text-red-400 mb-2">
                 {selectedType === "dlt" ? "后区" : "蓝球"}频次
               </h4>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {/* 高频特殊号码详情 */}
                 <div>
-                  <h5 className="text-xs font-medium mb-1 text-green-600">
+                  <h5 className="text-xs font-medium mb-1 text-red-400">
                     高频详情
                   </h5>
                   <div className="space-y-1">
@@ -306,19 +338,21 @@ export default function StatisticsPanel({
                         maxFreq > 0 ? (frequency / maxFreq) * 100 : 0;
 
                       return (
-                        <div key={num} className="flex items-center gap-1">
-                          <div className="w-6 h-6 rounded-full bg-green-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0">
-                            {`${num < 10 ? "0" : ""}${num}`}
+                        <Tooltip key={num} text={`出现${frequency}次`}>
+                          <div className="flex items-center gap-1">
+                            <div className="w-6 h-6 rounded-full bg-amber-600 text-white text-[10px] flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-amber-600 transition-colors">
+                              {`${num < 10 ? "0" : ""}${num}`}
+                            </div>
+                            <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
+                              <div
+                                className="h-full bg-linear-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-300 hover:from-amber-600 hover:to-amber-700"
+                                style={{
+                                  width: `${Math.max(percentage, 10)}%`,
+                                }}
+                              ></div>
+                            </div>
                           </div>
-                          <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-linear-to-r from-green-500 to-green-600 rounded-full transition-all duration-300"
-                              style={{
-                                width: `${Math.max(percentage, 10)}%`,
-                              }}
-                            ></div>
-                          </div>
-                        </div>
+                        </Tooltip>
                       );
                     })}
                   </div>
@@ -341,19 +375,21 @@ export default function StatisticsPanel({
                           maxOmission > 0 ? (omission / maxOmission) * 100 : 0;
 
                         return (
-                          <div key={num} className="flex items-center gap-1">
-                            <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0">
-                              {`${num < 10 ? "0" : ""}${num}`}
+                          <Tooltip key={num} text={`遗漏${omission}期`}>
+                            <div className="flex items-center gap-1">
+                              <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-blue-600 transition-colors">
+                                {`${num < 10 ? "0" : ""}${num}`}
+                              </div>
+                              <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
+                                <div
+                                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
+                                  style={{
+                                    width: `${Math.max(percentage, 10)}%`,
+                                  }}
+                                ></div>
+                              </div>
                             </div>
-                            <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300"
-                                style={{
-                                  width: `${Math.max(percentage, 10)}%`,
-                                }}
-                              ></div>
-                            </div>
-                          </div>
+                          </Tooltip>
                         );
                       }
                     )}
