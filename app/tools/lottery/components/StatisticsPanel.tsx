@@ -84,6 +84,8 @@ export default function StatisticsPanel({
     if (historyData && historyData.length > 0) {
       const limitedData = historyData.slice(-statisticsRange);
       const newStats = analyzeStatistics(limitedData, selectedType, config);
+      // 添加原始数据到统计结果中
+      newStats.rangeData = limitedData;
       setRangeStatistics(newStats);
       // 通知父组件更新范围统计数据
       if (onRangeStatisticsUpdate) {

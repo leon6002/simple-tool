@@ -20,8 +20,6 @@ import toast from "react-hot-toast";
 interface HistoryPanelProps {
   historyRecords: HistoryRecord[];
   onHistoryUpdate: (records: HistoryRecord[]) => void;
-  showHistory: boolean;
-  onToggleShow: () => void;
 }
 
 export default function HistoryPanel({

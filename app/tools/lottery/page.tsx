@@ -39,7 +39,6 @@ import {
 // 导入组件
 import {
   OCRProcessor,
-  HistoryPanel,
   StatisticsPanel,
   NumberGenerator,
   HistoryDisplay,
@@ -378,16 +377,11 @@ export default function LotteryPage() {
                   onAddHistoryRecord={addHistoryRecord}
                   lotteryHistoryData={dltHistoryData}
                   ssqHistoryData={ssqHistoryData}
-                />
-
-                {/* 历史记录卡片 */}
-                <HistoryPanel
                   historyRecords={historyRecords}
                   onHistoryUpdate={setHistoryRecords}
-                  showHistory={showHistory}
-                  onToggleShow={() => setShowHistory(!showHistory)}
                 />
-              </div>
+
+                </div>
             </div>
           </TabsContent>
 

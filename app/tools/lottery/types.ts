@@ -91,6 +91,7 @@ export interface HistoryRecord {
 export interface LotteryStatistics {
   frequency: { [key: number]: number };
   omission: { [key: number]: number };
+  rangeData?: any[]; // 统计范围内的原始数据
 }
 
 export type AlgorithmType = "random" | "frequency" | "omission" | "balanced";
