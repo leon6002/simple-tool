@@ -833,7 +833,7 @@ export default function NumberGenerator({
                           }
                           setMainNumbers(newNumbers);
                         }}
-                        className={`h-9 w-9 p-0 cursor-pointer text-xs font-bold transition-all duration-200 border-2 rounded-lg hover:scale-110 ${
+                        className={`h-9 w-9 p-0 cursor-pointer text-xs font-bold transition-all duration-200 border-2 rounded-full hover:scale-110 ${
                           isSelected
                             ? "ring-3 ring-blue-100 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
                             : "hover:shadow-md"
@@ -855,8 +855,6 @@ export default function NumberGenerator({
                   })}
                 </div>
               </div>
-
-              <FrequencyLegend />
 
               {/* 后区号码网格 */}
               {config.specialRange && config.specialCount && (
@@ -991,7 +989,7 @@ export default function NumberGenerator({
                               }
                               setSpecialNumbers(newNumbers);
                             }}
-                            className={`h-9 w-9 p-0 text-xs  cursor-pointer font-bold transition-all duration-200 border-2 rounded-lg hover:scale-110 ${
+                            className={`h-9 w-9 p-0 text-xs  cursor-pointer font-bold transition-all duration-200 border-2 rounded-full hover:scale-110 ${
                               isSelected
                                 ? "ring-3 ring-blue-100 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
                                 : "hover:shadow-md"
@@ -1015,6 +1013,7 @@ export default function NumberGenerator({
                   </div>
                 </div>
               )}
+              <FrequencyLegend />
             </div>
           </div>
         </CardContent>
