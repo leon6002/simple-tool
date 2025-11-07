@@ -119,7 +119,7 @@ const parseDLT = (html: string) => {
 export async function fetchLatestDLTData(): Promise<LotteryResult[]> {
   // 新浪彩票 (综合走势图，默认为最近50期)
   const url =
-    "https://view.lottery.sina.com.cn/lotto/pc_zst/index?lottoType=dlt&actionType=chzs";
+    "https://view.lottery.sina.com.cn/lotto/pc_zst/index?lottoType=dlt&actionType=chzs&type=100&dpc=1";
   try {
     const html = await crawlWeb(url);
     return parseDLT(html);
@@ -205,7 +205,7 @@ const parseSSQResults = (htmlContent: string): SSQResult[] => {
 
 export const fetchLatestSSQData = async (): Promise<SSQResult[]> => {
   const url =
-    "https://view.lottery.sina.com.cn/lotto/pc_zst/index?lottoType=ssq&actionType=chzs&dpc=1";
+    "https://view.lottery.sina.com.cn/lotto/pc_zst/index?lottoType=ssq&actionType=chzs&type=100&dpc=1";
   try {
     const html = await crawlWeb(url);
     return parseSSQResults(html);

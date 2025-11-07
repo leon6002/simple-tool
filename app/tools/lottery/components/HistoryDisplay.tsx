@@ -28,9 +28,7 @@ export default function HistoryDisplay({
             <History className="h-5 w-5" />
             开奖历史
           </CardTitle>
-          <CardDescription>
-            大乐透和双色球最近50期开奖记录（数据来源：新浪彩票）
-          </CardDescription>
+          <CardDescription>大乐透和双色球开奖记录</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-12">
@@ -50,9 +48,7 @@ export default function HistoryDisplay({
             <History className="h-5 w-5" />
             开奖历史
           </CardTitle>
-          <CardDescription>
-            大乐透和双色球最近50期开奖记录（数据来源：新浪彩票）
-          </CardDescription>
+          <CardDescription>大乐透和双色球开奖记录</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-12 text-muted-foreground">
@@ -70,9 +66,7 @@ export default function HistoryDisplay({
           <History className="h-5 w-5" />
           开奖历史
         </CardTitle>
-        <CardDescription>
-          大乐透和双色球最近50期开奖记录（数据来源：新浪彩票）
-        </CardDescription>
+        <CardDescription>大乐透和双色球开奖记录</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-8">
@@ -92,10 +86,10 @@ export default function HistoryDisplay({
                     .map((item) => (
                       <div
                         key={item.issue}
-                        className="p-3 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-lg border border-border hover:border-purple-500/30 transition-colors"
+                        className="p-3 bg-linear-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-lg border border-border hover:border-purple-500/30 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 min-w-[80px]">
+                          <div className="shrink-0 min-w-20">
                             <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">
                               第 {item.issue} 期
                             </span>
@@ -116,7 +110,7 @@ export default function HistoryDisplay({
                               (num: number, idx: number) => (
                                 <div
                                   key={idx}
-                                  className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-md"
+                                  className="w-7 h-7 rounded-full bg-linear-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-md"
                                 >
                                   {num}
                                 </div>

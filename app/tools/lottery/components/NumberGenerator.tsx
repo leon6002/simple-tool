@@ -61,15 +61,34 @@ export default function NumberGenerator({
   statistics,
   onAlgorithmChange,
   onTypeChange,
-  onStatisticsUpdate,
   onAddHistoryRecord,
-  lotteryHistoryData,
-  ssqHistoryData,
 }: NumberGeneratorProps) {
   const config = LOTTERY_CONFIGS[selectedType];
   const [mainNumbers, setMainNumbers] = useState<number[]>([]);
   const [specialNumbers, setSpecialNumbers] = useState<number[]>([]);
   const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  // 保存选号
+  const saveNumbers = useCallback(() => {
+    if (mainNumbers.length > 0) {
+      onAddHistoryRecord({
+        lotteryType: selectedType,
+        algorithm: algorithm,
+        mainNumbers: mainNumbers,
+        specialNumbers: specialNumbers,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000); // 2秒后恢复状态
+      console.log("选号已保存到历史记录");
+    }
+  }, [
+    mainNumbers,
+    specialNumbers,
+    selectedType,
+    algorithm,
+    onAddHistoryRecord,
+  ]);
 
   // 智能选号算法
   const generateSmartNumbers = useCallback(() => {
@@ -574,23 +593,18 @@ export default function NumberGenerator({
                     {copied ? "已复制" : "复制"}
                   </Button>
                   <Button
-                    onClick={() => {
-                      if (mainNumbers.length > 0) {
-                        onAddHistoryRecord({
-                          lotteryType: selectedType,
-                          algorithm: algorithm,
-                          mainNumbers: mainNumbers,
-                          specialNumbers: specialNumbers,
-                        });
-                      }
-                    }}
+                    onClick={saveNumbers}
                     variant="outline"
                     size="sm"
                     className="border-blue-200 text-slate-500 hover:bg-blue-50 hover:border-blue-300 h-7 px-3"
-                    disabled={mainNumbers.length === 0}
+                    disabled={mainNumbers.length === 0 || saved}
                   >
-                    <Save className="h-3 w-3 mr-1" />
-                    保存选号
+                    {saved ? (
+                      <Check className="h-3 w-3 mr-1" />
+                    ) : (
+                      <Save className="h-3 w-3 mr-1" />
+                    )}
+                    {saved ? "已保存" : "保存选号"}
                   </Button>
                 </div>
               </div>
