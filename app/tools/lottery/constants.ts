@@ -27,5 +27,5 @@ export const LOTTERY_CONFIGS: Record<LotteryType, LotteryConfig> = {
 };
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-export const ACCEPTED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-export const STORAGE_KEY = 'lottery_generator_history';
+export const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+export const STORAGE_KEY = "lottery_generator_history";

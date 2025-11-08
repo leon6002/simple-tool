@@ -168,19 +168,11 @@ const NumberOperationsMobile = ({
         <div className="max-w-lg mx-auto">
           <div className="flex gap-2">
             {/* 复制按钮 */}
-            <Button
-              onClick={copyNumbers}
-              className="flex-1 bg-linear-to-r from-blue-600 to-purple-600 text-white hover:opacity-90 transition-all text-sm h-12"
-              size="sm"
-            >
-              <Copy className="h-4 w-4 mr-1" />
-              {copied ? "已复制" : "复制号码"}
-            </Button>
 
             {/* 保存按钮 */}
             <Button
               onClick={saveNumbers}
-              className="flex-1 bg-linear-to-r from-green-600 to-emerald-600 text-white hover:opacity-90 transition-all text-sm h-12"
+              className="flex-1 bg-linear-to-r from-blue-500 to-emerald-600 text-white hover:opacity-90 transition-all text-sm h-12"
               size="sm"
             >
               <Save className="h-4 w-4 mr-1" />

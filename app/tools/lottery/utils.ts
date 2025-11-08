@@ -1,17 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { LotteryStatistics, AlgorithmType } from "./types";
+import { LotteryStatistics } from "./types";
 import { LotteryType } from "./constants";
-
-// 获取算法的中文名称
-export const getAlgorithmName = (algorithm: AlgorithmType): string => {
-  const names = {
-    random: "随机",
-    frequency: "高频",
-    omission: "冷门",
-    balanced: "均衡",
-  };
-  return names[algorithm];
-};
 
 // 分析历史数据统计
 export const analyzeStatistics = (
@@ -264,3 +253,5 @@ export const getFrequencyColor = (num: number, statistics: any) => {
 
   return colorByFreq(percentage);
 };
+
+export * from "./utils/AlgorithmUtil";

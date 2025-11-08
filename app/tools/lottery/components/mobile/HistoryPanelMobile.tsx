@@ -13,9 +13,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { History, Upload, Copy, ChevronUp } from "lucide-react";
-import { HistoryRecord } from "../../types";
+import { AlgorithmType, HistoryRecord } from "../../types";
 import toast from "react-hot-toast";
 import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
+import { getAlgorithmName } from "../../utils";
 
 export default function HistoryPanelMobile() {
   const historyRecords = useLotteryStore((state) => state.historyRecords);
@@ -192,10 +193,10 @@ export default function HistoryPanelMobile() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                      {record.lotteryType}
+                      {record.lotteryType === "dlt" ? "大乐透" : "双色球"}
                     </span>
                     <span className="text-xs px-2 py-1 bg-linear-to-r from-blue-600/20 to-purple-600/20 rounded-full text-blue-700 dark:text-blue-300 font-medium">
-                      {record.algorithm}
+                      {getAlgorithmName(record.algorithm as AlgorithmType)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">

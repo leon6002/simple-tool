@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import { getFrequencyColor } from "../utils";
 import { LotteryConfig, LotteryStatistics, LotteryType } from "../types";

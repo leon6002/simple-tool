@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card";
 
 import { LOTTERY_CONFIGS } from "../constants";
-import { getAlgorithmName } from "../utils";
 import { FrequencyLegend } from "./FrequencyLegend";
 import { NumberSelector } from "./NumberSelector";
 import { selectNumberByAlgorithm } from "../utils/AlgorithmUtil";
@@ -74,25 +73,11 @@ export default function NumberGenerator({
       });
       setMainNumbers(mainNumbers);
       setSpecialNumbers(specialNumbers);
-      console.log(`${getAlgorithmName(algorithm)}算法生成成功！`);
-      console.log("请点击保存选号按钮将号码添加到历史记录");
     } catch (error) {
       console.error("生成号码失败:", error);
     }
   }, [algorithm, config, statistics]);
 
-  // 复制号码到剪贴板
-  // const copyNumbers = useCallback(() => {
-  //   const text =
-  //     specialNumbers.length > 0
-  //       ? `${mainNumbers.join(", ")} + ${specialNumbers.join(", ")}`
-  //       : mainNumbers.join(", ");
-
-  //   navigator.clipboard.writeText(text);
-  //   setCopied(true);
-  //   console.log("已复制到剪贴板");
-  //   setTimeout(() => setCopied(false), 2000);
-  // }, [mainNumbers, specialNumbers]);
   const { copyToClipboard } = useCopyToClipboard();
 
   const copyNumbers = async () => {

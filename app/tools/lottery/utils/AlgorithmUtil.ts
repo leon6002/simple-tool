@@ -286,3 +286,13 @@ export const selectNumberByAlgorithm = ({
     specialNumbers,
   };
 };
+
+export const getAlgorithmName = (algorithm: AlgorithmType): string => {
+  const names = {
+    random: "随机选取",
+    frequency: "高频优先",
+    omission: "遗漏优先",
+    balanced: "均衡选取",
+  };
+  return names[algorithm];
+};

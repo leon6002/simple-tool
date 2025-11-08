@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // 大乐透AI解析数据
 export interface DLTAIParsedData {
   lottery_type: string;
