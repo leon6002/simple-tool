@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { LotteryStatistics, LotteryType } from "../types";
 import { LOTTERY_CONFIGS } from "../constants";
 import {
   getHighFrequencyNumbers,
@@ -26,6 +25,7 @@ import {
 } from "../utils";
 import { BarChart3, History } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 
 // Tooltip组件
 const Tooltip = ({
@@ -56,26 +56,22 @@ const Tooltip = ({
 };
 
 interface StatisticsPanelProps {
-  statistics: LotteryStatistics | null;
-  selectedType: LotteryType;
   lotteryHistoryData: any[];
   ssqHistoryData: any[];
-  onRangeStatisticsUpdate?: (statistics: LotteryStatistics | null) => void;
 }
 
 export default function StatisticsPanel({
-  statistics,
-  selectedType,
   lotteryHistoryData,
   ssqHistoryData,
-  onRangeStatisticsUpdate,
 }: StatisticsPanelProps) {
+  const selectedType = useLotteryStore((state) => state.selectedType);
   const config = LOTTERY_CONFIGS[selectedType];
+
+  const statistics = useLotteryStore((state) => state.statistics);
+  const setStatistics = useLotteryStore((state) => state.setStatistics);
 
   // 统计范围状态
   const [statisticsRange, setStatisticsRange] = useState<number>(50);
-  const [rangeStatistics, setRangeStatistics] =
-    useState<LotteryStatistics | null>(null);
 
   // 根据统计范围重新计算统计数据
   useEffect(() => {
@@ -86,24 +82,18 @@ export default function StatisticsPanel({
       const newStats = analyzeStatistics(limitedData, selectedType, config);
       // 添加原始数据到统计结果中
       newStats.rangeData = limitedData;
-      setRangeStatistics(newStats);
-      // 通知父组件更新范围统计数据
-      if (onRangeStatisticsUpdate) {
-        onRangeStatisticsUpdate(newStats);
-      }
+      setStatistics(newStats);
     }
   }, [
-    statisticsRange,
     selectedType,
     lotteryHistoryData,
     ssqHistoryData,
+    statisticsRange,
     config,
+    setStatistics,
   ]);
 
-  // 使用范围统计或原始统计
-  const currentStatistics = rangeStatistics || statistics;
-
-  if (!currentStatistics)
+  if (!statistics)
     return (
       <Card className="border-border/50 shadow-lg">
         <CardHeader className="pb-3">
@@ -156,7 +146,7 @@ export default function StatisticsPanel({
       </CardHeader>
       <CardContent className="pt-0 space-y-2">
         {/* 历史开奖号码 */}
-        <div className="p-3 bg-gradient-to-r from-indigo-50/80 to-purple-50/80 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-lg border border-indigo-200/50 dark:border-indigo-800/30">
+        <div className="p-3 bg-linear-to-r from-indigo-50/80 to-purple-50/80 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-lg border border-indigo-200/50 dark:border-indigo-800/30">
           <div className="flex items-center gap-2 mb-3">
             <History className="h-3 w-3 text-indigo-600" />
             <h4 className="text-xs font-bold text-indigo-700 dark:text-indigo-400">
@@ -206,7 +196,7 @@ export default function StatisticsPanel({
                               .map((num: number, idx: number) => (
                                 <div
                                   key={idx}
-                                  className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-xs flex items-center justify-center font-bold shadow-sm"
+                                  className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-cyan-500 text-white text-xs flex items-center justify-center font-bold shadow-sm"
                                 >
                                   {num}
                                 </div>
@@ -240,36 +230,33 @@ export default function StatisticsPanel({
                   频次排名
                 </h5>
                 <div className="space-y-1">
-                  {getHighFrequencyNumbers(
-                    currentStatistics,
-                    10,
-                    false,
-                    config
-                  ).map((num, index) => {
-                    const frequency = currentStatistics.frequency[num] || 0;
-                    const allFrequencies = Object.values(
-                      currentStatistics.frequency
-                    ).filter((f: any) => f > 0) as number[];
-                    const maxFreq = Math.max(...allFrequencies);
-                    const percentage =
-                      maxFreq > 0 ? (frequency / maxFreq) * 100 : 0;
+                  {getHighFrequencyNumbers(statistics, 10, false, config).map(
+                    (num) => {
+                      const frequency = statistics.frequency[num] || 0;
+                      const allFrequencies = Object.values(
+                        statistics.frequency
+                      ).filter((f: any) => f > 0) as number[];
+                      const maxFreq = Math.max(...allFrequencies);
+                      const percentage =
+                        maxFreq > 0 ? (frequency / maxFreq) * 100 : 0;
 
-                    return (
-                      <Tooltip key={num} text={`出现${frequency}次`}>
-                        <div className="flex items-center gap-1">
-                          <div className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-amber-600 transition-colors">
-                            {`${num < 10 ? "0" : ""}${num}`}
+                      return (
+                        <Tooltip key={num} text={`出现${frequency}次`}>
+                          <div className="flex items-center gap-1">
+                            <div className="w-6 h-6 rounded-full bg-amber-600 text-white text-xs flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-amber-600 transition-colors">
+                              {`${num < 10 ? "0" : ""}${num}`}
+                            </div>
+                            <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
+                              <div
+                                className="h-full bg-linear-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-300 hover:from-amber-600 hover:to-amber-700"
+                                style={{ width: `${Math.max(percentage, 5)}%` }}
+                              ></div>
+                            </div>
                           </div>
-                          <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
-                            <div
-                              className="h-full bg-linear-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-300 hover:from-amber-600 hover:to-amber-700"
-                              style={{ width: `${Math.max(percentage, 5)}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      </Tooltip>
-                    );
-                  })}
+                        </Tooltip>
+                      );
+                    }
+                  )}
                 </div>
               </div>
 
@@ -279,11 +266,11 @@ export default function StatisticsPanel({
                   遗漏排名
                 </h5>
                 <div className="space-y-1">
-                  {getColdNumbers(currentStatistics, 10, false, config).map(
+                  {getColdNumbers(statistics, 10, false, config).map(
                     (num, index) => {
-                      const omission = currentStatistics.omission[num] || 0;
+                      const omission = statistics.omission[num] || 0;
                       const allOmissions = Object.values(
-                        currentStatistics.omission
+                        statistics.omission
                       ).filter((o: any) => o > 0) as number[];
                       const maxOmission = Math.max(...allOmissions);
                       const percentage =
@@ -325,66 +312,25 @@ export default function StatisticsPanel({
                     高频详情
                   </h5>
                   <div className="space-y-1">
-                    {getHighFrequencyNumbers(
-                      currentStatistics,
-                      6,
-                      true,
-                      config
-                    ).map((num) => {
-                      const frequency = currentStatistics.frequency[num] || 0;
-                      const specialFrequencies = Object.values(
-                        currentStatistics.frequency
-                      ).filter((f: any) => f > 0) as number[];
-                      const maxFreq = Math.max(...specialFrequencies);
-                      const percentage =
-                        maxFreq > 0 ? (frequency / maxFreq) * 100 : 0;
-
-                      return (
-                        <Tooltip key={num} text={`出现${frequency}次`}>
-                          <div className="flex items-center gap-1">
-                            <div className="w-6 h-6 rounded-full bg-amber-600 text-white text-[10px] flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-amber-600 transition-colors">
-                              {`${num < 10 ? "0" : ""}${num}`}
-                            </div>
-                            <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
-                              <div
-                                className="h-full bg-linear-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-300 hover:from-amber-600 hover:to-amber-700"
-                                style={{
-                                  width: `${Math.max(percentage, 10)}%`,
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-                        </Tooltip>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 冷门特殊号码详情 */}
-                <div>
-                  <h5 className="text-xs font-medium mb-1 text-blue-600">
-                    冷门详情
-                  </h5>
-                  <div className="space-y-1">
-                    {getColdNumbers(currentStatistics, 6, true, config).map(
+                    {getHighFrequencyNumbers(statistics, 6, true, config).map(
                       (num) => {
-                        const omission = currentStatistics.omission[num] || 0;
-                        const specialOmissions = Object.values(
-                          currentStatistics.omission
-                        ).filter((o: any) => o > 0) as number[];
-                        const maxOmission = Math.max(...specialOmissions);
+                        const frequency = statistics.frequency[num] || 0;
+                        const specialFrequencies = Object.values(
+                          statistics.frequency
+                        ).filter((f: any) => f > 0) as number[];
+                        const maxFreq = Math.max(...specialFrequencies);
                         const percentage =
-                          maxOmission > 0 ? (omission / maxOmission) * 100 : 0;
+                          maxFreq > 0 ? (frequency / maxFreq) * 100 : 0;
 
                         return (
-                          <Tooltip key={num} text={`遗漏${omission}期`}>
+                          <Tooltip key={num} text={`出现${frequency}次`}>
                             <div className="flex items-center gap-1">
-                              <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-blue-600 transition-colors">
+                              <div className="w-6 h-6 rounded-full bg-amber-600 text-white text-[10px] flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-amber-600 transition-colors">
                                 {`${num < 10 ? "0" : ""}${num}`}
                               </div>
                               <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
                                 <div
-                                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
+                                  className="h-full bg-linear-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-300 hover:from-amber-600 hover:to-amber-700"
                                   style={{
                                     width: `${Math.max(percentage, 10)}%`,
                                   }}
@@ -395,6 +341,42 @@ export default function StatisticsPanel({
                         );
                       }
                     )}
+                  </div>
+                </div>
+
+                {/* 冷门特殊号码详情 */}
+                <div>
+                  <h5 className="text-xs font-medium mb-1 text-blue-600">
+                    冷门详情
+                  </h5>
+                  <div className="space-y-1">
+                    {getColdNumbers(statistics, 6, true, config).map((num) => {
+                      const omission = statistics.omission[num] || 0;
+                      const specialOmissions = Object.values(
+                        statistics.omission
+                      ).filter((o: any) => o > 0) as number[];
+                      const maxOmission = Math.max(...specialOmissions);
+                      const percentage =
+                        maxOmission > 0 ? (omission / maxOmission) * 100 : 0;
+
+                      return (
+                        <Tooltip key={num} text={`遗漏${omission}期`}>
+                          <div className="flex items-center gap-1">
+                            <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-blue-600 transition-colors">
+                              {`${num < 10 ? "0" : ""}${num}`}
+                            </div>
+                            <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
+                              <div
+                                className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
+                                style={{
+                                  width: `${Math.max(percentage, 10)}%`,
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                        </Tooltip>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

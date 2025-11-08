@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
@@ -14,24 +15,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Calculator } from "lucide-react";
-import toast from "react-hot-toast";
 
 // 导入类型和工具
 import {
   LotteryType,
-  AlgorithmType,
   DLTAIParsedData,
   SSQAIParsedData,
   AutoPrizeResult,
-  HistoryRecord,
-  LotteryStatistics,
 } from "./types";
-import { LOTTERY_CONFIGS, STORAGE_KEY } from "./constants";
-import {
-  saveToLocalStorage,
-  loadFromLocalStorage,
-  analyzeStatistics,
-} from "./utils";
+import { LOTTERY_CONFIGS } from "./constants";
+import { analyzeStatistics } from "./utils";
 
 // 导入组件
 import {
@@ -42,6 +35,7 @@ import {
 } from "./components";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { StatisticsPanelMobile } from "./components/mobile/StatisticsPanelMobile";
+import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 
 export default function LotteryPage() {
   // Prize calculator states
@@ -52,12 +46,8 @@ export default function LotteryPage() {
   // 基础状态
   const isMobile = useIsMobile();
   const [selectedType, setSelectedType] = useState<LotteryType>("dlt");
-  const [algorithm, setAlgorithm] = useState<AlgorithmType>("balanced");
-  const [statistics, setStatistics] = useState<LotteryStatistics | null>(null);
-  const [rangeStatistics, setRangeStatistics] =
-    useState<LotteryStatistics | null>(null);
-  const [historyRecords, setHistoryRecords] = useState<HistoryRecord[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
+  const statistics = useLotteryStore((state) => state.statistics);
+  const setStatistics = useLotteryStore((state) => state.setStatistics);
 
   // OCR相关状态
   const [ocrResult, setOcrResult] = useState<any>(null);
@@ -74,23 +64,6 @@ export default function LotteryPage() {
   const [historyLoading, setHistoryLoading] = useState(false);
 
   const config = LOTTERY_CONFIGS[selectedType];
-
-  // 添加历史记录
-  const addHistoryRecord = useCallback(
-    (record: Omit<HistoryRecord, "id" | "timestamp" | "formattedTime">) => {
-      const newRecord: HistoryRecord = {
-        ...record,
-        id: Date.now().toString(),
-        timestamp: Date.now(),
-        formattedTime: new Date().toLocaleString("zh-CN"),
-      };
-
-      const updatedRecords = [newRecord, ...historyRecords];
-      setHistoryRecords(updatedRecords);
-      saveToLocalStorage(updatedRecords, STORAGE_KEY);
-    },
-    [historyRecords]
-  );
 
   // 处理OCR结果
   const handleOCRResult = useCallback(
@@ -196,10 +169,6 @@ export default function LotteryPage() {
   // 页面初始化
   useEffect(() => {
     fetchLotteryHistory();
-
-    // 加载本地历史记录
-    const loadedRecords = loadFromLocalStorage(STORAGE_KEY);
-    setHistoryRecords(loadedRecords);
   }, []);
 
   // 自动分析统计数据
@@ -216,10 +185,10 @@ export default function LotteryPage() {
         console.error("统计分析失败:", error);
       }
     }
-  }, [dltHistoryData.length, ssqHistoryData.length, selectedType, config]);
+  }, [dltHistoryData, ssqHistoryData, selectedType, config, setStatistics]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -227,7 +196,7 @@ export default function LotteryPage() {
         className="container mx-auto px-4 py-8 max-w-7xl"
       >
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
             彩票工具
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -277,7 +246,7 @@ export default function LotteryPage() {
                               size="sm"
                               className={
                                 selectedType === type
-                                  ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white"
+                                  ? "bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 text-white"
                                   : ""
                               }
                             >
@@ -328,14 +297,14 @@ export default function LotteryPage() {
 
                         <Button
                           onClick={calculatePrize}
-                          className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white"
+                          className="w-full bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 text-white"
                         >
                           <Calculator className="h-4 w-4 mr-2" />
                           计算奖金
                         </Button>
 
                         {calculatedPrize && (
-                          <div className="p-4 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
+                          <div className="p-4 bg-linear-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
                             <p className="text-center text-lg font-bold">
                               {calculatedPrize}
                             </p>
@@ -357,20 +326,15 @@ export default function LotteryPage() {
                 {/* 统计分析面板 */}
                 {isMobile && (
                   <StatisticsPanelMobile
-                    statistics={statistics}
                     selectedType={selectedType}
                     lotteryHistoryData={dltHistoryData}
                     ssqHistoryData={ssqHistoryData}
-                    onRangeStatisticsUpdate={setRangeStatistics}
                   />
                 )}
                 {!isMobile && (
                   <StatisticsPanel
-                    statistics={statistics}
-                    selectedType={selectedType}
                     lotteryHistoryData={dltHistoryData}
                     ssqHistoryData={ssqHistoryData}
-                    onRangeStatisticsUpdate={setRangeStatistics}
                   />
                 )}
               </div>
@@ -379,17 +343,8 @@ export default function LotteryPage() {
               <div className="w-full lg:w-[70%] space-y-6">
                 {/* 号码生成器 */}
                 <NumberGenerator
-                  selectedType={selectedType}
-                  algorithm={algorithm}
-                  statistics={rangeStatistics || statistics}
-                  onAlgorithmChange={setAlgorithm}
-                  onTypeChange={setSelectedType}
-                  onStatisticsUpdate={setStatistics}
-                  onAddHistoryRecord={addHistoryRecord}
                   lotteryHistoryData={dltHistoryData}
                   ssqHistoryData={ssqHistoryData}
-                  historyRecords={historyRecords}
-                  onHistoryUpdate={setHistoryRecords}
                 />
               </div>
             </div>

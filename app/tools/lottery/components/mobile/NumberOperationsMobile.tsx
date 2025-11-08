@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetContent,
@@ -27,35 +26,30 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LOTTERY_CONFIGS, LotteryType } from "../../constants";
-import { AlgorithmType, HistoryRecord } from "../../types";
+import { HistoryRecord } from "../../types";
 import HistoryPanelMobile from "./HistoryPanelMobile";
+import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 
 interface NumberOperationsMobileProps {
-  algorithm: AlgorithmType;
-  selectedType: LotteryType;
-  historyRecords: HistoryRecord[];
   copied: boolean;
   saved: boolean;
-  onTypeChange: (type: LotteryType) => void;
-  onAlgorithmChange: (algorithm: AlgorithmType) => void;
   generateSmartNumbers: () => void;
   onHistoryUpdate: (records: HistoryRecord[]) => void;
   saveNumbers: () => void;
   copyNumbers: () => void;
 }
 const NumberOperationsMobile = ({
-  algorithm,
-  selectedType,
-  historyRecords,
   copied,
   saved,
-  onTypeChange,
-  onAlgorithmChange,
   generateSmartNumbers,
-  onHistoryUpdate,
   saveNumbers,
   copyNumbers,
 }: NumberOperationsMobileProps) => {
+  const selectedType = useLotteryStore((state) => state.selectedType);
+  const algorithm = useLotteryStore((state) => state.algorithm);
+  const setAlgorithm = useLotteryStore((state) => state.setAlgorithm);
+  const setSelectedType = useLotteryStore((state) => state.setSelectedType);
+
   return (
     <>
       <div className="md:hidden mt-2 flex gap-x-3 w-full">
@@ -95,7 +89,7 @@ const NumberOperationsMobile = ({
                           variant={
                             selectedType === type ? "default" : "outline"
                           }
-                          onClick={() => onTypeChange(type)}
+                          onClick={() => setSelectedType(type)}
                           className="h-12 text-sm"
                         >
                           {LOTTERY_CONFIGS[type].name}
@@ -117,7 +111,7 @@ const NumberOperationsMobile = ({
                     <div className="grid grid-cols-2 gap-3">
                       <Button
                         variant={algorithm === "random" ? "default" : "outline"}
-                        onClick={() => onAlgorithmChange("random")}
+                        onClick={() => setAlgorithm("random")}
                         className="h-12 text-sm"
                       >
                         <Shuffle className="w-4 h-4 mr-2" />
@@ -127,7 +121,7 @@ const NumberOperationsMobile = ({
                         variant={
                           algorithm === "frequency" ? "default" : "outline"
                         }
-                        onClick={() => onAlgorithmChange("frequency")}
+                        onClick={() => setAlgorithm("frequency")}
                         className="h-12 text-sm"
                       >
                         <TrendingUp className="w-4 h-4 mr-2" />
@@ -137,7 +131,7 @@ const NumberOperationsMobile = ({
                         variant={
                           algorithm === "omission" ? "default" : "outline"
                         }
-                        onClick={() => onAlgorithmChange("omission")}
+                        onClick={() => setAlgorithm("omission")}
                         className="h-12 text-sm"
                       >
                         <TrendingDown className="w-4 h-4 mr-2" />
@@ -147,7 +141,7 @@ const NumberOperationsMobile = ({
                         variant={
                           algorithm === "balanced" ? "default" : "outline"
                         }
-                        onClick={() => onAlgorithmChange("balanced")}
+                        onClick={() => setAlgorithm("balanced")}
                         className="h-12 text-sm"
                       >
                         <Scale className="w-4 h-4 mr-2" />
@@ -196,10 +190,7 @@ const NumberOperationsMobile = ({
         </div>
       </div>
       <div className="w-full">
-        <HistoryPanelMobile
-          historyRecords={historyRecords}
-          onHistoryUpdate={onHistoryUpdate}
-        />
+        <HistoryPanelMobile />
       </div>
     </>
   );

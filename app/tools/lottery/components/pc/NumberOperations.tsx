@@ -34,42 +34,38 @@ import {
   History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 
 interface NumberOperationsProps {
-  selectedType: LotteryType;
-  algorithm: AlgorithmType;
   config: LotteryConfig;
   mainNumbers: number[];
   specialNumbers: number[];
-  historyRecords: HistoryRecord[];
   copied: boolean;
   saved: boolean;
   setMainNumbers: (numbers: number[]) => void;
   setSpecialNumbers: (numbers: number[]) => void;
   saveNumbers: () => void;
   copyNumbers: () => void;
-  onTypeChange: (type: LotteryType) => void;
-  onAlgorithmChange: (algorithm: AlgorithmType) => void;
   generateSmartNumbers: () => void;
 }
 
 export const NumberOperations = ({
-  selectedType,
-  algorithm,
   config,
   mainNumbers,
   specialNumbers,
-  historyRecords,
   copied,
   saved,
   setMainNumbers,
   setSpecialNumbers,
   saveNumbers,
   copyNumbers,
-  onTypeChange,
-  onAlgorithmChange,
   generateSmartNumbers,
 }: NumberOperationsProps) => {
+  const selectedType = useLotteryStore((state) => state.selectedType);
+  const algorithm = useLotteryStore((state) => state.algorithm);
+  const historyRecords = useLotteryStore((state) => state.historyRecords);
+  const setSelectedType = useLotteryStore((state) => state.setSelectedType);
+  const setAlgorithm = useLotteryStore((state) => state.setAlgorithm);
   return (
     <div className="hidden md:block bg-linear-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-xl border border-blue-200/30 dark:border-blue-800/30">
       <div className="flex flex-col gap-3">
@@ -79,7 +75,7 @@ export const NumberOperations = ({
           <div className="flex items-center gap-2 flex-1">
             <Select
               value={selectedType}
-              onValueChange={(value: LotteryType) => onTypeChange(value)}
+              onValueChange={(value: LotteryType) => setSelectedType(value)}
             >
               <SelectTrigger className="h-8 w-32 text-xs cursor-pointer">
                 <SelectValue />
@@ -95,7 +91,7 @@ export const NumberOperations = ({
 
             <Select
               value={algorithm}
-              onValueChange={(value: AlgorithmType) => onAlgorithmChange(value)}
+              onValueChange={(value: AlgorithmType) => setAlgorithm(value)}
             >
               <SelectTrigger className="h-8 w-32 text-xs cursor-pointer">
                 <SelectValue />

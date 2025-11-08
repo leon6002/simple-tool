@@ -14,26 +14,15 @@ import {
 } from "@/components/ui/sheet";
 import { History, Upload, Copy, ChevronUp } from "lucide-react";
 import { HistoryRecord } from "../../types";
-import { saveToLocalStorage, clearLocalStorage } from "../../utils";
 import toast from "react-hot-toast";
+import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 
-interface HistoryPanelProps {
-  historyRecords: HistoryRecord[];
-  onHistoryUpdate: (records: HistoryRecord[]) => void;
-}
-
-export default function HistoryPanelMobile({
-  historyRecords,
-  onHistoryUpdate,
-}: HistoryPanelProps) {
-  const STORAGE_KEY = "lottery_generator_history";
-
-  // 清空选号记录
-  const clearHistoryRecords = useCallback(() => {
-    onHistoryUpdate([]);
-    clearLocalStorage(STORAGE_KEY);
-    console.log("选号记录已清空");
-  }, [onHistoryUpdate]);
+export default function HistoryPanelMobile() {
+  const historyRecords = useLotteryStore((state) => state.historyRecords);
+  const clearHistoryRecords = useLotteryStore(
+    (state) => state.clearHistoryRecords
+  );
+  const setHistoryRecords = useLotteryStore((state) => state.setHistoryRecords);
 
   // 导出选号记录
   const exportHistoryRecords = useCallback(() => {
@@ -68,8 +57,7 @@ export default function HistoryPanelMobile({
         try {
           const importedRecords = JSON.parse(e.target?.result as string);
           if (Array.isArray(importedRecords)) {
-            onHistoryUpdate(importedRecords);
-            saveToLocalStorage(importedRecords, STORAGE_KEY);
+            setHistoryRecords(importedRecords);
             console.log(`成功导入 ${importedRecords.length} 条选号记录`);
           } else {
             console.error("文件格式不正确");
@@ -83,7 +71,7 @@ export default function HistoryPanelMobile({
 
       event.target.value = "";
     },
-    [onHistoryUpdate]
+    [setHistoryRecords]
   );
 
   // 复制号码到剪贴板

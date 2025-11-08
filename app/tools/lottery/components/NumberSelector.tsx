@@ -110,7 +110,7 @@ export const NumberSelector = ({
                 }}
                 className={`h-9 w-9 p-0 cursor-pointer text-xs font-bold transition-all duration-200 border-2 rounded-full hover:scale-110 ${
                   isSelected
-                    ? "ring-3 ring-blue-100 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
+                    ? "ring-3 ring-red-500 dark:ring-blue-50 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
                     : "hover:shadow-md"
                 }`}
                 style={{
@@ -222,7 +222,7 @@ export const NumberSelector = ({
                     }}
                     className={`h-9 w-9 p-0 text-xs cursor-pointer font-bold transition-all duration-200 border-2 rounded-full hover:scale-110 ${
                       isSelected
-                        ? "ring-3 ring-blue-100 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
+                        ? "ring-3 ring-blue-500 dark:ring-blue-50 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 shadow-lg"
                         : "hover:shadow-md"
                     }`}
                     style={{

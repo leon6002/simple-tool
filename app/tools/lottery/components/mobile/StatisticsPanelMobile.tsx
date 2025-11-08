@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { LotteryStatistics, LotteryType } from "../../types";
+import { LotteryType } from "../../types";
 import { LOTTERY_CONFIGS } from "../../constants";
 import {
   getHighFrequencyNumbers,
@@ -36,28 +36,26 @@ import {
 import { BarChart3, History } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NumberSlotStatisticsMobile } from "./NumberSlotStatisticsMobile";
+import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 
 interface StatisticsPanelProps {
-  statistics: LotteryStatistics | null;
   selectedType: LotteryType;
   lotteryHistoryData: any[];
   ssqHistoryData: any[];
-  onRangeStatisticsUpdate?: (statistics: LotteryStatistics | null) => void;
 }
 
 export const StatisticsPanelMobile = ({
-  statistics,
   selectedType,
   lotteryHistoryData,
   ssqHistoryData,
-  onRangeStatisticsUpdate,
 }: StatisticsPanelProps) => {
   const config = LOTTERY_CONFIGS[selectedType];
 
+  const statistics = useLotteryStore((state) => state.statistics);
+  const setStatistics = useLotteryStore((state) => state.setStatistics);
+
   // 统计范围状态
   const [statisticsRange, setStatisticsRange] = useState<number>(50);
-  const [rangeStatistics, setRangeStatistics] =
-    useState<LotteryStatistics | null>(null);
 
   // 根据统计范围重新计算统计数据
   useEffect(() => {
@@ -68,23 +66,20 @@ export const StatisticsPanelMobile = ({
       const newStats = analyzeStatistics(limitedData, selectedType, config);
       // 添加原始数据到统计结果中
       newStats.rangeData = limitedData;
-      setRangeStatistics(newStats);
-      // 通知父组件更新范围统计数据
-      if (onRangeStatisticsUpdate) {
-        onRangeStatisticsUpdate(newStats);
-      }
+      setStatistics(newStats);
     }
   }, [
-    statisticsRange,
     selectedType,
     lotteryHistoryData,
     ssqHistoryData,
+    statisticsRange,
     config,
+    setStatistics,
   ]);
 
   // 使用范围统计或原始统计
-  const currentStatistics = rangeStatistics || statistics;
-  if (!currentStatistics)
+
+  if (!statistics)
     return (
       <Card className="border-border/50 shadow-lg">
         <CardHeader className="pb-3">
@@ -249,15 +244,14 @@ export const StatisticsPanelMobile = ({
                       </h5>
                       <div className="space-y-1">
                         {getHighFrequencyNumbers(
-                          currentStatistics,
+                          statistics,
                           10,
                           false,
                           config
                         ).map((num) => {
-                          const frequency =
-                            currentStatistics.frequency[num] || 0;
+                          const frequency = statistics.frequency[num] || 0;
                           const allFrequencies = Object.values(
-                            currentStatistics.frequency
+                            statistics.frequency
                           ).filter((f: any) => f > 0) as number[];
                           const maxFreq = Math.max(...allFrequencies);
                           const percentage =
@@ -289,39 +283,39 @@ export const StatisticsPanelMobile = ({
                         遗漏排名
                       </h5>
                       <div className="space-y-1">
-                        {getColdNumbers(
-                          currentStatistics,
-                          10,
-                          false,
-                          config
-                        ).map((num) => {
-                          const omission = currentStatistics.omission[num] || 0;
-                          const allOmissions = Object.values(
-                            currentStatistics.omission
-                          ).filter((o: any) => o > 0) as number[];
-                          const maxOmission = Math.max(...allOmissions);
-                          const percentage =
-                            maxOmission > 0
-                              ? (omission / maxOmission) * 100
-                              : 0;
+                        {getColdNumbers(statistics, 10, false, config).map(
+                          (num) => {
+                            const omission = statistics.omission[num] || 0;
+                            const allOmissions = Object.values(
+                              statistics.omission
+                            ).filter((o: any) => o > 0) as number[];
+                            const maxOmission = Math.max(...allOmissions);
+                            const percentage =
+                              maxOmission > 0
+                                ? (omission / maxOmission) * 100
+                                : 0;
 
-                          return (
-                            <div key={num} className="flex items-center gap-1">
-                              <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-blue-600 transition-colors">
-                                {`${num < 10 ? "0" : ""}${num}`}
+                            return (
+                              <div
+                                key={num}
+                                className="flex items-center gap-1"
+                              >
+                                <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-blue-600 transition-colors">
+                                  {`${num < 10 ? "0" : ""}${num}`}
+                                </div>
+                                <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
+                                  <div
+                                    className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
+                                    style={{
+                                      width: `${Math.max(percentage, 5)}%`,
+                                    }}
+                                  ></div>
+                                  {`遗漏${omission}期`}
+                                </div>
                               </div>
-                              <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
-                                <div
-                                  className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
-                                  style={{
-                                    width: `${Math.max(percentage, 5)}%`,
-                                  }}
-                                ></div>
-                                {`遗漏${omission}期`}
-                              </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          }
+                        )}
                       </div>
                     </div>
                   </div>
@@ -342,15 +336,14 @@ export const StatisticsPanelMobile = ({
                         </h5>
                         <div className="space-y-1">
                           {getHighFrequencyNumbers(
-                            currentStatistics,
+                            statistics,
                             6,
                             true,
                             config
                           ).map((num) => {
-                            const frequency =
-                              currentStatistics.frequency[num] || 0;
+                            const frequency = statistics.frequency[num] || 0;
                             const specialFrequencies = Object.values(
-                              currentStatistics.frequency
+                              statistics.frequency
                             ).filter((f: any) => f > 0) as number[];
                             const maxFreq = Math.max(...specialFrequencies);
                             const percentage =
@@ -385,43 +378,39 @@ export const StatisticsPanelMobile = ({
                           冷门详情
                         </h5>
                         <div className="space-y-1">
-                          {getColdNumbers(
-                            currentStatistics,
-                            6,
-                            true,
-                            config
-                          ).map((num) => {
-                            const omission =
-                              currentStatistics.omission[num] || 0;
-                            const specialOmissions = Object.values(
-                              currentStatistics.omission
-                            ).filter((o: any) => o > 0) as number[];
-                            const maxOmission = Math.max(...specialOmissions);
-                            const percentage =
-                              maxOmission > 0
-                                ? (omission / maxOmission) * 100
-                                : 0;
+                          {getColdNumbers(statistics, 6, true, config).map(
+                            (num) => {
+                              const omission = statistics.omission[num] || 0;
+                              const specialOmissions = Object.values(
+                                statistics.omission
+                              ).filter((o: any) => o > 0) as number[];
+                              const maxOmission = Math.max(...specialOmissions);
+                              const percentage =
+                                maxOmission > 0
+                                  ? (omission / maxOmission) * 100
+                                  : 0;
 
-                            return (
-                              <div
-                                key={num}
-                                className="flex items-center gap-1"
-                              >
-                                <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-blue-600 transition-colors">
-                                  {`${num < 10 ? "0" : ""}${num}`}
+                              return (
+                                <div
+                                  key={num}
+                                  className="flex items-center gap-1"
+                                >
+                                  <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold shrink-0 cursor-pointer hover:bg-blue-600 transition-colors">
+                                    {`${num < 10 ? "0" : ""}${num}`}
+                                  </div>
+                                  <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
+                                    <div
+                                      className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
+                                      style={{
+                                        width: `${Math.max(percentage, 10)}%`,
+                                      }}
+                                    ></div>
+                                    {`遗漏${omission}期`}
+                                  </div>
                                 </div>
-                                <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer">
-                                  <div
-                                    className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
-                                    style={{
-                                      width: `${Math.max(percentage, 10)}%`,
-                                    }}
-                                  ></div>
-                                  {`遗漏${omission}期`}
-                                </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            }
+                          )}
                         </div>
                       </div>
                     </div>

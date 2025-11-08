@@ -10,12 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import {
-  LotteryType,
-  AlgorithmType,
-  LotteryStatistics,
-  HistoryRecord,
-} from "../types";
 import { LOTTERY_CONFIGS } from "../constants";
 import { getAlgorithmName } from "../utils";
 import { FrequencyLegend } from "./FrequencyLegend";
@@ -26,37 +20,27 @@ import { NumberPreviewMobile } from "./mobile/NumberPreviewMobile";
 import NumberOperationsMobile from "./mobile/NumberOperationsMobile";
 import { NumberOperations } from "./pc/NumberOperations";
 import { NumberSlotStatistics } from "./pc/NumberSlotStatistics";
-import { NumberSlotStatisticsMobile } from "./mobile/NumberSlotStatisticsMobile";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 interface NumberGeneratorProps {
-  selectedType: LotteryType;
-  algorithm: AlgorithmType;
-  statistics: LotteryStatistics | null;
   lotteryHistoryData: any[];
   ssqHistoryData: any[];
-  historyRecords: HistoryRecord[];
-  onAlgorithmChange: (algorithm: AlgorithmType) => void;
-  onTypeChange: (type: LotteryType) => void;
-  onStatisticsUpdate: (statistics: LotteryStatistics) => void;
-  onAddHistoryRecord: (
-    record: Omit<HistoryRecord, "id" | "timestamp" | "formattedTime">
-  ) => void;
-  onHistoryUpdate: (records: HistoryRecord[]) => void;
 }
 
 export default function NumberGenerator({
-  selectedType,
-  algorithm,
-  statistics,
   lotteryHistoryData,
   ssqHistoryData,
-  historyRecords,
-  onAlgorithmChange,
-  onTypeChange,
-  onAddHistoryRecord,
-  onHistoryUpdate,
 }: NumberGeneratorProps) {
+  const {
+    selectedType,
+    algorithm,
+    statistics,
+    addHistoryRecord,
+    setHistoryRecords,
+  } = useLotteryStore();
+
   const config = LOTTERY_CONFIGS[selectedType];
   const [mainNumbers, setMainNumbers] = useState<number[]>([]);
   const [specialNumbers, setSpecialNumbers] = useState<number[]>([]);
@@ -68,7 +52,7 @@ export default function NumberGenerator({
   // 保存选号
   const saveNumbers = useCallback(() => {
     if (mainNumbers.length > 0) {
-      onAddHistoryRecord({
+      addHistoryRecord({
         lotteryType: selectedType,
         algorithm: algorithm,
         mainNumbers: mainNumbers,
@@ -78,13 +62,7 @@ export default function NumberGenerator({
       setTimeout(() => setSaved(false), 2000); // 2秒后恢复状态
       console.log("选号已保存到历史记录");
     }
-  }, [
-    mainNumbers,
-    specialNumbers,
-    selectedType,
-    algorithm,
-    onAddHistoryRecord,
-  ]);
+  }, [mainNumbers, specialNumbers, selectedType, algorithm, addHistoryRecord]);
 
   // 智能选号算法
   const generateSmartNumbers = useCallback(() => {
@@ -104,17 +82,32 @@ export default function NumberGenerator({
   }, [algorithm, config, statistics]);
 
   // 复制号码到剪贴板
-  const copyNumbers = useCallback(() => {
+  // const copyNumbers = useCallback(() => {
+  //   const text =
+  //     specialNumbers.length > 0
+  //       ? `${mainNumbers.join(", ")} + ${specialNumbers.join(", ")}`
+  //       : mainNumbers.join(", ");
+
+  //   navigator.clipboard.writeText(text);
+  //   setCopied(true);
+  //   console.log("已复制到剪贴板");
+  //   setTimeout(() => setCopied(false), 2000);
+  // }, [mainNumbers, specialNumbers]);
+  const { copyToClipboard } = useCopyToClipboard();
+
+  const copyNumbers = async () => {
     const text =
       specialNumbers.length > 0
         ? `${mainNumbers.join(", ")} + ${specialNumbers.join(", ")}`
         : mainNumbers.join(", ");
-
-    navigator.clipboard.writeText(text);
+    const success = await copyToClipboard(text, {
+      successMessage: "Copied to clipboard! 📋",
+    });
     setCopied(true);
-    console.log("已复制到剪贴板");
-    setTimeout(() => setCopied(false), 2000);
-  }, [mainNumbers, specialNumbers]);
+    if (success) {
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <>
@@ -137,17 +130,12 @@ export default function NumberGenerator({
 
                 {/* 移动端操作区域*/}
                 <NumberOperationsMobile
-                  algorithm={algorithm}
-                  selectedType={selectedType}
-                  historyRecords={historyRecords}
-                  saveNumbers={saveNumbers}
-                  copyNumbers={copyNumbers}
                   copied={copied}
                   saved={saved}
-                  onTypeChange={onTypeChange}
-                  onAlgorithmChange={onAlgorithmChange}
+                  saveNumbers={saveNumbers}
+                  copyNumbers={copyNumbers}
+                  onHistoryUpdate={setHistoryRecords}
                   generateSmartNumbers={generateSmartNumbers}
-                  onHistoryUpdate={onHistoryUpdate}
                 />
               </>
             )}
@@ -162,10 +150,6 @@ export default function NumberGenerator({
 
                 {/* 桌面端操作区域 - 移动端隐藏 */}
                 <NumberOperations
-                  selectedType={selectedType}
-                  algorithm={algorithm}
-                  onTypeChange={onTypeChange}
-                  onAlgorithmChange={onAlgorithmChange}
                   generateSmartNumbers={generateSmartNumbers}
                   mainNumbers={mainNumbers}
                   config={config}
@@ -176,7 +160,6 @@ export default function NumberGenerator({
                   copyNumbers={copyNumbers}
                   copied={copied}
                   saved={saved}
-                  historyRecords={historyRecords}
                 />
               </>
             )}
@@ -208,8 +191,6 @@ export default function NumberGenerator({
           />
         </>
       )}
-
-      {/* 移动端固定底部操作栏 */}
     </>
   );
 }
