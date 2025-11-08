@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { useCommands } from "@/hooks/useCommands";
 import CommandSkeleton from "@/components/skeletons/command/command-skeleton";
-import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+import { useUserPreferencesStore } from "@/lib/stores";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { CommandCard } from "./CommandCard";
 import { Command, CommandCategory, Template } from "@/types";

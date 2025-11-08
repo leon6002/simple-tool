@@ -6,8 +6,8 @@ import { ToolCard } from "@/components/tools/tool-card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { TOOLS, CATEGORIES } from "@/lib/constants/tools";
-import { useSearchStore } from "@/lib/stores/search-store";
-import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+import { useSearchStore } from "@/lib/stores";
+import { useUserPreferencesStore } from "@/lib/stores";
 import { Star, Clock } from "lucide-react";
 
 export default function Home() {

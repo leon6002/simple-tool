@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+import { useUserPreferencesStore } from "@/lib/stores";
 import { useTheme } from "next-themes";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";

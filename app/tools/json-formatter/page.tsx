@@ -12,18 +12,18 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Copy, 
-  FileJson, 
-  Check, 
-  X, 
-  ArrowRightLeft, 
+import {
+  Copy,
+  FileJson,
+  Check,
+  X,
+  ArrowRightLeft,
   FileDiff,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+import { useUserPreferencesStore } from "@/lib/stores";
 
 interface JsonError {
   message: string;
@@ -59,32 +59,32 @@ export default function JsonFormatterPage() {
       const parsed = JSON.parse(inputJson);
       const formatted = JSON.stringify(parsed, null, 2);
       const minified = JSON.stringify(parsed);
-      
+
       setFormattedJson(formatted);
       setMinifiedJson(minified);
       setJsonError(null);
     } catch (error: any) {
       setFormattedJson("");
       setMinifiedJson("");
-      
+
       // 解析错误信息
       const errorMessage = error.message || "Invalid JSON";
       const errorMatch = errorMessage.match(/position (\d+)/);
       let errorPosition = 0;
-      
+
       if (errorMatch) {
         errorPosition = parseInt(errorMatch[1]);
       }
-      
+
       // 计算行号和列号
-      const lines = inputJson.substring(0, errorPosition).split('\n');
+      const lines = inputJson.substring(0, errorPosition).split("\n");
       const line = lines.length;
       const column = lines[lines.length - 1].length + 1;
-      
+
       setJsonError({
         message: errorMessage,
         line,
-        column
+        column,
       });
     }
   };
@@ -100,30 +100,30 @@ export default function JsonFormatterPage() {
     try {
       const parsed = JSON.parse(inputJson);
       const minified = JSON.stringify(parsed);
-      
+
       setMinifiedJson(minified);
       setFormattedJson(inputJson); // 保持原输入作为格式化版本
       setJsonError(null);
     } catch (error: any) {
       setMinifiedJson("");
       setFormattedJson("");
-      
+
       const errorMessage = error.message || "Invalid JSON";
       const errorMatch = errorMessage.match(/position (\d+)/);
       let errorPosition = 0;
-      
+
       if (errorMatch) {
         errorPosition = parseInt(errorMatch[1]);
       }
-      
-      const lines = inputJson.substring(0, errorPosition).split('\n');
+
+      const lines = inputJson.substring(0, errorPosition).split("\n");
       const line = lines.length;
       const column = lines[lines.length - 1].length + 1;
-      
+
       setJsonError({
         message: errorMessage,
         line,
-        column
+        column,
       });
     }
   };
@@ -150,40 +150,40 @@ export default function JsonFormatterPage() {
       const errorMessage = error.message || "Invalid JSON";
       const errorMatch = errorMessage.match(/position (\d+)/);
       let errorPosition = 0;
-      
+
       if (errorMatch) {
         errorPosition = parseInt(errorMatch[1]);
       }
-      
-      const lines = inputJson.substring(0, errorPosition).split('\n');
+
+      const lines = inputJson.substring(0, errorPosition).split("\n");
       const line = lines.length;
       const column = lines[lines.length - 1].length + 1;
-      
+
       setJsonError({
         message: errorMessage,
         line,
-        column
+        column,
       });
-      
+
       return { valid: false, error: errorMessage };
     }
   };
 
   const findDifferences = () => {
-    const origLines = originalText.split('\n');
-    const compLines = compareText.split('\n');
+    const origLines = originalText.split("\n");
+    const compLines = compareText.split("\n");
     const maxLines = Math.max(origLines.length, compLines.length);
     const diffs: string[] = [];
-    
+
     for (let i = 0; i < maxLines; i++) {
       const origLine = origLines[i] || "";
       const compLine = compLines[i] || "";
-      
+
       if (origLine !== compLine) {
         diffs.push(`Line ${i + 1}: "${origLine}" → "${compLine}"`);
       }
     }
-    
+
     setDifferences(diffs);
   };
 
@@ -276,7 +276,7 @@ export default function JsonFormatterPage() {
                     onChange={(e) => setInputJson(e.target.value)}
                     className="min-h-[300px] font-mono text-sm"
                   />
-                  
+
                   <div className="flex flex-wrap gap-3">
                     <Button
                       onClick={formatJson}
@@ -302,7 +302,7 @@ export default function JsonFormatterPage() {
                       Validate JSON
                     </Button>
                   </div>
-                  
+
                   {/* JSON Validation Status */}
                   <div className="pt-4">
                     {jsonError ? (
@@ -310,11 +310,16 @@ export default function JsonFormatterPage() {
                         <div className="flex items-start gap-2">
                           <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                           <div>
-                            <h4 className="font-semibold text-red-500">Invalid JSON</h4>
-                            <p className="text-sm text-red-500 mt-1">{jsonError.message}</p>
+                            <h4 className="font-semibold text-red-500">
+                              Invalid JSON
+                            </h4>
+                            <p className="text-sm text-red-500 mt-1">
+                              {jsonError.message}
+                            </p>
                             {jsonError.line && jsonError.column && (
                               <p className="text-xs text-red-500 mt-1">
-                                Error at line {jsonError.line}, column {jsonError.column}
+                                Error at line {jsonError.line}, column{" "}
+                                {jsonError.column}
                               </p>
                             )}
                           </div>
@@ -325,7 +330,9 @@ export default function JsonFormatterPage() {
                         <div className="flex items-start gap-2">
                           <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                           <div>
-                            <h4 className="font-semibold text-green-500">Valid JSON</h4>
+                            <h4 className="font-semibold text-green-500">
+                              Valid JSON
+                            </h4>
                             <p className="text-sm text-green-500 mt-1">
                               Your JSON is properly formatted
                             </p>
@@ -352,7 +359,9 @@ export default function JsonFormatterPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => copyToClipboard(formattedJson, "formatted")}
+                        onClick={() =>
+                          copyToClipboard(formattedJson, "formatted")
+                        }
                         disabled={!formattedJson}
                         className="flex items-center gap-2"
                       >
@@ -381,14 +390,14 @@ export default function JsonFormatterPage() {
                     <div className="flex flex-wrap items-center justify-between gap-4">
                       <div>
                         <CardTitle>Minified JSON</CardTitle>
-                        <CardDescription>
-                          Compacted JSON output
-                        </CardDescription>
+                        <CardDescription>Compacted JSON output</CardDescription>
                       </div>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => copyToClipboard(minifiedJson, "minified")}
+                        onClick={() =>
+                          copyToClipboard(minifiedJson, "minified")
+                        }
                         disabled={!minifiedJson}
                         className="flex items-center gap-2"
                       >
@@ -446,7 +455,7 @@ export default function JsonFormatterPage() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="flex justify-center">
                   <Button
                     onClick={findDifferences}
@@ -456,19 +465,23 @@ export default function JsonFormatterPage() {
                     Find Differences
                   </Button>
                 </div>
-                
+
                 {differences.length > 0 && (
                   <Card className="border-border/50 bg-card/50">
                     <CardHeader>
                       <CardTitle>Differences Found</CardTitle>
                       <CardDescription>
-                        {differences.length} difference{differences.length !== 1 ? 's' : ''} detected
+                        {differences.length} difference
+                        {differences.length !== 1 ? "s" : ""} detected
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2">
                         {differences.map((diff, index) => (
-                          <li key={index} className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 font-mono text-sm">
+                          <li
+                            key={index}
+                            className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 font-mono text-sm"
+                          >
                             {diff}
                           </li>
                         ))}
@@ -476,11 +489,13 @@ export default function JsonFormatterPage() {
                     </CardContent>
                   </Card>
                 )}
-                
+
                 {differences.length === 0 && originalText && compareText && (
                   <div className="p-6 text-center rounded-lg bg-green-500/10 border border-green-500/20">
                     <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-3" />
-                    <h3 className="text-lg font-semibold text-green-500">No Differences Found</h3>
+                    <h3 className="text-lg font-semibold text-green-500">
+                      No Differences Found
+                    </h3>
                     <p className="text-green-500">The texts are identical</p>
                   </div>
                 )}

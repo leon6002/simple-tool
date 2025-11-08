@@ -34,7 +34,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { TOOLS, CATEGORIES } from "@/lib/constants/tools";
-import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+import { useUserPreferencesStore } from "@/lib/stores";
 import type { Tool } from "@/types";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {

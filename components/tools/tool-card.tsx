@@ -38,7 +38,7 @@ import {
   Wrench,
   type LucideIcon,
 } from "lucide-react";
-import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+import { useUserPreferencesStore } from "@/lib/stores";
 
 interface ToolCardProps {
   tool: Tool;

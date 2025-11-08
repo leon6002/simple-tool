@@ -15,40 +15,136 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { 
-  Copy, 
-  Key, 
-  RefreshCw, 
-  Eye, 
+import {
+  Copy,
+  Key,
+  RefreshCw,
+  Eye,
   EyeOff,
   Shield,
   Brain,
   Lock,
   Check,
-  X
+  X,
 } from "lucide-react";
-import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+import { useUserPreferencesStore } from "@/lib/stores";
 
 // 常用易记单词
 const MEMORABLE_WORDS = [
-  "apple", "brave", "chair", "dance", "eagle", "flame", "grape", "house",
-  "image", "juice", "knife", "lemon", "magic", "night", "ocean", "peace",
-  "queen", "river", "smile", "tiger", "unity", "voice", "water", "xenon",
-  "youth", "zebra", "cloud", "dream", "earth", "flute", "green", "happy",
-  "light", "music", "north", "olive", "paper", "quick", "radio", "sweet",
-  "trust", "urban", "value", "world", "young", "amber", "blaze", "crystal",
-  "dragon", "forest", "garden", "harbor", "island", "jungle", "knight",
-  "legend", "mirror", "noble", "orange", "pirate", "quartz", "sunset"
+  "apple",
+  "brave",
+  "chair",
+  "dance",
+  "eagle",
+  "flame",
+  "grape",
+  "house",
+  "image",
+  "juice",
+  "knife",
+  "lemon",
+  "magic",
+  "night",
+  "ocean",
+  "peace",
+  "queen",
+  "river",
+  "smile",
+  "tiger",
+  "unity",
+  "voice",
+  "water",
+  "xenon",
+  "youth",
+  "zebra",
+  "cloud",
+  "dream",
+  "earth",
+  "flute",
+  "green",
+  "happy",
+  "light",
+  "music",
+  "north",
+  "olive",
+  "paper",
+  "quick",
+  "radio",
+  "sweet",
+  "trust",
+  "urban",
+  "value",
+  "world",
+  "young",
+  "amber",
+  "blaze",
+  "crystal",
+  "dragon",
+  "forest",
+  "garden",
+  "harbor",
+  "island",
+  "jungle",
+  "knight",
+  "legend",
+  "mirror",
+  "noble",
+  "orange",
+  "pirate",
+  "quartz",
+  "sunset",
 ];
 
 // 混合词根
 const WORD_ROOTS = [
-  "act", "bell", "camp", "dark", "east", "fair", "gold", "home",
-  "iron", "jump", "kind", "love", "moon", "nice", "open", "pure",
-  "real", "star", "time", "up", "view", "wind", "xray", "yard",
-  "zone", "blue", "cool", "deep", "fire", "glow", "high", "join",
-  "keen", "live", "move", "near", "over", "pink", "quit", "rose",
-  "soft", "tall", "upon", "very", "wave", "xero", "year", "zero"
+  "act",
+  "bell",
+  "camp",
+  "dark",
+  "east",
+  "fair",
+  "gold",
+  "home",
+  "iron",
+  "jump",
+  "kind",
+  "love",
+  "moon",
+  "nice",
+  "open",
+  "pure",
+  "real",
+  "star",
+  "time",
+  "up",
+  "view",
+  "wind",
+  "xray",
+  "yard",
+  "zone",
+  "blue",
+  "cool",
+  "deep",
+  "fire",
+  "glow",
+  "high",
+  "join",
+  "keen",
+  "live",
+  "move",
+  "near",
+  "over",
+  "pink",
+  "quit",
+  "rose",
+  "soft",
+  "tall",
+  "upon",
+  "very",
+  "wave",
+  "xero",
+  "year",
+  "zero",
 ];
 
 // 数字和特殊字符
@@ -63,17 +159,17 @@ export default function PasswordGeneratorPage() {
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSpecialChars, setIncludeSpecialChars] = useState(true);
   const [excludeSimilarChars, setExcludeSimilarChars] = useState(false);
-  
+
   // 易记密码设置
   const [wordCount, setWordCount] = useState(3);
   const [separator, setSeparator] = useState("-");
   const [capitalizeWords, setCapitalizeWords] = useState(true);
   const [addNumber, setAddNumber] = useState(true);
-  
+
   // 生成的密码
   const [complexPassword, setComplexPassword] = useState("");
   const [memorablePassword, setMemorablePassword] = useState("");
-  
+
   // UI状态
   const [copied, setCopied] = useState<{ [key: string]: boolean }>({});
   const [showPasswords, setShowPasswords] = useState(false);
@@ -88,29 +184,29 @@ export default function PasswordGeneratorPage() {
   // 生成复杂密码
   const generateComplexPassword = () => {
     let charset = "";
-    
+
     if (includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     if (includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz";
     if (includeNumbers) charset += NUMBERS;
     if (includeSpecialChars) charset += SPECIAL_CHARS;
-    
+
     // 排除相似字符
     if (excludeSimilarChars) {
       const similarChars = /[l1Io0O]/g;
       charset = charset.replace(similarChars, "");
     }
-    
+
     if (!charset) {
       setComplexPassword("");
       return;
     }
-    
+
     let password = "";
     for (let i = 0; i < length; i++) {
       const randomIndex = Math.floor(Math.random() * charset.length);
       password += charset[randomIndex];
     }
-    
+
     setComplexPassword(password);
   };
 
@@ -121,23 +217,23 @@ export default function PasswordGeneratorPage() {
     for (let i = 0; i < wordCount; i++) {
       const randomIndex = Math.floor(Math.random() * MEMORABLE_WORDS.length);
       let word = MEMORABLE_WORDS[randomIndex];
-      
+
       if (capitalizeWords) {
         word = word.charAt(0).toUpperCase() + word.slice(1);
       }
-      
+
       words.push(word);
     }
-    
+
     // 用分隔符连接单词
     let password = words.join(separator);
-    
+
     // 添加数字
     if (addNumber) {
       const randomNumber = Math.floor(Math.random() * 1000);
       password += randomNumber;
     }
-    
+
     setMemorablePassword(password);
   };
 
@@ -169,25 +265,31 @@ export default function PasswordGeneratorPage() {
   // 密码强度评估
   const evaluatePasswordStrength = (password: string) => {
     if (!password) return { score: 0, label: "None", color: "bg-gray-500" };
-    
+
     let score = 0;
-    
+
     // 长度评分
     if (password.length >= 8) score += 1;
     if (password.length >= 12) score += 1;
     if (password.length >= 16) score += 1;
-    
+
     // 字符类型评分
     if (/[a-z]/.test(password)) score += 1;
     if (/[A-Z]/.test(password)) score += 1;
     if (/[0-9]/.test(password)) score += 1;
     if (/[^A-Za-z0-9]/.test(password)) score += 1;
-    
+
     // 复杂性评分
-    if (password.length >= 12 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) {
+    if (
+      password.length >= 12 &&
+      /[a-z]/.test(password) &&
+      /[A-Z]/.test(password) &&
+      /[0-9]/.test(password) &&
+      /[^A-Za-z0-9]/.test(password)
+    ) {
       score += 1;
     }
-    
+
     if (score <= 2) return { score, label: "Weak", color: "bg-red-500" };
     if (score <= 4) return { score, label: "Medium", color: "bg-yellow-500" };
     if (score <= 6) return { score, label: "Strong", color: "bg-green-500" };
@@ -237,7 +339,11 @@ export default function PasswordGeneratorPage() {
               <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
                 <Button
                   variant={activeTab === "complex" ? "default" : "ghost"}
-                  className={`flex-1 ${activeTab === "complex" ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white" : ""}`}
+                  className={`flex-1 ${
+                    activeTab === "complex"
+                      ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white"
+                      : ""
+                  }`}
                   onClick={() => setActiveTab("complex")}
                 >
                   <Lock className="h-4 w-4 mr-2" />
@@ -245,7 +351,11 @@ export default function PasswordGeneratorPage() {
                 </Button>
                 <Button
                   variant={activeTab === "memorable" ? "default" : "ghost"}
-                  className={`flex-1 ${activeTab === "memorable" ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white" : ""}`}
+                  className={`flex-1 ${
+                    activeTab === "memorable"
+                      ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white"
+                      : ""
+                  }`}
                   onClick={() => setActiveTab("memorable")}
                 >
                   <Brain className="h-4 w-4 mr-2" />
@@ -272,7 +382,9 @@ export default function PasswordGeneratorPage() {
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="uppercase">Include Uppercase Letters</Label>
+                      <Label htmlFor="uppercase">
+                        Include Uppercase Letters
+                      </Label>
                       <Switch
                         id="uppercase"
                         checked={includeUppercase}
@@ -281,7 +393,9 @@ export default function PasswordGeneratorPage() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="lowercase">Include Lowercase Letters</Label>
+                      <Label htmlFor="lowercase">
+                        Include Lowercase Letters
+                      </Label>
                       <Switch
                         id="lowercase"
                         checked={includeLowercase}
@@ -299,7 +413,9 @@ export default function PasswordGeneratorPage() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="special">Include Special Characters</Label>
+                      <Label htmlFor="special">
+                        Include Special Characters
+                      </Label>
                       <Switch
                         id="special"
                         checked={includeSpecialChars}
@@ -308,7 +424,9 @@ export default function PasswordGeneratorPage() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="similar">Exclude Similar Characters</Label>
+                      <Label htmlFor="similar">
+                        Exclude Similar Characters
+                      </Label>
                       <Switch
                         id="similar"
                         checked={excludeSimilarChars}
@@ -399,13 +517,19 @@ export default function PasswordGeneratorPage() {
                       onClick={togglePasswordVisibility}
                       className="flex items-center gap-2"
                     >
-                      {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPasswords ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                       {showPasswords ? "Hide" : "Show"}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(complexPassword, "complex")}
+                      onClick={() =>
+                        copyToClipboard(complexPassword, "complex")
+                      }
                       disabled={!complexPassword}
                       className="flex items-center gap-2"
                     >
@@ -418,22 +542,38 @@ export default function PasswordGeneratorPage() {
               <CardContent className="space-y-4">
                 <div className="p-4 rounded-lg bg-muted/50 font-mono text-lg break-all">
                   {complexPassword ? (
-                    showPasswords ? complexPassword : "•".repeat(complexPassword.length)
+                    showPasswords ? (
+                      complexPassword
+                    ) : (
+                      "•".repeat(complexPassword.length)
+                    )
                   ) : (
-                    <span className="text-muted-foreground">Click generate to create a password</span>
+                    <span className="text-muted-foreground">
+                      Click generate to create a password
+                    </span>
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Strength:</span>
-                    <span className={`font-semibold ${complexStrength.label === "Weak" ? "text-red-500" : complexStrength.label === "Medium" ? "text-yellow-500" : complexStrength.label === "Strong" ? "text-green-500" : "text-blue-500"}`}>
+                    <span
+                      className={`font-semibold ${
+                        complexStrength.label === "Weak"
+                          ? "text-red-500"
+                          : complexStrength.label === "Medium"
+                          ? "text-yellow-500"
+                          : complexStrength.label === "Strong"
+                          ? "text-green-500"
+                          : "text-blue-500"
+                      }`}
+                    >
                       {complexStrength.label}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${complexStrength.color}`} 
+                    <div
+                      className={`h-2 rounded-full ${complexStrength.color}`}
                       style={{ width: `${(complexStrength.score / 7) * 100}%` }}
                     ></div>
                   </div>
@@ -461,13 +601,19 @@ export default function PasswordGeneratorPage() {
                       onClick={togglePasswordVisibility}
                       className="flex items-center gap-2"
                     >
-                      {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPasswords ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                       {showPasswords ? "Hide" : "Show"}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(memorablePassword, "memorable")}
+                      onClick={() =>
+                        copyToClipboard(memorablePassword, "memorable")
+                      }
                       disabled={!memorablePassword}
                       className="flex items-center gap-2"
                     >
@@ -480,23 +626,41 @@ export default function PasswordGeneratorPage() {
               <CardContent className="space-y-4">
                 <div className="p-4 rounded-lg bg-muted/50 font-mono text-lg break-all">
                   {memorablePassword ? (
-                    showPasswords ? memorablePassword : "•".repeat(memorablePassword.length)
+                    showPasswords ? (
+                      memorablePassword
+                    ) : (
+                      "•".repeat(memorablePassword.length)
+                    )
                   ) : (
-                    <span className="text-muted-foreground">Click generate to create a password</span>
+                    <span className="text-muted-foreground">
+                      Click generate to create a password
+                    </span>
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Strength:</span>
-                    <span className={`font-semibold ${memorableStrength.label === "Weak" ? "text-red-500" : memorableStrength.label === "Medium" ? "text-yellow-500" : memorableStrength.label === "Strong" ? "text-green-500" : "text-blue-500"}`}>
+                    <span
+                      className={`font-semibold ${
+                        memorableStrength.label === "Weak"
+                          ? "text-red-500"
+                          : memorableStrength.label === "Medium"
+                          ? "text-yellow-500"
+                          : memorableStrength.label === "Strong"
+                          ? "text-green-500"
+                          : "text-blue-500"
+                      }`}
+                    >
                       {memorableStrength.label}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${memorableStrength.color}`} 
-                      style={{ width: `${(memorableStrength.score / 7) * 100}%` }}
+                    <div
+                      className={`h-2 rounded-full ${memorableStrength.color}`}
+                      style={{
+                        width: `${(memorableStrength.score / 7) * 100}%`,
+                      }}
                     ></div>
                   </div>
                 </div>
@@ -520,11 +684,12 @@ export default function PasswordGeneratorPage() {
                 <div>
                   <h4 className="font-semibold">Use Strong Passwords</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Include uppercase, lowercase, numbers, and special characters
+                    Include uppercase, lowercase, numbers, and special
+                    characters
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
                 <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                 <div>
@@ -534,17 +699,18 @@ export default function PasswordGeneratorPage() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
                 <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-semibold">Password Manager</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Consider using a password manager to store passwords securely
+                    Consider using a password manager to store passwords
+                    securely
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
                 <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                 <div>
