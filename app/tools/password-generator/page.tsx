@@ -25,7 +25,6 @@ import {
   Brain,
   Lock,
   Check,
-  X,
 } from "lucide-react";
 import { useUserPreferencesStore } from "@/lib/stores";
 
