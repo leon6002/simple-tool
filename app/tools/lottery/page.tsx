@@ -34,7 +34,6 @@ import {
   HistoryDisplay,
 } from "./components";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { StatisticsPanelMobile } from "./components/mobile/StatisticsPanelMobile";
 import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 
 export default function LotteryPage() {
@@ -46,7 +45,6 @@ export default function LotteryPage() {
   // 基础状态
   const isMobile = useIsMobile();
   const [selectedType, setSelectedType] = useState<LotteryType>("dlt");
-  const statistics = useLotteryStore((state) => state.statistics);
   const setStatistics = useLotteryStore((state) => state.setStatistics);
 
   // OCR相关状态
@@ -58,10 +56,14 @@ export default function LotteryPage() {
     []
   );
 
-  // 历史数据状态
-  const [dltHistoryData, setDltHistoryData] = useState<any[]>([]);
-  const [ssqHistoryData, setSsqHistoryData] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+
+  const dltHistoryData = useLotteryStore((state) => state.lotteryHistoryData);
+  const setDltHistoryData = useLotteryStore(
+    (state) => state.setLotteryHistoryData
+  );
+  const ssqHistoryData = useLotteryStore((state) => state.ssqHistoryData);
+  const setSsqHistoryData = useLotteryStore((state) => state.setSsqHistoryData);
 
   const config = LOTTERY_CONFIGS[selectedType];
 
@@ -324,13 +326,6 @@ export default function LotteryPage() {
               {/* 左侧：操作区 */}
               <div className="w-full lg:w-[30%] space-y-6">
                 {/* 统计分析面板 */}
-                {isMobile && (
-                  <StatisticsPanelMobile
-                    selectedType={selectedType}
-                    lotteryHistoryData={dltHistoryData}
-                    ssqHistoryData={ssqHistoryData}
-                  />
-                )}
                 {!isMobile && (
                   <StatisticsPanel
                     lotteryHistoryData={dltHistoryData}

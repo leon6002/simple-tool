@@ -29,6 +29,7 @@ import { LOTTERY_CONFIGS, LotteryType } from "../../constants";
 import { HistoryRecord } from "../../types";
 import HistoryPanelMobile from "./HistoryPanelMobile";
 import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
+import { StatisticsPanelMobile } from "./StatisticsPanelMobile";
 
 interface NumberOperationsMobileProps {
   copied: boolean;
@@ -169,11 +170,13 @@ const NumberOperationsMobile = ({
           <div className="flex gap-2">
             {/* 复制按钮 */}
 
+            <StatisticsPanelMobile />
+
             {/* 保存按钮 */}
             <Button
               onClick={saveNumbers}
-              className="flex-1 bg-linear-to-r from-blue-500 to-emerald-600 text-white hover:opacity-90 transition-all text-sm h-12"
-              size="sm"
+              className="flex-1 bg-linear-to-r from-blue-500 to-emerald-600 text-white hover:opacity-90 transition-all text-sm"
+              size="lg"
             >
               <Save className="h-4 w-4 mr-1" />
               {saved ? "已保存" : "保存选号"}

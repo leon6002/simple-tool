@@ -9,7 +9,7 @@ export const NumberPreviewMobile = ({
 }: NumberPreviewProps) => {
   return (
     <div className="md:hidden">
-      <div className="flex justify-center items-center gap-2 p-3 bg-muted/30 rounded-lg min-h-[180px]">
+      <div className=" shadow-md flex justify-center items-center gap-2 p-3 bg-muted/80 dark:bg-muted/30 rounded-lg min-h-[180px]">
         {mainNumbers.length > 0 || specialNumbers.length > 0 ? (
           <div className="flex flex-col gap-2 justify-center items-center">
             <div className="flex flex-wrap gap-2">

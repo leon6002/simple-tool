@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
@@ -13,6 +14,8 @@ interface LotteryState {
   algorithm: AlgorithmType;
   statistics: LotteryStatistics | null;
   historyRecords: HistoryRecord[];
+  lotteryHistoryData: any[];
+  ssqHistoryData: any[];
 
   // 状态更新函数
   setSelectedType: (type: LotteryType) => void;
@@ -23,6 +26,8 @@ interface LotteryState {
     record: Omit<HistoryRecord, "id" | "timestamp" | "formattedTime">
   ) => void;
   clearHistoryRecords: () => void;
+  setLotteryHistoryData: (data: any[]) => void;
+  setSsqHistoryData: (data: any[]) => void;
 
   // 重置函数
   reset: () => void;
@@ -33,6 +38,8 @@ const initialState = {
   algorithm: "balanced" as AlgorithmType,
   statistics: null as LotteryStatistics | null,
   historyRecords: [] as HistoryRecord[],
+  lotteryHistoryData: [] as any,
+  ssqHistoryData: [] as any,
 };
 
 export const useLotteryStore = create<LotteryState>()(
@@ -55,6 +62,8 @@ export const useLotteryStore = create<LotteryState>()(
         set({ historyRecords: [newRecord, ...get().historyRecords] });
       },
       clearHistoryRecords: () => set({ historyRecords: [] }),
+      setLotteryHistoryData: (data) => set({ lotteryHistoryData: data }),
+      setSsqHistoryData: (data) => set({ ssqHistoryData: data }),
       reset: () => set(initialState),
     }),
 

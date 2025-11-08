@@ -26,7 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { LotteryType } from "../../types";
 import { LOTTERY_CONFIGS } from "../../constants";
 import {
   getHighFrequencyNumbers,
@@ -38,17 +37,12 @@ import { useState, useEffect } from "react";
 import { NumberSlotStatisticsMobile } from "./NumberSlotStatisticsMobile";
 import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 
-interface StatisticsPanelProps {
-  selectedType: LotteryType;
-  lotteryHistoryData: any[];
-  ssqHistoryData: any[];
-}
-
-export const StatisticsPanelMobile = ({
-  selectedType,
-  lotteryHistoryData,
-  ssqHistoryData,
-}: StatisticsPanelProps) => {
+export const StatisticsPanelMobile = () => {
+  const selectedType = useLotteryStore((state) => state.selectedType);
+  const lotteryHistoryData = useLotteryStore(
+    (state) => state.lotteryHistoryData
+  );
+  const ssqHistoryData = useLotteryStore((state) => state.ssqHistoryData);
   const config = LOTTERY_CONFIGS[selectedType];
 
   const statistics = useLotteryStore((state) => state.statistics);
