@@ -43,6 +43,7 @@ export const StatisticsPanelMobile = () => {
     (state) => state.lotteryHistoryData
   );
   const ssqHistoryData = useLotteryStore((state) => state.ssqHistoryData);
+  const kl8HistoryData = useLotteryStore((state) => state.kl8HistoryData);
   const config = LOTTERY_CONFIGS[selectedType];
 
   const statistics = useLotteryStore((state) => state.statistics);
@@ -54,7 +55,11 @@ export const StatisticsPanelMobile = () => {
   // 根据统计范围重新计算统计数据
   useEffect(() => {
     const historyData =
-      selectedType === "dlt" ? lotteryHistoryData : ssqHistoryData;
+      selectedType === "dlt"
+        ? lotteryHistoryData
+        : selectedType === "ssq"
+        ? ssqHistoryData
+        : kl8HistoryData;
     if (historyData && historyData.length > 0) {
       const limitedData = historyData.slice(-statisticsRange);
       const newStats = analyzeStatistics(limitedData, selectedType, config);
@@ -66,6 +71,7 @@ export const StatisticsPanelMobile = () => {
     selectedType,
     lotteryHistoryData,
     ssqHistoryData,
+    kl8HistoryData,
     statisticsRange,
     config,
     setStatistics,
@@ -96,10 +102,10 @@ export const StatisticsPanelMobile = () => {
       <Sheet>
         <SheetTrigger asChild>
           <Button
-            className="w-full bg-linear-to-r from-blue-600 via-purple-600 to-amber-600 text-white hover:opacity-90 transition-all shadow-lg"
-            size="lg"
+            className="w-full bg-linear-to-r from-blue-600 via-purple-600 to-amber-600 text-white hover:opacity-90 transition-all shadow-md h-10"
+            size="sm"
           >
-            <Sparkles className="h-5 w-5 mr-2" />
+            <BarChart3 className="h-4 w-4 mr-1.5" />
             统计分析数据查看
           </Button>
         </SheetTrigger>

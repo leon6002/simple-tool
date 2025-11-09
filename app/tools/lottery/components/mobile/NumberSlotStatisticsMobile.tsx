@@ -100,7 +100,7 @@ export const NumberSlotStatisticsMobile = ({
 
             {/* 在移动端使用垂直列表而非网格布局 */}
             <div className="grid grid-cols-3 space-y-4">
-              {Array.from({ length: config.mainCount }, (_, positionIdx) => {
+              {Array.from({ length: Array.isArray(config.mainCount) ? config.mainCount[1] : config.mainCount }, (_, positionIdx) => {
                 const topNumbers = getPositionFrequencies(positionIdx, false);
                 const maxFreq = topNumbers.length > 0 ? topNumbers[0].freq : 0;
 

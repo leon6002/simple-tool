@@ -32,7 +32,7 @@ export const NumberSlotStatistics = ({
               {selectedType === "dlt" ? "前区" : "红球"}号位
             </h5>
             <div className="grid grid-cols-5 gap-2">
-              {Array.from({ length: config.mainCount }, (_, positionIdx) => {
+              {Array.from({ length: Array.isArray(config.mainCount) ? config.mainCount[1] : config.mainCount }, (_, positionIdx) => {
                 // 获取该号位频次最高的10个号码（使用统计范围内的数据）
                 const positionFrequencies: { [key: number]: number } = {};
                 const historyData =

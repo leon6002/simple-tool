@@ -1,4 +1,6 @@
 import * as cheerio from "cheerio";
+import { getDLTCache, getSSQCache, saveDLTCache, saveSSQCache } from './lottery-cache';
+import { getKL8Cache, saveKL8Cache } from './lottery-cache';
 
 /**
  * 定义单注彩票的数据结构
@@ -117,14 +119,36 @@ const parseDLT = (html: string) => {
  * @returns Promise<LotteryResult[]>
  */
 export async function fetchLatestDLTData(): Promise<LotteryResult[]> {
+  // 首先检查缓存
+  const cache = getDLTCache();
+  if (cache) {
+    console.log('使用大乐透缓存数据，期号:', cache.issue);
+    return cache.data;
+  }
+
+  // 缓存不存在或过期，重新爬取
+  console.log('重新爬取大乐透数据...');
   // 新浪彩票 (综合走势图，默认为最近50期)
   const url =
     "https://view.lottery.sina.com.cn/lotto/pc_zst/index?lottoType=dlt&actionType=chzs&type=100&dpc=1";
   try {
     const html = await crawlWeb(url);
-    return parseDLT(html);
+    const newData = parseDLT(html);
+
+    // 保存到缓存
+    if (newData.length > 0) {
+      saveDLTCache(newData);
+    }
+
+    return newData;
   } catch (error) {
     console.error("爬取失败:", error);
+    // 如果爬取失败，尝试重新获取缓存
+    const fallbackCache = getDLTCache();
+    if (fallbackCache) {
+      console.log('爬取失败，使用旧缓存数据');
+      return fallbackCache.data;
+    }
     return [];
   }
 }
@@ -140,6 +164,13 @@ export interface SSQResult {
   sum: string;
   /** 奇偶比 (e.g., "5:1") */
   oddEvenRatio: string;
+}
+
+export interface KL8Result {
+  /** 期号 (e.g., "2025198") */
+  issue: string;
+  /** 开奖号码数组 (20个号码，1-80之间) */
+  numbers: string[];
 }
 
 /**
@@ -203,14 +234,121 @@ const parseSSQResults = (htmlContent: string): SSQResult[] => {
   return results;
 };
 
+/**
+ * 使用 Cheerio 解析新浪快乐8 HTML内容，提取开奖结果。
+ * @param htmlContent 包含开奖数据的 HTML 字符串。
+ * @returns KL8Result 数组。
+ */
+const parseKL8Results = (htmlContent: string): KL8Result[] => {
+  const results: KL8Result[] = [];
+
+  // 1. 加载 HTML 字符串到 Cheerio
+  const $ = cheerio.load(htmlContent);
+
+  // 2. 数据表格的主体 ID 为 "cpdata"
+  const rows = $("#cpdata tr");
+
+  // 3. 遍历每一行来提取数据
+  rows.each((index, element) => {
+    try {
+      const row = $(element);
+
+      // 提取期号 (每行的第一个 <td>)
+      const issue = row.find("td:first-child").text().trim();
+
+      // 提取开奖号码 (所有 class 为 'chartball01' 的 <td>)
+      const numbers: string[] = row
+        .find("td.chartball01")
+        .map((i, el) => $(el).text().trim())
+        .get();
+
+      // 4. 验证数据完整性后，推入结果数组
+      if (issue && numbers.length === 20) {
+        // 验证号码范围 (1-80)
+        const validNumbers = numbers.filter(num => {
+          const n = parseInt(num, 10);
+          return n >= 1 && n <= 80;
+        });
+
+        if (validNumbers.length === 20) {
+          results.push({
+            issue,
+            numbers: validNumbers
+          });
+        }
+      }
+    } catch (error) {
+      console.error("解析快乐8某行数据时出错:", error);
+    }
+  });
+
+  return results;
+};
+
+export const fetchLatestKL8Data = async (): Promise<KL8Result[]> => {
+  // 首先检查缓存
+  const cache = getKL8Cache();
+  if (cache) {
+    console.log('使用快乐8缓存数据，期号:', cache.issue);
+    return cache.data;
+  }
+
+  // 缓存不存在或过期，重新爬取
+  console.log('重新爬取快乐8数据...');
+  const url =
+    "https://view.lottery.sina.com.cn/lotto/pc_zst/index?lottoType=kl8&actionType=chzs&type=100&dpc=1";
+  try {
+    const html = await crawlWeb(url);
+    const newData = parseKL8Results(html);
+
+    // 保存到缓存
+    if (newData.length > 0) {
+      saveKL8Cache(newData);
+    }
+
+    return newData;
+  } catch (error) {
+    console.error("爬取失败:", error);
+    // 如果爬取失败，尝试重新获取缓存
+    const fallbackCache = getKL8Cache();
+    if (fallbackCache) {
+      console.log('爬取失败，使用旧缓存数据');
+      return fallbackCache.data;
+    }
+    return [];
+  }
+};
+
 export const fetchLatestSSQData = async (): Promise<SSQResult[]> => {
+  // 首先检查缓存
+  const cache = getSSQCache();
+  if (cache) {
+    console.log('使用双色球缓存数据，期号:', cache.issue);
+    return cache.data;
+  }
+
+  // 缓存不存在或过期，重新爬取
+  console.log('重新爬取双色球数据...');
   const url =
     "https://view.lottery.sina.com.cn/lotto/pc_zst/index?lottoType=ssq&actionType=chzs&type=100&dpc=1";
   try {
     const html = await crawlWeb(url);
-    return parseSSQResults(html);
+    const newData = parseSSQResults(html);
+
+    // 保存到缓存
+    if (newData.length > 0) {
+      saveSSQCache(newData);
+    }
+
+    return newData;
   } catch (error) {
     console.error("爬取失败:", error);
+    // 如果爬取失败，尝试重新获取缓存
+    const fallbackCache = getSSQCache();
+    if (fallbackCache) {
+      console.log('爬取失败，使用旧缓存数据');
+      return fallbackCache.data;
+    }
     return [];
   }
 };

@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCallback, useState, useMemo } from "react";
 
 import {
   Sheet,
@@ -32,9 +33,12 @@ import {
   TrendingDown,
   TrendingUp,
   History,
+  Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
+import { PrizeAnalysisPanel } from "../PrizeAnalysisDialog";
+import { calculateHistoricalPrizes } from "../../utils";
 
 interface NumberOperationsProps {
   config: LotteryConfig;
@@ -47,6 +51,11 @@ interface NumberOperationsProps {
   saveNumbers: () => void;
   copyNumbers: () => void;
   generateSmartNumbers: () => void;
+  kl8NumberCount?: number; // KL8玩法数量（选一、选二等）
+  setKL8NumberCount?: (count: number) => void; // KL8选号数量设置函数
+  lotteryHistoryData?: any[];
+  ssqHistoryData?: any[];
+  kl8HistoryData?: any[];
 }
 
 export const NumberOperations = ({
@@ -60,8 +69,48 @@ export const NumberOperations = ({
   saveNumbers,
   copyNumbers,
   generateSmartNumbers,
+  kl8NumberCount,
+  setKL8NumberCount,
+  lotteryHistoryData = [],
+  ssqHistoryData = [],
+  kl8HistoryData = [],
 }: NumberOperationsProps) => {
+  const [showPrizeAnalysis, setShowPrizeAnalysis] = useState(false);
   const selectedType = useLotteryStore((state) => state.selectedType);
+
+  // 中奖统计 - 只在用户请求时计算，不在生成号码时自动计算
+  const [prizeStatistics, setPrizeStatistics] = useState<PrizeStatistics | null>(null);
+  const [isCalculatingPrizes, setIsCalculatingPrizes] = useState(false);
+
+  // 计算往期中奖统计的函数
+  const calculatePrizeStatistics = useCallback(async () => {
+    if (mainNumbers.length === 0) return;
+
+    setIsCalculatingPrizes(true);
+
+    try {
+      let historyData: any[] = [];
+      if (selectedType === "dlt") {
+        historyData = lotteryHistoryData;
+      } else if (selectedType === "ssq") {
+        historyData = ssqHistoryData;
+      } else if (selectedType === "kl8") {
+        historyData = kl8HistoryData;
+      }
+
+      if (historyData.length === 0) return;
+
+      // 使用setTimeout避免阻塞UI
+      setTimeout(() => {
+        const result = calculateHistoricalPrizes(mainNumbers, specialNumbers, historyData, selectedType, kl8NumberCount);
+        setPrizeStatistics(result);
+        setIsCalculatingPrizes(false);
+      }, 0);
+    } catch (error) {
+      console.error("计算中奖统计失败:", error);
+      setIsCalculatingPrizes(false);
+    }
+  }, [mainNumbers, specialNumbers, selectedType, lotteryHistoryData, ssqHistoryData, kl8HistoryData, kl8NumberCount]);
   const algorithm = useLotteryStore((state) => state.algorithm);
   const historyRecords = useLotteryStore((state) => state.historyRecords);
   const setSelectedType = useLotteryStore((state) => state.setSelectedType);
@@ -129,9 +178,16 @@ export const NumberOperations = ({
           <div className="text-right">
             <p className="text-xs text-gray-500 mb-1">选号状态</p>
             <p className="text-sm font-medium">
-              {selectedType === "dlt" ? "前区" : "红球"}: {mainNumbers.length}/
-              {config.mainCount}
-              {config.specialCount && (
+              {selectedType === "kl8"
+                ? "选号"
+                : selectedType === "dlt"
+                  ? "前区"
+                  : "红球"}: {mainNumbers.length}/
+              {selectedType === "kl8"
+                ? (kl8NumberCount || 10)
+                : (Array.isArray(config.mainCount) ? config.mainCount[1] : config.mainCount)
+              }
+              {config.specialCount && selectedType !== "kl8" && (
                 <span className="ml-2">
                   {selectedType === "dlt" ? "后区" : "蓝球"}:{" "}
                   {specialNumbers.length}/{config.specialCount}
@@ -183,6 +239,20 @@ export const NumberOperations = ({
               )}
               {saved ? "已保存" : "保存选号"}
             </Button>
+            <Button
+              onClick={() => {
+                // 先计算中奖统计，然后显示分析面板
+                calculatePrizeStatistics();
+                setShowPrizeAnalysis(true);
+              }}
+              variant="outline"
+              size="sm"
+              className="border-yellow-200 text-slate-500 hover:bg-yellow-50 hover:border-yellow-300 h-7 px-3"
+              disabled={mainNumbers.length === 0 || isCalculatingPrizes}
+            >
+              <Award className="h-3 w-3 mr-1" />
+              {isCalculatingPrizes ? "计算中..." : "中奖分析"}
+            </Button>
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="secondary" size="lg" className="    h-7 px-3">
@@ -225,11 +295,21 @@ export const NumberOperations = ({
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                              {record.lotteryType}
+                              {record.lotteryType === 'kl8' ? '快乐8' : record.lotteryType === 'dlt' ? '大乐透' : '双色球'}
                             </span>
                             <span className="text-xs px-2 py-1 bg-linear-to-r from-blue-600/20 to-purple-600/20 rounded-full text-blue-700 dark:text-blue-300 font-medium">
                               {record.algorithm}
                             </span>
+                            {record.lotteryType === 'kl8' && record.kl8NumberCount && (
+                              <span className="text-xs px-2 py-1 bg-linear-to-r from-orange-600/20 to-red-600/20 rounded-full text-orange-700 dark:text-orange-300 font-medium">
+                                选{record.kl8NumberCount}个
+                              </span>
+                            )}
+                            {record.betAmount && (
+                              <span className="text-xs px-2 py-1 bg-linear-to-r from-green-600/20 to-emerald-600/20 rounded-full text-green-700 dark:text-green-300 font-medium">
+                                ¥{record.betAmount}
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground font-medium">
@@ -288,6 +368,17 @@ export const NumberOperations = ({
           </div>
         </div>
       </div>
+
+      {/* 中奖分析面板 */}
+      {showPrizeAnalysis && prizeStatistics && (
+        <PrizeAnalysisPanel
+          statistics={prizeStatistics}
+          selectedType={selectedType}
+          mainNumbers={mainNumbers}
+          specialNumbers={specialNumbers}
+          onClose={() => setShowPrizeAnalysis(false)}
+        />
+      )}
     </div>
   );
 };

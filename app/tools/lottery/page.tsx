@@ -33,6 +33,7 @@ import {
   NumberGenerator,
   HistoryDisplay,
 } from "./components";
+import { KL8PrizeCalculator } from "./components/KL8PrizeCalculator";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 
@@ -64,6 +65,8 @@ export default function LotteryPage() {
   );
   const ssqHistoryData = useLotteryStore((state) => state.ssqHistoryData);
   const setSsqHistoryData = useLotteryStore((state) => state.setSsqHistoryData);
+  const kl8HistoryData = useLotteryStore((state) => state.kl8HistoryData);
+  const setKL8HistoryData = useLotteryStore((state) => state.setKL8HistoryData);
 
   const config = LOTTERY_CONFIGS[selectedType];
 
@@ -85,9 +88,10 @@ export default function LotteryPage() {
   const fetchLotteryHistory = async () => {
     setHistoryLoading(true);
     try {
-      const [dltResponse, ssqResponse] = await Promise.all([
+      const [dltResponse, ssqResponse, kl8Response] = await Promise.all([
         fetch("/api/lottery/history"),
         fetch("/api/lottery/ssq-history"),
+        fetch("/api/lottery/kl8-history"),
       ]);
 
       if (dltResponse.ok) {
@@ -104,6 +108,15 @@ export default function LotteryPage() {
       } else {
         console.error("Failed to fetch SSQ history:", ssqResponse.status);
         setSsqHistoryData([]);
+      }
+
+      if (kl8Response.ok) {
+        const kl8Data = await kl8Response.json();
+        // kl8Data 直接是数组，不需要 .data
+        setKL8HistoryData(Array.isArray(kl8Data) ? kl8Data : []);
+      } else {
+        console.error("Failed to fetch KL8 history:", kl8Response.status);
+        setKL8HistoryData([]);
       }
     } catch (error) {
       console.error("Failed to fetch lottery history:", error);
@@ -202,7 +215,7 @@ export default function LotteryPage() {
             彩票工具
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            提供大乐透和双色球的OCR识别、智能选号和奖金计算功能
+            提供大乐透、双色球和福彩8的OCR识别、智能选号和奖金计算功能
           </p>
         </div>
 
@@ -262,7 +275,7 @@ export default function LotteryPage() {
                       </p>
                     </div>
 
-                    {selectedType !== "fc8" && (
+                    {selectedType !== "kl8" && (
                       <>
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
@@ -272,7 +285,11 @@ export default function LotteryPage() {
                             <Input
                               type="number"
                               min="0"
-                              max={config.mainCount}
+                              max={
+                                Array.isArray(config.mainCount)
+                                  ? config.mainCount[1]
+                                  : config.mainCount
+                              }
                               value={matchedMain}
                               onChange={(e) =>
                                 setMatchedMain(parseInt(e.target.value) || 0)
@@ -287,7 +304,11 @@ export default function LotteryPage() {
                             <Input
                               type="number"
                               min="0"
-                              max={config.specialCount}
+                              max={
+                                Array.isArray(config.specialCount)
+                                  ? config.specialCount[1]
+                                  : config.specialCount
+                              }
                               value={matchedSpecial}
                               onChange={(e) =>
                                 setMatchedSpecial(parseInt(e.target.value) || 0)
@@ -314,6 +335,9 @@ export default function LotteryPage() {
                         )}
                       </>
                     )}
+
+                    {/* 福彩8专用奖金计算器 */}
+                    {selectedType === "kl8" && <KL8PrizeCalculator />}
                   </CardContent>
                 </Card>
               </div>
@@ -330,6 +354,7 @@ export default function LotteryPage() {
                   <StatisticsPanel
                     lotteryHistoryData={dltHistoryData}
                     ssqHistoryData={ssqHistoryData}
+                    kl8HistoryData={kl8HistoryData}
                   />
                 )}
               </div>
@@ -340,6 +365,7 @@ export default function LotteryPage() {
                 <NumberGenerator
                   lotteryHistoryData={dltHistoryData}
                   ssqHistoryData={ssqHistoryData}
+                  kl8HistoryData={kl8HistoryData}
                 />
               </div>
             </div>

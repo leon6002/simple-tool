@@ -58,11 +58,13 @@ const Tooltip = ({
 interface StatisticsPanelProps {
   lotteryHistoryData: any[];
   ssqHistoryData: any[];
+  kl8HistoryData: any[];
 }
 
 export default function StatisticsPanel({
   lotteryHistoryData,
   ssqHistoryData,
+  kl8HistoryData,
 }: StatisticsPanelProps) {
   const selectedType = useLotteryStore((state) => state.selectedType);
   const config = LOTTERY_CONFIGS[selectedType];
@@ -75,8 +77,15 @@ export default function StatisticsPanel({
 
   // 根据统计范围重新计算统计数据
   useEffect(() => {
-    const historyData =
-      selectedType === "dlt" ? lotteryHistoryData : ssqHistoryData;
+    let historyData: any[] = [];
+    if (selectedType === "dlt") {
+      historyData = lotteryHistoryData;
+    } else if (selectedType === "ssq") {
+      historyData = ssqHistoryData;
+    } else if (selectedType === "kl8") {
+      historyData = kl8HistoryData;
+    }
+
     if (historyData && historyData.length > 0) {
       const limitedData = historyData.slice(-statisticsRange);
       const newStats = analyzeStatistics(limitedData, selectedType, config);
@@ -88,6 +97,7 @@ export default function StatisticsPanel({
     selectedType,
     lotteryHistoryData,
     ssqHistoryData,
+    kl8HistoryData,
     statisticsRange,
     config,
     setStatistics,
@@ -150,11 +160,11 @@ export default function StatisticsPanel({
           <div className="flex items-center gap-2 mb-3">
             <History className="h-3 w-3 text-indigo-600" />
             <h4 className="text-xs font-bold text-indigo-700 dark:text-indigo-400">
-              最近开奖号码 ({selectedType === "dlt" ? "大乐透" : "双色球"})
+              最近开奖号码 ({selectedType === "dlt" ? "大乐透" : selectedType === "ssq" ? "双色球" : "快乐8"})
             </h4>
           </div>
           <div className="space-y-2 max-h-40 overflow-y-auto">
-            {(selectedType === "dlt" ? lotteryHistoryData : ssqHistoryData)
+            {(selectedType === "dlt" ? lotteryHistoryData : selectedType === "ssq" ? ssqHistoryData : kl8HistoryData)
               .slice()
               .reverse()
               .slice(0, 5)
@@ -170,45 +180,70 @@ export default function StatisticsPanel({
                     {(record.issue || record.period || "").slice(-3)}期
                   </Badge>
                   <div className="flex items-center gap-1 flex-1">
-                    {record.numbers || record.redBalls || record.mainNumbers ? (
-                      <>
-                        {(
-                          record.numbers ||
-                          record.redBalls ||
-                          record.mainNumbers
-                        )
-                          .slice(0, 5)
-                          .map((num: number, idx: number) => (
-                            <div
-                              key={idx}
-                              className="w-6 h-6 rounded-full bg-gradient-to-br from-red-500 to-orange-500 text-white text-xs flex items-center justify-center font-bold shadow-sm"
-                            >
-                              {num}
-                            </div>
-                          ))}
-                        {(record.specialNumbers || record.blueBalls) && (
-                          <>
-                            <span className="text-sm font-bold text-gray-400 mx-1">
-                              +
+                    {(() => {
+                      if (selectedType === "kl8") {
+                        // 福彩8：显示20个开奖号码
+                        const numbers = record.numbers || record.drawNumbers || [];
+                        return numbers.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {numbers.slice(0, 20).map((num: number, idx: number) => (
+                              <div
+                                key={idx}
+                                className="w-5 h-5 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-white text-xs flex items-center justify-center font-bold shadow-sm"
+                              >
+                                {num}
+                              </div>
+                            ))}
+                            <span className="text-xs text-gray-500 ml-2">
+                              共{numbers.length}个号码
                             </span>
-                            {(record.specialNumbers || record.blueBalls)
-                              .slice(0, 2)
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-500">
+                            数据加载中...
+                          </span>
+                        );
+                      } else {
+                        // 大乐透和双色球
+                        const mainNumbers = record.numbers || record.redBalls || record.mainNumbers || [];
+                        const specialNumbers = record.specialNumbers || record.blueBalls || [];
+                        return mainNumbers.length > 0 ? (
+                          <>
+                            {mainNumbers
+                              .slice(0, selectedType === "dlt" ? 5 : 6)
                               .map((num: number, idx: number) => (
                                 <div
                                   key={idx}
-                                  className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-cyan-500 text-white text-xs flex items-center justify-center font-bold shadow-sm"
+                                  className="w-6 h-6 rounded-full bg-gradient-to-br from-red-500 to-orange-500 text-white text-xs flex items-center justify-center font-bold shadow-sm"
                                 >
                                   {num}
                                 </div>
                               ))}
+                            {specialNumbers.length > 0 && (
+                              <>
+                                <span className="text-sm font-bold text-gray-400 mx-1">
+                                  +
+                                </span>
+                                {specialNumbers
+                                  .slice(0, selectedType === "dlt" ? 2 : 1)
+                                  .map((num: number, idx: number) => (
+                                    <div
+                                      key={idx}
+                                      className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-cyan-500 text-white text-xs flex items-center justify-center font-bold shadow-sm"
+                                    >
+                                      {num}
+                                    </div>
+                                  ))}
+                              </>
+                            )}
                           </>
-                        )}
-                      </>
-                    ) : (
-                      <span className="text-xs text-gray-500">
-                        数据加载中...
-                      </span>
-                    )}
+                        ) : (
+                          <span className="text-xs text-gray-500">
+                            数据加载中...
+                          </span>
+                        );
+                      }
+                    })()}
                   </div>
                 </div>
               ))}

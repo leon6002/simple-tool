@@ -52,15 +52,19 @@ export interface SSQAIParsedData {
 
 export type AIParsedLotteryData = DLTAIParsedData | SSQAIParsedData;
 
-export type LotteryType = "dlt" | "ssq" | "fc8";
+export type LotteryType = "dlt" | "ssq" | "kl8";
 
 export interface LotteryConfig {
   name: string;
   mainRange: [number, number];
-  mainCount: number;
+  mainCount: number | [number, number]; // 支持单个数字或范围[最小, 最大]
   specialRange?: [number, number];
   specialCount?: number;
   description: string;
+  // KL8专用字段
+  defaultCount?: number; // 默认选号数量
+  betAmounts?: number[]; // 投注金额数组
+  maxSingleBet?: number; // 单注最高投注限制
 }
 
 export interface CroppedAreaPixels {
@@ -87,6 +91,9 @@ export interface HistoryRecord {
   specialNumbers: number[];
   timestamp: number;
   formattedTime: string;
+  // KL8专用字段
+  kl8NumberCount?: number; // KL8选号数量
+  betAmount?: number; // 投注金额
 }
 
 export interface LotteryStatistics {
