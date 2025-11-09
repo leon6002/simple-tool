@@ -360,8 +360,10 @@ export const NumberSelector = ({
                           let maxCount: number;
                           if (Array.isArray(config.specialCount)) {
                             maxCount = config.specialCount[1]; // 最大数量
-                          } else {
+                          } else if (typeof config.specialCount === "number") {
                             maxCount = config.specialCount;
+                          } else {
+                            maxCount = 1; // 默认值
                           }
                           if (newNumbers.length < maxCount) {
                             newNumbers.push(num);

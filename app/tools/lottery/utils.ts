@@ -633,8 +633,25 @@ export const calculateHistoricalPrizes = (
       }
     } else {
       // 大乐透和双色球
-      drawMainNumbers = draw.numbers || draw.redBalls || draw.mainNumbers || [];
-      drawSpecialNumbers = draw.specialNumbers || draw.blueBalls || [];
+      const rawMainNumbers =
+        draw.numbers || draw.redBalls || draw.mainNumbers || [];
+      const rawSpecialNumbers = draw.specialNumbers || draw.blueBalls || [];
+
+      // 将字符串数组转换为数字数组
+      drawMainNumbers = Array.isArray(rawMainNumbers)
+        ? rawMainNumbers
+            .map((n: string | number) =>
+              typeof n === "string" ? parseInt(n, 10) : n
+            )
+            .filter((n: number) => !isNaN(n))
+        : [];
+      drawSpecialNumbers = Array.isArray(rawSpecialNumbers)
+        ? rawSpecialNumbers
+            .map((n: string | number) =>
+              typeof n === "string" ? parseInt(n, 10) : n
+            )
+            .filter((n: number) => !isNaN(n))
+        : [];
 
       // 计算匹配数量（非KL8玩法）
       const mainMatches = mainNumbers.filter((num) =>
@@ -706,49 +723,61 @@ export const calculatePrizeForDraw = (
   if (selectedType === "dlt") {
     // 大乐透奖金计算
     if (mainMatches === 5 && specialMatches === 2) {
-      return { prize: "一等奖", prizeAmount: 0 }; // 浮动奖金
+      return { prize: "一等奖", prizeAmount: 10000000 }; // 浮动奖金，这里用1000万作为参考
     } else if (mainMatches === 5 && specialMatches === 1) {
-      return { prize: "二等奖", prizeAmount: 0 }; // 浮动奖金
+      return { prize: "二等奖", prizeAmount: 500000 }; // 浮动奖金，这里用50万作为参考
     } else if (mainMatches === 5 && specialMatches === 0) {
       return { prize: "三等奖", prizeAmount: 10000 };
     } else if (mainMatches === 4 && specialMatches === 2) {
       return { prize: "四等奖", prizeAmount: 3000 };
     } else if (mainMatches === 4 && specialMatches === 1) {
       return { prize: "五等奖", prizeAmount: 300 };
-    } else if (mainMatches === 3 && specialMatches === 2) {
+    } else if (
+      (mainMatches === 3 && specialMatches === 2) ||
+      (mainMatches === 4 && specialMatches === 0)
+    ) {
       return { prize: "六等奖", prizeAmount: 200 };
-    } else if (mainMatches === 2 && specialMatches === 2) {
+    } else if (
+      (mainMatches === 3 && specialMatches === 1) ||
+      (mainMatches === 2 && specialMatches === 2)
+    ) {
       return { prize: "七等奖", prizeAmount: 100 };
     } else if (
+      (mainMatches === 3 && specialMatches === 0) ||
       (mainMatches === 1 && specialMatches === 2) ||
+      (mainMatches === 2 && specialMatches === 1) ||
       (mainMatches === 0 && specialMatches === 2)
     ) {
       return { prize: "八等奖", prizeAmount: 15 };
+    } else if (
+      (mainMatches === 1 && specialMatches === 1) ||
+      (mainMatches === 0 && specialMatches === 1)
+    ) {
+      return { prize: "九等奖", prizeAmount: 5 };
     }
   } else if (selectedType === "ssq") {
     // 双色球奖金计算
     if (mainMatches === 6 && specialMatches === 1) {
-      return { prize: "一等奖", prizeAmount: 0 }; // 浮动奖金
+      return { prize: "一等奖", prizeAmount: 5000000 }; // 浮动奖金，这里用500万作为参考
     } else if (mainMatches === 6 && specialMatches === 0) {
-      return { prize: "二等奖", prizeAmount: 0 }; // 浮动奖金
-    } else if (
-      (mainMatches === 5 && specialMatches === 1) ||
-      (mainMatches === 5 && specialMatches === 0)
-    ) {
+      return { prize: "二等奖", prizeAmount: 200000 }; // 浮动奖金，这里用20万作为参考
+    } else if (mainMatches === 5 && specialMatches === 1) {
       return { prize: "三等奖", prizeAmount: 3000 };
     } else if (
-      (mainMatches === 4 && specialMatches === 1) ||
-      (mainMatches === 4 && specialMatches === 0)
+      (mainMatches === 5 && specialMatches === 0) ||
+      (mainMatches === 4 && specialMatches === 1)
     ) {
       return { prize: "四等奖", prizeAmount: 200 };
     } else if (
-      (mainMatches === 3 && specialMatches === 1) ||
-      (mainMatches === 2 && specialMatches === 1)
+      (mainMatches === 4 && specialMatches === 0) ||
+      (mainMatches === 3 && specialMatches === 1)
     ) {
       return { prize: "五等奖", prizeAmount: 10 };
-    } else if (mainMatches === 1 && specialMatches === 1) {
-      return { prize: "六等奖", prizeAmount: 5 };
-    } else if (mainMatches === 0 && specialMatches === 1) {
+    } else if (
+      (mainMatches === 2 && specialMatches === 1) ||
+      (mainMatches === 1 && specialMatches === 1) ||
+      (mainMatches === 0 && specialMatches === 1)
+    ) {
       return { prize: "六等奖", prizeAmount: 5 };
     }
   } else if (selectedType === "kl8") {

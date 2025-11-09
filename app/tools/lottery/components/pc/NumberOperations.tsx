@@ -38,7 +38,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 import { PrizeAnalysisPanel } from "../PrizeAnalysisDialog";
-import { calculateHistoricalPrizes } from "../../utils";
+import { calculateHistoricalPrizes, PrizeStatistics } from "../../utils";
 
 interface NumberOperationsProps {
   config: LotteryConfig;
@@ -79,7 +79,8 @@ export const NumberOperations = ({
   const selectedType = useLotteryStore((state) => state.selectedType);
 
   // 中奖统计 - 只在用户请求时计算，不在生成号码时自动计算
-  const [prizeStatistics, setPrizeStatistics] = useState<PrizeStatistics | null>(null);
+  const [prizeStatistics, setPrizeStatistics] =
+    useState<PrizeStatistics | null>(null);
   const [isCalculatingPrizes, setIsCalculatingPrizes] = useState(false);
 
   // 计算往期中奖统计的函数
@@ -102,7 +103,13 @@ export const NumberOperations = ({
 
       // 使用setTimeout避免阻塞UI
       setTimeout(() => {
-        const result = calculateHistoricalPrizes(mainNumbers, specialNumbers, historyData, selectedType, kl8NumberCount);
+        const result = calculateHistoricalPrizes(
+          mainNumbers,
+          specialNumbers,
+          historyData,
+          selectedType,
+          kl8NumberCount
+        );
         setPrizeStatistics(result);
         setIsCalculatingPrizes(false);
       }, 0);
@@ -110,7 +117,15 @@ export const NumberOperations = ({
       console.error("计算中奖统计失败:", error);
       setIsCalculatingPrizes(false);
     }
-  }, [mainNumbers, specialNumbers, selectedType, lotteryHistoryData, ssqHistoryData, kl8HistoryData, kl8NumberCount]);
+  }, [
+    mainNumbers,
+    specialNumbers,
+    selectedType,
+    lotteryHistoryData,
+    ssqHistoryData,
+    kl8HistoryData,
+    kl8NumberCount,
+  ]);
   const algorithm = useLotteryStore((state) => state.algorithm);
   const historyRecords = useLotteryStore((state) => state.historyRecords);
   const setSelectedType = useLotteryStore((state) => state.setSelectedType);
@@ -181,12 +196,14 @@ export const NumberOperations = ({
               {selectedType === "kl8"
                 ? "选号"
                 : selectedType === "dlt"
-                  ? "前区"
-                  : "红球"}: {mainNumbers.length}/
+                ? "前区"
+                : "红球"}
+              : {mainNumbers.length}/
               {selectedType === "kl8"
-                ? (kl8NumberCount || 10)
-                : (Array.isArray(config.mainCount) ? config.mainCount[1] : config.mainCount)
-              }
+                ? kl8NumberCount || 10
+                : Array.isArray(config.mainCount)
+                ? config.mainCount[1]
+                : config.mainCount}
               {config.specialCount && selectedType !== "kl8" && (
                 <span className="ml-2">
                   {selectedType === "dlt" ? "后区" : "蓝球"}:{" "}
@@ -295,16 +312,21 @@ export const NumberOperations = ({
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                              {record.lotteryType === 'kl8' ? '快乐8' : record.lotteryType === 'dlt' ? '大乐透' : '双色球'}
+                              {record.lotteryType === "kl8"
+                                ? "快乐8"
+                                : record.lotteryType === "dlt"
+                                ? "大乐透"
+                                : "双色球"}
                             </span>
                             <span className="text-xs px-2 py-1 bg-linear-to-r from-blue-600/20 to-purple-600/20 rounded-full text-blue-700 dark:text-blue-300 font-medium">
                               {record.algorithm}
                             </span>
-                            {record.lotteryType === 'kl8' && record.kl8NumberCount && (
-                              <span className="text-xs px-2 py-1 bg-linear-to-r from-orange-600/20 to-red-600/20 rounded-full text-orange-700 dark:text-orange-300 font-medium">
-                                选{record.kl8NumberCount}个
-                              </span>
-                            )}
+                            {record.lotteryType === "kl8" &&
+                              record.kl8NumberCount && (
+                                <span className="text-xs px-2 py-1 bg-linear-to-r from-orange-600/20 to-red-600/20 rounded-full text-orange-700 dark:text-orange-300 font-medium">
+                                  选{record.kl8NumberCount}个
+                                </span>
+                              )}
                             {record.betAmount && (
                               <span className="text-xs px-2 py-1 bg-linear-to-r from-green-600/20 to-emerald-600/20 rounded-full text-green-700 dark:text-green-300 font-medium">
                                 ¥{record.betAmount}

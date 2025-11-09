@@ -16,7 +16,7 @@ export const NumberPreviewMobile = ({
             {mainNumbers.map((num, idx) => (
               <div
                 key={idx}
-                className="flex flex-wrap shrink-0 w-12 h-12 rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white items-center justify-center font-bold text-sm shadow-md"
+                className="flex flex-wrap shrink-0 w-10 h-10 rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white items-center justify-center font-bold text-sm shadow-md"
               >
                 {`${num < 10 ? "0" : ""}${num}`}
               </div>
@@ -32,7 +32,7 @@ export const NumberPreviewMobile = ({
                 {specialNumbers.map((num, idx) => (
                   <div
                     key={idx}
-                    className="shrink-0 w-12 h-12 rounded-full bg-linear-to-br from-pink-600 to-red-600 text-white flex items-center justify-center font-bold text-sm shadow-md"
+                    className="shrink-0 w-10 h-10 rounded-full bg-linear-to-br from-pink-600 to-red-600 text-white flex items-center justify-center font-bold text-sm shadow-md"
                   >
                     {`${num < 10 ? "0" : ""}${num}`}
                   </div>
@@ -44,10 +44,9 @@ export const NumberPreviewMobile = ({
 
         {/* 始终显示的提示文案 */}
         <p className="text-muted-foreground text-sm text-center">
-          {mainNumbers.length > 0 || specialNumbers.length > 0
-            ? "当前选号"
-            : "请选择彩票类型并生成号码"
-          }
+          {mainNumbers.length == 0 &&
+            specialNumbers.length == 0 &&
+            "请选择彩票类型并生成号码"}
         </p>
       </div>
     </div>

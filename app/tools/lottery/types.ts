@@ -59,7 +59,7 @@ export interface LotteryConfig {
   mainRange: [number, number];
   mainCount: number | [number, number]; // 支持单个数字或范围[最小, 最大]
   specialRange?: [number, number];
-  specialCount?: number;
+  specialCount?: number | [number, number]; // 支持单个数字或范围[最小, 最大]
   description: string;
   // KL8专用字段
   defaultCount?: number; // 默认选号数量

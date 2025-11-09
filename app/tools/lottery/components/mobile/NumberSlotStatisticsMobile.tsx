@@ -100,22 +100,30 @@ export const NumberSlotStatisticsMobile = ({
 
             {/* 在移动端使用垂直列表而非网格布局 */}
             <div className="grid grid-cols-3 space-y-4">
-              {Array.from({ length: Array.isArray(config.mainCount) ? config.mainCount[1] : config.mainCount }, (_, positionIdx) => {
-                const topNumbers = getPositionFrequencies(positionIdx, false);
-                const maxFreq = topNumbers.length > 0 ? topNumbers[0].freq : 0;
+              {Array.from(
+                {
+                  length: Array.isArray(config.mainCount)
+                    ? config.mainCount[1]
+                    : config.mainCount,
+                },
+                (_, positionIdx) => {
+                  const topNumbers = getPositionFrequencies(positionIdx, false);
+                  const maxFreq =
+                    topNumbers.length > 0 ? topNumbers[0].freq : 0;
 
-                return (
-                  <div
-                    key={positionIdx}
-                    className="border-b border-gray-100 dark:border-gray-800 pb-3 last:border-0"
-                  >
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
-                      第{positionIdx + 1}位
+                  return (
+                    <div
+                      key={positionIdx}
+                      className="border-b border-gray-100 dark:border-gray-800 pb-3 last:border-0"
+                    >
+                      <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                        第{positionIdx + 1}位
+                      </div>
+                      {renderFrequencyBars(topNumbers, maxFreq)}
                     </div>
-                    {renderFrequencyBars(topNumbers, maxFreq)}
-                  </div>
-                );
-              })}
+                  );
+                }
+              )}
             </div>
           </div>
 
@@ -129,7 +137,11 @@ export const NumberSlotStatisticsMobile = ({
               {/* 在移动端使用垂直列表而非网格布局 */}
               <div className="grid grid-cols-2 space-y-4">
                 {Array.from(
-                  { length: config.specialCount },
+                  {
+                    length: Array.isArray(config.specialCount)
+                      ? config.specialCount[0]
+                      : config.specialCount || 1,
+                  },
                   (_, positionIdx) => {
                     const topNumbers = getPositionFrequencies(
                       positionIdx,

@@ -16,6 +16,7 @@ import {
   Sparkles,
   TrendingDown,
   TrendingUp,
+  Award,
 } from "lucide-react";
 
 import {
@@ -30,6 +31,9 @@ import { HistoryRecord } from "../../types";
 import HistoryPanelMobile from "./HistoryPanelMobile";
 import { useLotteryStore } from "@/lib/stores/lottery/lottery-store";
 import { StatisticsPanelMobile } from "./StatisticsPanelMobile";
+import { useState, useCallback } from "react";
+import { PrizeAnalysisMobile } from "./PrizeAnalysisMobile";
+import { calculateHistoricalPrizes, PrizeStatistics } from "../../utils";
 
 interface NumberOperationsMobileProps {
   copied: boolean;
@@ -38,6 +42,12 @@ interface NumberOperationsMobileProps {
   onHistoryUpdate: (records: HistoryRecord[]) => void;
   saveNumbers: () => void;
   copyNumbers: () => void;
+  mainNumbers: number[];
+  specialNumbers: number[];
+  kl8NumberCount?: number;
+  lotteryHistoryData?: any[];
+  ssqHistoryData?: any[];
+  kl8HistoryData?: any[];
 }
 const NumberOperationsMobile = ({
   copied,
@@ -45,11 +55,70 @@ const NumberOperationsMobile = ({
   generateSmartNumbers,
   saveNumbers,
   copyNumbers,
+  mainNumbers,
+  specialNumbers,
+  kl8NumberCount,
+  lotteryHistoryData = [],
+  ssqHistoryData = [],
+  kl8HistoryData = [],
 }: NumberOperationsMobileProps) => {
   const selectedType = useLotteryStore((state) => state.selectedType);
   const algorithm = useLotteryStore((state) => state.algorithm);
   const setAlgorithm = useLotteryStore((state) => state.setAlgorithm);
   const setSelectedType = useLotteryStore((state) => state.setSelectedType);
+
+  // 中奖分析状态
+  const [showPrizeAnalysis, setShowPrizeAnalysis] = useState(false);
+  const [prizeStatistics, setPrizeStatistics] =
+    useState<PrizeStatistics | null>(null);
+  const [isCalculatingPrizes, setIsCalculatingPrizes] = useState(false);
+
+  // 计算往期中奖统计的函数
+  const calculatePrizeStatistics = useCallback(async () => {
+    if (mainNumbers.length === 0) return;
+
+    setIsCalculatingPrizes(true);
+
+    try {
+      let historyData: any[] = [];
+      if (selectedType === "dlt") {
+        historyData = lotteryHistoryData;
+      } else if (selectedType === "ssq") {
+        historyData = ssqHistoryData;
+      } else if (selectedType === "kl8") {
+        historyData = kl8HistoryData;
+      }
+
+      if (historyData.length === 0) {
+        setIsCalculatingPrizes(false);
+        return;
+      }
+
+      // 使用setTimeout避免阻塞UI
+      setTimeout(() => {
+        const result = calculateHistoricalPrizes(
+          mainNumbers,
+          specialNumbers,
+          historyData,
+          selectedType,
+          kl8NumberCount
+        );
+        setPrizeStatistics(result);
+        setIsCalculatingPrizes(false);
+      }, 0);
+    } catch (error) {
+      console.error("计算中奖统计失败:", error);
+      setIsCalculatingPrizes(false);
+    }
+  }, [
+    mainNumbers,
+    specialNumbers,
+    selectedType,
+    lotteryHistoryData,
+    ssqHistoryData,
+    kl8HistoryData,
+    kl8NumberCount,
+  ]);
 
   return (
     <>
@@ -185,10 +254,36 @@ const NumberOperationsMobile = ({
             {saved ? "已保存" : "保存选号"}
           </Button>
         </div>
+
+        {/* 中奖分析按钮 */}
+        <div className="w-full">
+          <Button
+            onClick={() => {
+              calculatePrizeStatistics();
+              setShowPrizeAnalysis(true);
+            }}
+            className="w-full bg-linear-to-r from-yellow-500 to-orange-500 text-white hover:opacity-90 transition-all shadow-md h-10"
+            size="sm"
+            disabled={mainNumbers.length === 0 || isCalculatingPrizes}
+          >
+            <Award className="h-4 w-4 mr-1.5" />
+            {isCalculatingPrizes ? "计算中..." : "中奖分析"}
+          </Button>
+        </div>
       </div>
       <div className="w-full">
         <HistoryPanelMobile />
       </div>
+
+      {/* 中奖分析面板 */}
+      <PrizeAnalysisMobile
+        open={showPrizeAnalysis}
+        onOpenChange={setShowPrizeAnalysis}
+        statistics={prizeStatistics}
+        selectedType={selectedType}
+        mainNumbers={mainNumbers}
+        specialNumbers={specialNumbers}
+      />
     </>
   );
 };

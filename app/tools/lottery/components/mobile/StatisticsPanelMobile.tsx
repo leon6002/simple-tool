@@ -127,8 +127,13 @@ export const StatisticsPanelMobile = () => {
                 统计分析
               </CardTitle>
               <CardDescription className="text-xs">
-                基于{selectedType === "dlt" ? "大乐透" : "双色球"}最近
-                {statisticsRange}期数据
+                基于
+                {selectedType === "dlt"
+                  ? "大乐透"
+                  : selectedType === "ssq"
+                  ? "双色球"
+                  : "快乐8"}
+                最近{statisticsRange}期数据
               </CardDescription>
               {/* 统计范围选择 */}
               <div className="flex items-center gap-2 mt-2">
@@ -157,14 +162,21 @@ export const StatisticsPanelMobile = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <History className="h-3 w-3 text-indigo-600" />
                   <h4 className="text-xs font-bold text-indigo-700 dark:text-indigo-400">
-                    最近开奖号码 ({selectedType === "dlt" ? "大乐透" : "双色球"}
+                    最近开奖号码 (
+                    {selectedType === "dlt"
+                      ? "大乐透"
+                      : selectedType === "ssq"
+                      ? "双色球"
+                      : "快乐8"}
                     )
                   </h4>
                 </div>
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {(selectedType === "dlt"
                     ? lotteryHistoryData
-                    : ssqHistoryData
+                    : selectedType === "ssq"
+                    ? ssqHistoryData
+                    : kl8HistoryData
                   )
                     .slice()
                     .reverse()
@@ -180,7 +192,7 @@ export const StatisticsPanelMobile = () => {
                         >
                           {(record.issue || record.period || "").slice(-3)}期
                         </Badge>
-                        <div className="flex items-center gap-1 flex-1">
+                        <div className="flex items-center gap-1 flex-1 flex-wrap">
                           {record.numbers ||
                           record.redBalls ||
                           record.mainNumbers ? (
@@ -190,7 +202,14 @@ export const StatisticsPanelMobile = () => {
                                 record.redBalls ||
                                 record.mainNumbers
                               )
-                                .slice(0, 5)
+                                .slice(
+                                  0,
+                                  selectedType === "kl8"
+                                    ? 10
+                                    : selectedType === "ssq"
+                                    ? 6
+                                    : 5
+                                )
                                 .map((num: number, idx: number) => (
                                   <div
                                     key={idx}
@@ -199,23 +218,34 @@ export const StatisticsPanelMobile = () => {
                                     {num}
                                   </div>
                                 ))}
-                              {(record.specialNumbers || record.blueBalls) && (
-                                <>
-                                  <span className="text-sm font-bold text-gray-400 mx-1">
-                                    +
-                                  </span>
-                                  {(record.specialNumbers || record.blueBalls)
-                                    .slice(0, 2)
-                                    .map((num: number, idx: number) => (
-                                      <div
-                                        key={idx}
-                                        className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-cyan-500 text-white text-xs flex items-center justify-center font-bold shadow-sm"
-                                      >
-                                        {num}
-                                      </div>
-                                    ))}
-                                </>
-                              )}
+                              {selectedType !== "kl8" &&
+                                (record.specialNumbers ||
+                                  record.blueBall ||
+                                  record.blueBalls) && (
+                                  <>
+                                    <span className="text-sm font-bold text-gray-400 mx-1">
+                                      +
+                                    </span>
+                                    {selectedType === "dlt"
+                                      ? // 大乐透：specialNumbers 是数组
+                                        record.specialNumbers
+                                          ?.slice(0, 2)
+                                          .map((num: number, idx: number) => (
+                                            <div
+                                              key={idx}
+                                              className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-cyan-500 text-white text-xs flex items-center justify-center font-bold shadow-sm"
+                                            >
+                                              {num}
+                                            </div>
+                                          ))
+                                      : // 双色球：blueBall 是字符串
+                                        record.blueBall && (
+                                          <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-cyan-500 text-white text-xs flex items-center justify-center font-bold shadow-sm">
+                                            {record.blueBall}
+                                          </div>
+                                        )}
+                                  </>
+                                )}
                             </>
                           ) : (
                             <span className="text-xs text-gray-500">
@@ -233,7 +263,12 @@ export const StatisticsPanelMobile = () => {
                 {/* 主号码详细频次分析 */}
                 <div className="p-3 bg-linear-to-r from-purple-50/80 to-indigo-50/80 dark:from-purple-950/30 dark:to-indigo-950/30 rounded-lg border border-purple-200/50 dark:border-purple-800/30">
                   <h4 className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-2">
-                    {selectedType === "dlt" ? "前区" : "红球"}频次
+                    {selectedType === "dlt"
+                      ? "前区"
+                      : selectedType === "ssq"
+                      ? "红球"
+                      : "号码"}
+                    频次
                   </h4>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -322,7 +357,7 @@ export const StatisticsPanelMobile = () => {
                 </div>
 
                 {/* 特殊号码详细分析 */}
-                {config.specialCount && (
+                {config.specialCount && selectedType !== "kl8" && (
                   <div className="p-3 bg-linear-to-r from-green-50/80 to-emerald-50/80 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg border border-green-200/50 dark:border-green-800/30">
                     <h4 className="text-xs font-bold text-red-700 dark:text-red-400 mb-2">
                       {selectedType === "dlt" ? "后区" : "蓝球"}频次
