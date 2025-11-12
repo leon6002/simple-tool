@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // API configuration
-const OCR_API_KEY =
-  process.env.OCR_API_KEY ||
-  "sk-ojeleuybhlruuuhvbuteobvzlcbttegdwtijjqnixdduqoij";
+const OCR_API_KEY = process.env.OCR_API_KEY || "";
 const OCR_BASE_URL =
   process.env.OCR_BASE_URL || "https://api.siliconflow.cn/v1";
 
@@ -84,6 +82,39 @@ const SSQ_PROMPT = `你是一个专业的彩票信息提取助手。请从以下
     "center": "广西福利彩票发行中心承销"
 }`;
 
+// 快乐8的AI解析prompt
+const KL8_PROMPT = `你是一个专业的彩票信息提取助手。请从以下OCR识别的文本中提取福彩快乐8彩票信息，并以JSON格式返回。
+
+要求：
+1. 提取所有可识别的字段
+2. 如果某个字段无法识别，可以省略该字段
+3. 号码必须是数字数组
+4. 日期格式为 YYYY-MM-DD
+5. 金额为数字类型
+6. 只返回JSON，不要有其他说明文字
+
+返回格式示例：
+{
+    "lottery_type": "快乐8-选十单式",
+    "issue_number": "2025301",
+    "draw_date": "2025-11-11",
+    "ticket_type": "单式",
+    "total_amount": 2,
+    "contribution_to_charity": 0.6,
+    "serial_numbers": ["A75-J95E-29X-C75C-L7X74-71503"],
+    "bets": [
+        {
+            "sequence": 1,
+            "front_numbers": [8, 10, 18, 20, 29, 44, 49, 68, 70, 71]
+        }
+    ],
+    "store_info": {
+        "address": "深圳福彩3199-1号"
+    },
+    "ticket_id": "A532B84C90B0F4C",
+    "print_time": "2025-11-11 19:29:49"
+}`;
+
 /**
  * 使用AI解析OCR文本
  */
@@ -93,6 +124,8 @@ async function parseWithAI(ocrText: string, lotteryType: string): Promise<any> {
       ? SSQ_PROMPT
       : lotteryType === "dlt"
       ? DLT_PROMPT
+      : lotteryType === "kl8"
+      ? KL8_PROMPT
       : DLT_PROMPT; // 默认使用大乐透
 
   const fullPrompt = `${prompt}
@@ -109,7 +142,8 @@ ${ocrText}
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "deepseek-ai/DeepSeek-V3",
+      model: "Pro/deepseek-ai/DeepSeek-V3.1-Terminus",
+      stream: false,
       messages: [
         {
           role: "user",
@@ -127,6 +161,7 @@ ${ocrText}
 
   const data = await response.json();
   const content = data.choices[0]?.message?.content || "";
+  console.log("AI Response:", content);
 
   // 提取JSON
   const jsonMatch = content.match(/\{[\s\S]*\}/);

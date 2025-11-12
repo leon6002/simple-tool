@@ -50,16 +50,41 @@ export interface SSQAIParsedData {
   center?: string;
 }
 
-export type AIParsedLotteryData = DLTAIParsedData | SSQAIParsedData;
+// 快乐8AI解析数据
+export interface KL8AIParsedData {
+  lottery_type: string;
+  issue_number: string;
+  draw_date: string;
+  ticket_type: string;
+  total_amount: number;
+  contribution_to_charity: number;
+  serial_numbers: string[];
+  bets: Array<{
+    sequence: number;
+    front_numbers: number[];
+  }>;
+  store_info?: {
+    address?: string;
+  };
+  ticket_id?: string;
+  print_time?: string;
+}
+
+export type AIParsedLotteryData =
+  | DLTAIParsedData
+  | SSQAIParsedData
+  | KL8AIParsedData;
 
 export type LotteryType = "dlt" | "ssq" | "kl8";
 
 export interface LotteryConfig {
   name: string;
   mainRange: [number, number];
-  mainCount: number | [number, number]; // 支持单个数字或范围[最小, 最大]
+  mainCount: [number, number]; // 支持单个数字或范围[最小, 最大]
+  mainName?: string;
+  specialName?: string;
   specialRange?: [number, number];
-  specialCount?: number | [number, number]; // 支持单个数字或范围[最小, 最大]
+  specialCount?: [number, number]; // 支持单个数字或范围[最小, 最大]
   description: string;
   // KL8专用字段
   defaultCount?: number; // 默认选号数量

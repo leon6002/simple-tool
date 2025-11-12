@@ -1,19 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// OCR API configuration
-const OCR_API_KEY =
-  process.env.OCR_API_KEY ||
-  "sk-ojeleuybhlruuuhvbuteobvzlcbttegdwtijjqnixdduqoij";
-const OCR_BASE_URL =
-  process.env.OCR_BASE_URL || "https://api.siliconflow.cn/v1";
-
-interface OCRResponse {
-  choices: Array<{
-    message: {
-      content: string;
-    };
-  }>;
-}
+import { recognizeText, getOCRProvider } from "../services/ocr-service";
 
 /**
  * OCR文字识别接口 - 只负责从图片中提取文字
@@ -26,46 +12,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
-    // 调用 DeepSeek OCR API (使用 chat/completions 端点)
-    const ocrResponse = await fetch(`${OCR_BASE_URL}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OCR_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-ai/DeepSeek-OCR",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "image_url",
-                image_url: {
-                  url: image,
-                },
-              },
-              {
-                type: "text",
-                text: "<image>\n<|grounding|>Convert the document to markdown. ",
-              },
-            ],
-          },
-        ],
-      }),
-    });
+    const provider = getOCRProvider();
+    console.log(`使用 ${provider.toUpperCase()} OCR 进行识别`);
 
-    if (!ocrResponse.ok) {
-      const errorText = await ocrResponse.text();
-      console.error("OCR API error:", errorText);
-      return NextResponse.json(
-        { error: "OCR recognition failed" },
-        { status: 500 }
-      );
-    }
-
-    const ocrData: OCRResponse = await ocrResponse.json();
-    const ocrText = ocrData.choices[0]?.message?.content || "";
+    // 调用统一的OCR服务
+    const ocrText = await recognizeText(image);
 
     if (!ocrText) {
       return NextResponse.json(
@@ -82,12 +33,15 @@ export async function POST(request: NextRequest) {
       lotteryType = "dlt";
     } else if (ocrText.includes("双色球")) {
       lotteryType = "ssq";
+    } else if (ocrText.includes("快乐8") || ocrText.includes("快乐八")) {
+      lotteryType = "kl8";
     }
 
     return NextResponse.json({
       success: true,
       ocrText,
       lotteryType,
+      provider, // 返回使用的OCR提供商
     });
   } catch (error) {
     console.error("Error in OCR text recognition:", error);

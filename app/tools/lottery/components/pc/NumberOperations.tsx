@@ -193,21 +193,14 @@ export const NumberOperations = ({
           <div className="text-right">
             <p className="text-xs text-gray-500 mb-1">选号状态</p>
             <p className="text-sm font-medium">
-              {selectedType === "kl8"
-                ? "选号"
-                : selectedType === "dlt"
-                ? "前区"
-                : "红球"}
-              : {mainNumbers.length}/
+              {config.mainName}: {mainNumbers.length}/
               {selectedType === "kl8"
                 ? kl8NumberCount || 10
-                : Array.isArray(config.mainCount)
-                ? config.mainCount[1]
-                : config.mainCount}
+                : config.mainCount[0]}
               {config.specialCount && selectedType !== "kl8" && (
                 <span className="ml-2">
-                  {selectedType === "dlt" ? "后区" : "蓝球"}:{" "}
-                  {specialNumbers.length}/{config.specialCount}
+                  {config.specialName}: {specialNumbers.length}/
+                  {config.specialCount[0]}
                 </span>
               )}
             </p>

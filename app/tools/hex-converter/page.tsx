@@ -2,683 +2,490 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  Copy,
-  ArrowLeftRight,
-  Calculator,
-  Info,
-  Lightbulb,
-  Zap,
-} from "lucide-react";
-
-type NumberSystem = "hex" | "decimal" | "binary" | "octal";
+import { Copy, Calculator, Info, RotateCcw } from "lucide-react";
 
 interface ConversionResult {
   hex: string;
   decimal: string;
   binary: string;
   octal: string;
+  int8: string;
+  uint8: string;
+  int16: string;
+  uint16: string;
+  int32: string;
+  uint32: string;
 }
 
 export default function HexConverterPage() {
-  // State for Number System Converter
-  const [inputValue, setInputValue] = useState("");
-  const [inputType, setInputType] = useState<NumberSystem>("hex");
-  const [result, setResult] = useState<ConversionResult | null>(null);
-  const [error, setError] = useState("");
-  const [useUnsigned, setUseUnsigned] = useState(true); // 是否使用无符号数
+  const [calcInput, setCalcInput] = useState("0xFF + 0x10 - 0x05");
+  const [calcResult, setCalcResult] = useState<ConversionResult | null>(null);
+  const [calcError, setCalcError] = useState("");
 
-  // State for Bitwise Operations
-  const [bitwiseFirstValue, setBitwiseFirstValue] = useState("");
-  const [bitwiseFirstType, setBitwiseFirstType] =
-    useState<NumberSystem>("decimal");
-  const [bitwiseSecondValue, setBitwiseSecondValue] = useState("");
-  const [bitwiseOperation, setBitwiseOperation] = useState("&");
-  const [bitwiseResult, setBitwiseResult] = useState<ConversionResult | null>(
-    null
-  );
-  const [bitwiseError, setBitwiseError] = useState("");
+  // 解析单个数字（自动识别进制）
+  const parseNumber = (value: string): number => {
+    const trimmed = value.trim();
+    if (!trimmed) throw new Error("Empty value");
 
-  const convert = () => {
-    setError("");
-
-    if (!inputValue.trim()) {
-      setError("Please enter a value");
-      return;
-    }
-
-    try {
-      let decimalValue: number;
-
-      // Convert input to decimal first
-      switch (inputType) {
-        case "hex":
-          decimalValue = parseInt(inputValue.replace(/^0x/i, ""), 16);
-          break;
-        case "decimal":
-          decimalValue = parseInt(inputValue, 10);
-          break;
-        case "binary":
-          decimalValue = parseInt(inputValue.replace(/^0b/i, ""), 2);
-          break;
-        case "octal":
-          decimalValue = parseInt(inputValue.replace(/^0o/i, ""), 8);
-          break;
-        default:
-          throw new Error("Invalid input type");
-      }
-
-      if (isNaN(decimalValue)) {
-        throw new Error("Invalid input value");
-      }
-
-      // 如果使用无符号数且值为负数,转换为32位无符号整数
-      let displayValue = decimalValue;
-      if (useUnsigned && decimalValue < 0) {
-        displayValue = decimalValue >>> 0; // 转换为32位无符号整数
-      }
-
-      // Convert to all formats
-      setResult({
-        hex: "0x" + displayValue.toString(16).toUpperCase(),
-        decimal: displayValue.toString(10),
-        binary: "0b" + displayValue.toString(2),
-        octal: "0o" + displayValue.toString(8),
-      });
-    } catch (err) {
-      setError("Invalid input. Please check your value and try again.");
-      setResult(null);
+    // 自动识别进制
+    if (trimmed.startsWith("0x") || trimmed.startsWith("0X")) {
+      return parseInt(trimmed.slice(2), 16);
+    } else if (trimmed.startsWith("0b") || trimmed.startsWith("0B")) {
+      return parseInt(trimmed.slice(2), 2);
+    } else if (trimmed.startsWith("0o") || trimmed.startsWith("0O")) {
+      return parseInt(trimmed.slice(2), 8);
+    } else {
+      return parseInt(trimmed, 10);
     }
   };
 
-  const performBitwiseOperation = () => {
-    setBitwiseError("");
+  // 生成结果对象
+  const generateResult = (value: number): ConversionResult => {
+    const displayValue = value >>> 0; // 转为32位无符号
 
-    if (
-      !bitwiseFirstValue.trim() ||
-      (!bitwiseSecondValue.trim() && bitwiseOperation !== "~")
-    ) {
-      setBitwiseError("Please enter both values");
-      return;
+    // 8-bit
+    const value8bit = displayValue & 0xff;
+    const int8Value = value8bit >= 0x80 ? value8bit - 0x100 : value8bit;
+
+    // 16-bit
+    const value16bit = displayValue & 0xffff;
+    const int16Value = value16bit >= 0x8000 ? value16bit - 0x10000 : value16bit;
+
+    // 32-bit
+    const int32Value = displayValue | 0;
+
+    return {
+      hex: "0x" + displayValue.toString(16).toUpperCase(),
+      decimal: displayValue.toString(10),
+      binary: "0b" + displayValue.toString(2),
+      octal: "0o" + displayValue.toString(8),
+      int8: int8Value.toString(10),
+      uint8: value8bit.toString(10),
+      int16: int16Value.toString(10),
+      uint16: value16bit.toString(10),
+      int32: int32Value.toString(10),
+      uint32: displayValue.toString(10),
+    };
+  };
+
+  // 解析并计算表达式
+  const evaluateExpression = (expr: string): number => {
+    // 替换所有数字为十进制
+    let processed = expr;
+
+    // 匹配所有数字（包括0x, 0b, 0o前缀）
+    const numberPattern = /(0x[0-9a-fA-F]+|0b[01]+|0o[0-7]+|\d+)/g;
+    const numbers = expr.match(numberPattern) || [];
+
+    // 替换为十进制
+    numbers.forEach((num) => {
+      const decimal = parseNumber(num);
+      processed = processed.replace(num, decimal.toString());
+    });
+
+    // 处理位运算符（需要特殊处理，因为eval不支持某些位运算）
+    // 使用Function构造器更安全地执行表达式
+    try {
+      // 替换位运算符为函数调用
+      processed = processed.replace(/~/g, "~");
+
+      // 使用eval计算（在受控环境中）
+      const result = eval(processed);
+
+      if (typeof result !== "number" || isNaN(result)) {
+        throw new Error("计算结果无效");
+      }
+
+      return Math.floor(result);
+    } catch (err) {
+      throw new Error("表达式语法错误");
     }
+  };
+
+  // 执行计算
+  const calculate = () => {
+    setCalcError("");
 
     try {
-      let firstDecimal: number;
-      let secondDecimal: number;
-
-      // Convert first input to decimal
-      switch (bitwiseFirstType) {
-        case "hex":
-          firstDecimal = parseInt(bitwiseFirstValue.replace(/^0x/i, ""), 16);
-          break;
-        case "decimal":
-          firstDecimal = parseInt(bitwiseFirstValue, 10);
-          break;
-        case "binary":
-          firstDecimal = parseInt(bitwiseFirstValue.replace(/^0b/i, ""), 2);
-          break;
-        case "octal":
-          firstDecimal = parseInt(bitwiseFirstValue.replace(/^0o/i, ""), 8);
-          break;
-        default:
-          throw new Error("Invalid input type");
+      if (!calcInput.trim()) {
+        throw new Error("请输入表达式");
       }
 
-      // Convert second input to decimal (for unary operations, use 0)
-      if (bitwiseOperation === "~") {
-        secondDecimal = 0; // Not used for NOT operation
-      } else {
-        secondDecimal = parseInt(bitwiseSecondValue, 10);
-      }
-
-      if (
-        isNaN(firstDecimal) ||
-        (bitwiseOperation !== "~" && isNaN(secondDecimal))
-      ) {
-        throw new Error("Invalid input values");
-      }
-
-      // Perform bitwise operation
-      let operationResult: number;
-      switch (bitwiseOperation) {
-        case "&":
-          operationResult = firstDecimal & secondDecimal;
-          break;
-        case "|":
-          operationResult = firstDecimal | secondDecimal;
-          break;
-        case "^":
-          operationResult = firstDecimal ^ secondDecimal;
-          break;
-        case "<<":
-          operationResult = firstDecimal << secondDecimal;
-          break;
-        case ">>":
-          operationResult = firstDecimal >> secondDecimal;
-          break;
-        case ">>>":
-          operationResult = firstDecimal >>> secondDecimal;
-          break;
-        case "~":
-          operationResult = ~firstDecimal;
-          break;
-        default:
-          throw new Error("Invalid operation");
-      }
-
-      // Convert result to all formats
-      setBitwiseResult({
-        hex: "0x" + operationResult.toString(16).toUpperCase(),
-        decimal: operationResult.toString(10),
-        binary: "0b" + operationResult.toString(2),
-        octal: "0o" + operationResult.toString(8),
-      });
-    } catch (err) {
-      setBitwiseError(
-        "Invalid input or operation. Please check your values and try again."
-      );
-      setBitwiseResult(null);
+      const result = evaluateExpression(calcInput);
+      setCalcResult(generateResult(result));
+    } catch (err: any) {
+      setCalcError(err.message || "计算错误");
+      setCalcResult(null);
     }
+  };
+
+  // 插入运算符到输入框
+  const insertOperator = (operator: string) => {
+    const textarea = document.querySelector("textarea");
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = calcInput;
+
+    // 在光标位置插入运算符（前后加空格）
+    const before = text.substring(0, start);
+    const after = text.substring(end);
+    const newText = before + " " + operator + " " + after;
+
+    setCalcInput(newText);
+
+    // 设置新的光标位置
+    setTimeout(() => {
+      textarea.focus();
+      const newPos = start + operator.length + 2;
+      textarea.setSelectionRange(newPos, newPos);
+    }, 0);
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
-  // 格式化二进制数字,每4位添加空格
-  // const formatBinary = (binary: string) => {
-  //   const withoutPrefix = binary.replace(/^0b/, "");
-  //   const formatted =
-  //     withoutPrefix.match(/.{1,4}/g)?.join(" ") || withoutPrefix;
-  //   return { prefix: "0b", value: formatted };
-  // };
-
-  const formatBinary = (binary: string) => {
-    const withoutPrefix = binary.replace(/^0b/, "");
-
-    // 1. 反转整个字符串，使 LSB 变为最左边
-    const reversedBinary = withoutPrefix.split("").reverse().join("");
-
-    // 2. 从左边（现在是 LSB）开始，每 4 位一组进行匹配
-    const groupedReversed = reversedBinary.match(/.{1,4}/g) || [reversedBinary];
-
-    // 3. 将每组内部的字符反转回来，恢复原始位序，并用空格连接
-    const formatted = groupedReversed
-      .map((group) => group.split("").reverse().join("")) // 恢复每组内部的顺序
-      .reverse() // 反转组的顺序，使最高位组重新回到最前面
-      .join(" ");
-
-    return { prefix: "0b", value: formatted };
+  // 运算符按钮配置 - 按功能分组
+  const operatorGroups = {
+    arithmetic: [
+      { label: "+", desc: "加", color: "blue" },
+      { label: "-", desc: "减", color: "blue" },
+      { label: "*", desc: "乘", color: "blue" },
+      { label: "/", desc: "除", color: "blue" },
+    ],
+    bitwise: [
+      { label: "&", desc: "与", color: "purple" },
+      { label: "|", desc: "或", color: "purple" },
+      { label: "^", desc: "异或", color: "purple" },
+      { label: "~", desc: "取反", color: "purple" },
+      { label: "<<", desc: "左移", color: "purple" },
+      { label: ">>", desc: "右移", color: "purple" },
+    ],
+    brackets: [
+      { label: "(", desc: "左括号", color: "gray" },
+      { label: ")", desc: "右括号", color: "gray" },
+    ],
   };
 
-  const formatHex = (hex: string) => {
-    // 注意：这里我们命名为 hex 而不是 binary
-    const withoutPrefix = hex.replace(/^0x/, "");
-
-    // 1. 反转整个字符串，使最低有效字节（LSB）变为最左边
-    const reversedHex = withoutPrefix.split("").reverse().join("");
-
-    // 2. 从左边（现在是 LSB）开始，每 2 个字符一组进行匹配
-    const groupedReversed = reversedHex.match(/.{1,2}/g) || [reversedHex];
-
-    // 3. 将每组内部的字符反转回来，恢复原始字节序，并用空格连接
-    const formatted = groupedReversed
-      .map((group) => group.split("").reverse().join("")) // 恢复每组内部的顺序 (例如 'BA' 变回 'AB')
-      .reverse() // 反转组的顺序，使最高位字节组回到最前面
-      .join(" ");
-
-    return { prefix: "0x", value: formatted };
+  const labelMap: Record<string, string> = {
+    hex: "十六进制",
+    decimal: "十进制",
+    binary: "二进制",
+    octal: "八进制",
+    int8: "8-bit 有符号",
+    uint8: "8-bit 无符号",
+    int16: "16-bit 有符号",
+    uint16: "16-bit 无符号",
+    int32: "32-bit 有符号",
+    uint32: "32-bit 无符号",
   };
-
-  // 格式化其他进制数字
-  const formatNumber = (num: string, type: string) => {
-    if (type === "binary") {
-      return formatBinary(num);
-    }
-    if (type === "hex") {
-      return formatHex(num);
-    }
-    const prefixMap: { [key: string]: string } = {
-      hex: "0x",
-      octal: "0o",
-      decimal: "",
-    };
-    const prefix = prefixMap[type] || "";
-    const value = num.replace(/^(0x|0o|0b)/i, "");
-    return { prefix, value };
-  };
-
-  const systemButtons: {
-    type: NumberSystem;
-    label: string;
-    placeholder: string;
-  }[] = [
-    { type: "hex", label: "Hexadecimal", placeholder: "e.g., FF or 0xFF" },
-    { type: "decimal", label: "Decimal", placeholder: "e.g., 255" },
-    {
-      type: "binary",
-      label: "Binary",
-      placeholder: "e.g., 11111111 or 0b11111111",
-    },
-    { type: "octal", label: "Octal", placeholder: "e.g., 377 or 0o377" },
-  ];
-
-  const bitwiseOperations = [
-    { op: "&", name: "AND" },
-    { op: "|", name: "OR" },
-    { op: "^", name: "XOR" },
-    { op: "<<", name: "Left Shift" },
-    { op: ">>", name: "Right Shift" },
-    { op: ">>>", name: "Unsigned Right Shift" },
-    { op: "~", name: "NOT (Unary)" },
-  ];
 
   return (
-    <div className="container mx-auto max-w-6xl py-12 md:py-16 lg:py-20 px-4 md:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="mb-12 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-purple-500/20"
+            className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-purple-500/10 via-pink-500/10 to-blue-500/10 border border-purple-500/20"
           >
             <Calculator className="h-8 w-8 text-purple-600" />
           </motion.div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Hex Calculator & Converter
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-linear-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+            进制转换 & 计算器
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Convert between hexadecimal, decimal, binary, and octal number
-            systems with ease
+            支持多数字运算、进制转换、位运算，一次性处理无限个数字
           </p>
-        </div>
+        </motion.div>
 
-        {/* Main Converter Card */}
-        <Card className="mb-8 border-border/50 shadow-xl shadow-purple-500/5">
-          <CardHeader>
-            <CardTitle>Number System Converter</CardTitle>
-            <CardDescription>
-              Select the input format and enter your value
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Input Type Selection */}
-            <div>
-              <label className="text-sm font-medium mb-3 block">
-                Input Format
-              </label>
-              <div className="flex flex-wrap gap-3 mb-4">
-                {systemButtons.map((system) => (
-                  <Badge
-                    key={system.type}
-                    variant={inputType === system.type ? "default" : "outline"}
-                    className={`cursor-pointer px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 ${
-                      inputType === system.type
-                        ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0 shadow-lg shadow-purple-500/30"
-                        : "hover:border-purple-500/50 hover:bg-purple-500/5"
-                    }`}
-                    onClick={() => setInputType(system.type)}
-                  >
-                    {system.label}
-                  </Badge>
-                ))}
-              </div>
-
-              {/* Unsigned/Signed Toggle */}
-              <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/30 border border-border/50">
-                <Checkbox
-                  id="unsigned-mode"
-                  checked={useUnsigned}
-                  onCheckedChange={(checked) =>
-                    setUseUnsigned(checked as boolean)
-                  }
+        {/* Main Calculator */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="border-border/50 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="h-5 w-5 text-purple-600" />
+                多数字计算器
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Textarea Input */}
+              <div className="space-y-2">
+                <Label>输入表达式</Label>
+                <Textarea
+                  value={calcInput}
+                  onChange={(e) => setCalcInput(e.target.value)}
+                  placeholder="输入表达式，例如：&#10;0xFF + 0x10 - 0x05&#10;(0xFF & 0xF0) | 0x0F&#10;255 * 2 + 100"
+                  className="font-mono text-base min-h-[150px]"
                 />
-                <Label
-                  htmlFor="unsigned-mode"
-                  className="text-sm font-medium cursor-pointer select-none"
-                >
-                  Treat negative numbers as unsigned (32-bit)
-                </Label>
+                <p className="text-xs text-muted-foreground">
+                  💡
+                  支持混合使用多种运算符，自动识别十六进制(0x)、二进制(0b)、八进制(0o)和十进制
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                When enabled, negative numbers like -10 will be converted to
-                their 32-bit unsigned representation (e.g., 4294967286)
-              </p>
-            </div>
 
-            {/* Input Field */}
-            <div>
-              <label className="text-sm font-medium mb-3 block">
-                Input Value
-              </label>
-              <div className="flex gap-3">
-                <Input
-                  type="text"
-                  placeholder={
-                    systemButtons.find((s) => s.type === inputType)?.placeholder
-                  }
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && convert()}
-                  className="flex-1 h-11 border-border/50 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
-                />
-                <Button
-                  onClick={convert}
-                  className="h-11 px-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/30"
-                >
-                  <ArrowLeftRight className="h-4 w-4 mr-2" />
-                  Convert
-                </Button>
+              {/* Operator Buttons */}
+              <div className="space-y-3">
+                <Label>快捷运算符（点击插入）</Label>
+
+                <div className="grid grid-cols-4 gap-4">
+                  {/* 右侧：操作按钮 2x1 */}
+                  <div className="grid grid-cols-1 gap-2">
+                    <Button onClick={calculate} className="h-16 w-60 gap-2">
+                      <Calculator className="h-4 w-4" />
+                      计算
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setCalcInput("");
+                        setCalcResult(null);
+                        setCalcError("");
+                      }}
+                      variant="outline"
+                      className="h-16 w-60 gap-2"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      清空
+                    </Button>
+                  </div>
+                  {/* 左侧：算术运算 2x2 */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {operatorGroups.arithmetic.map((btn) => {
+                      const colorClasses = {
+                        blue: "bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30",
+                      };
+
+                      return (
+                        <Button
+                          key={btn.label}
+                          onClick={() => insertOperator(btn.label)}
+                          variant="outline"
+                          className={`h-16 w-28 p-2 ${colorClasses.blue}`}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-1 w-full">
+                            <span className="font-mono font-bold text-xl leading-none">
+                              {btn.label}
+                            </span>
+                            <span className="text-[10px] leading-none opacity-70">
+                              {btn.desc}
+                            </span>
+                          </div>
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 中间：位运算 2x3 */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {operatorGroups.bitwise.map((btn) => {
+                      const colorClasses = {
+                        purple:
+                          "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30",
+                      };
+
+                      return (
+                        <Button
+                          key={btn.label}
+                          onClick={() => insertOperator(btn.label)}
+                          variant="outline"
+                          className={`h-16 p-2 ${colorClasses.purple}`}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-1 w-full">
+                            <span className="font-mono font-bold text-lg leading-none">
+                              {btn.label}
+                            </span>
+                            <span className="text-[10px] leading-none opacity-70">
+                              {btn.desc}
+                            </span>
+                          </div>
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 括号 2x1 */}
+                  <div className="grid grid-cols-1 gap-2">
+                    {operatorGroups.brackets.map((btn) => {
+                      const colorClasses = {
+                        gray: "bg-gray-500/10 hover:bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/30",
+                      };
+
+                      return (
+                        <Button
+                          key={btn.label}
+                          onClick={() => insertOperator(btn.label)}
+                          variant="outline"
+                          className={`h-16 w-16 p-2 ${colorClasses.gray}`}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-1 w-full">
+                            <span className="font-mono font-bold text-2xl leading-none">
+                              {btn.label}
+                            </span>
+                            <span className="text-[10px] leading-none opacity-70">
+                              {btn.desc}
+                            </span>
+                          </div>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-              {error && (
-                <motion.p
+
+              {/* Error Message */}
+              {calcError && (
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-red-500 mt-3 flex items-center gap-2"
+                  className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400"
                 >
-                  <span>⚠️</span> {error}
-                </motion.p>
-              )}
-            </div>
-
-            {/* Results */}
-            {result && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4 pt-6 border-t border-border/50"
-              >
-                <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span>✨</span> Results
-                </h3>
-                <div className="grid gap-3">
-                  {Object.entries(result).map(([key, value], index) => {
-                    const formatted = formatNumber(value, key);
-                    return (
-                      <motion.div
-                        key={key}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="group flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 border border-border/50 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium capitalize text-muted-foreground mb-2">
-                            {key}
-                          </p>
-                          <div className="flex items-center gap-1 font-mono text-sm break-all">
-                            {formatted.prefix && (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold shrink-0">
-                                {formatted.prefix}
-                              </span>
-                            )}
-                            <span className="font-semibold">
-                              {formatted.value}
-                            </span>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => copyToClipboard(value)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-500/10 hover:text-purple-600 shrink-0"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Bitwise Operations Card */}
-        <Card className="mb-8 border-border/50 shadow-xl shadow-purple-500/5">
-          <CardHeader>
-            <CardTitle>Bitwise Operations</CardTitle>
-            <CardDescription>
-              Perform bitwise operations on numbers
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* First operand */}
-              <div>
-                <label className="text-sm font-medium mb-3 block">
-                  First Operand Format
-                </label>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {systemButtons.map((system) => (
-                    <Badge
-                      key={system.type}
-                      variant={
-                        bitwiseFirstType === system.type ? "default" : "outline"
-                      }
-                      className={`cursor-pointer px-3 py-1.5 text-xs font-medium transition-all hover:scale-105 ${
-                        bitwiseFirstType === system.type
-                          ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0 shadow-lg shadow-purple-500/30"
-                          : "hover:border-purple-500/50 hover:bg-purple-500/5"
-                      }`}
-                      onClick={() => setBitwiseFirstType(system.type)}
-                    >
-                      {system.label}
-                    </Badge>
-                  ))}
-                </div>
-                <Input
-                  type="text"
-                  placeholder={
-                    systemButtons.find((s) => s.type === bitwiseFirstType)
-                      ?.placeholder
-                  }
-                  value={bitwiseFirstValue}
-                  onChange={(e) => setBitwiseFirstValue(e.target.value)}
-                  className="h-11 border-border/50 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
-                />
-              </div>
-
-              {/* Operation selection */}
-              <div>
-                <label className="text-sm font-medium mb-3 block">
-                  Operation
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {bitwiseOperations.map((op) => (
-                    <Button
-                      key={op.op}
-                      variant={
-                        bitwiseOperation === op.op ? "default" : "outline"
-                      }
-                      className={`h-11 ${
-                        bitwiseOperation === op.op
-                          ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0 shadow-lg shadow-purple-500/30"
-                          : ""
-                      }`}
-                      onClick={() => setBitwiseOperation(op.op)}
-                    >
-                      {op.op}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Second operand - hidden for unary operations */}
-              {bitwiseOperation !== "~" && (
-                <div>
-                  <label className="text-sm font-medium mb-3 block">
-                    Second Operand (decimal)
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="e.g., 5"
-                    value={bitwiseSecondValue}
-                    onChange={(e) => setBitwiseSecondValue(e.target.value)}
-                    className="h-11 border-border/50 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
-                  />
-                </div>
+                  ⚠️ {calcError}
+                </motion.div>
               )}
 
-              {/* Calculate button */}
-              <div className="flex items-end">
-                <Button
-                  onClick={performBitwiseOperation}
-                  className="h-11 w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/30"
+              {/* Results */}
+              {calcResult && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-3"
                 >
-                  <Calculator className="h-4 w-4 mr-2" />
-                  Calculate
-                </Button>
-              </div>
-            </div>
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <span>✨</span> 计算结果
+                  </h3>
+                  <div className="grid gap-3">
+                    {Object.entries(calcResult).map(([key, value], index) => {
+                      const isIntType =
+                        key.startsWith("int") || key.startsWith("uint");
+                      const formatted = isIntType
+                        ? { prefix: "", value: value }
+                        : key === "hex"
+                        ? { prefix: "0x", value: value.replace(/^0x/i, "") }
+                        : key === "binary"
+                        ? { prefix: "0b", value: value.replace(/^0b/i, "") }
+                        : key === "octal"
+                        ? { prefix: "0o", value: value.replace(/^0o/i, "") }
+                        : { prefix: "", value: value };
 
-            {/* Bitwise Errors */}
-            {bitwiseError && (
-              <motion.p
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-red-500 mt-3 flex items-center gap-2"
-              >
-                <span>⚠️</span> {bitwiseError}
-              </motion.p>
-            )}
-
-            {/* Bitwise Results */}
-            {bitwiseResult && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4 pt-6 border-t border-border/50"
-              >
-                <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span>⚡</span> Bitwise Operation Result
-                </h3>
-                <div className="grid gap-3">
-                  {Object.entries(bitwiseResult).map(([key, value], index) => {
-                    const formatted = formatNumber(value, key);
-                    return (
-                      <motion.div
-                        key={key}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="group flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 border border-border/50 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium capitalize text-muted-foreground mb-2">
-                            {key}
-                          </p>
-                          <div className="flex items-center gap-1 font-mono text-sm break-all">
-                            {formatted.prefix && (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold shrink-0">
-                                {formatted.prefix}
-                              </span>
-                            )}
-                            <span className="font-semibold">
-                              {formatted.value}
-                            </span>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => copyToClipboard(value)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-500/10 hover:text-purple-600 shrink-0"
+                      return (
+                        <motion.div
+                          key={key}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.03 }}
+                          className="group flex items-center justify-between p-4 rounded-xl bg-linear-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 border border-border/50 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all"
                         >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </CardContent>
-        </Card>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-muted-foreground mb-2">
+                              {labelMap[key] || key}
+                            </p>
+                            <div className="flex items-center gap-1 font-mono text-sm break-all">
+                              {formatted.prefix && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold shrink-0">
+                                  {formatted.prefix}
+                                </span>
+                              )}
+                              <span className="font-semibold font-mono tracking-widest">
+                                {formatted.value}
+                              </span>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => copyToClipboard(value)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-500/10 hover:text-purple-600 shrink-0"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        {/* Info Cards */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:border-purple-500/30 transition-all">
+        {/* Info Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-8"
+        >
+          <Card className="border-border/50 bg-muted/30">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Info className="h-5 w-5 text-purple-600" /> About Number
-                Systems
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Info className="h-5 w-5 text-purple-600" />
+                使用说明
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm leading-relaxed">
-              <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
-                <strong className="text-blue-600 dark:text-blue-400">
-                  Hexadecimal (Base 16):
-                </strong>{" "}
-                Uses digits 0-9 and letters A-F
+            <CardContent className="grid md:grid-cols-2 gap-6 text-sm">
+              <div className="space-y-3">
+                <p className="font-medium text-purple-600">✅ 支持的运算</p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li>
+                    • <strong>算术运算</strong>：加(+)、减(-)、乘(*)、除(/)
+                  </li>
+                  <li>
+                    • <strong>位运算</strong>：与(&)、或(|)、异或(^)、取反(~)
+                  </li>
+                  <li>
+                    • <strong>移位运算</strong>：左移(&lt;&lt;)、右移(&gt;&gt;)
+                  </li>
+                  <li>
+                    • <strong>括号</strong>：支持使用括号改变运算优先级
+                  </li>
+                  <li>
+                    • <strong>混合运算</strong>：可在一个表达式中使用多种运算符
+                  </li>
+                </ul>
               </div>
-              <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
-                <strong className="text-purple-600 dark:text-purple-400">
-                  Decimal (Base 10):
-                </strong>{" "}
-                Standard number system with digits 0-9
-              </div>
-              <div className="p-3 rounded-lg bg-pink-500/5 border border-pink-500/20">
-                <strong className="text-pink-600 dark:text-pink-400">
-                  Binary (Base 2):
-                </strong>{" "}
-                Uses only 0 and 1
-              </div>
-              <div className="p-3 rounded-lg bg-orange-500/5 border border-orange-500/20">
-                <strong className="text-orange-600 dark:text-orange-400">
-                  Octal (Base 8):
-                </strong>{" "}
-                Uses digits 0-7
+              <div className="space-y-3">
+                <p className="font-medium text-purple-600">💡 使用示例</p>
+                <ul className="space-y-2 text-muted-foreground font-mono text-xs">
+                  <li>
+                    • <strong>0xFF + 0x10 - 0x05</strong> → 十六进制混合运算
+                  </li>
+                  <li>
+                    • <strong>(0xFF & 0xF0) | 0x0F</strong> → 位运算组合
+                  </li>
+                  <li>
+                    • <strong>255 * 2 + 100</strong> → 十进制算术运算
+                  </li>
+                  <li>
+                    • <strong>0b1111 &lt;&lt; 4</strong> → 二进制左移
+                  </li>
+                  <li>
+                    • <strong>~0xFF</strong> → 按位取反
+                  </li>
+                  <li className="text-xs opacity-70 font-sans">
+                    💡 点击运算符按钮可快速插入到光标位置
+                  </li>
+                </ul>
               </div>
             </CardContent>
           </Card>
-
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:border-purple-500/30 transition-all">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="h-5 w-5 text-purple-600" /> Common Use
-                Cases
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                <Zap className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <p>Color codes in web development (e.g., #FF5733)</p>
-              </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                <Zap className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <p>Memory addresses in programming</p>
-              </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                <Zap className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <p>Binary operations and bit manipulation</p>
-              </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                <Zap className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <p>File permissions in Unix/Linux systems</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }

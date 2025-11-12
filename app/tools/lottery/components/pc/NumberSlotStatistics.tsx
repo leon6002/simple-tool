@@ -25,17 +25,17 @@ export const NumberSlotStatistics = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className={`${config.specialCount ? "flex gap-6" : "space-y-3"}`}>
+        <div className={`${config.specialCount ? "flex gap-3" : "space-y-3"}`}>
           {/* 前区/红球号位频次 */}
           <div className="flex-1">
             <h5 className="text-xs font-medium text-amber-600 mb-2">
               {selectedType === "dlt" ? "前区" : "红球"}号位
             </h5>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-5 gap-1">
               {Array.from(
                 {
                   length: Array.isArray(config.mainCount)
-                    ? config.mainCount[1]
+                    ? config.mainCount[0]
                     : config.mainCount,
                 },
                 (_, positionIdx) => {

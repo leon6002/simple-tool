@@ -296,9 +296,9 @@ export const NumberSelector = ({
                     }
                   }
                   // 支持复式投注，补全到最小数量
-                  const targetCount = Array.isArray(config.specialCount)
+                  const targetCount = config.specialCount
                     ? config.specialCount[0]
-                    : config.specialCount!;
+                    : 0;
                   const needed = Math.min(
                     targetCount - specialNumbers.length,
                     available.length

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { recognizeText, getOCRProvider } from "../services/ocr-service";
 
-// OCR API configuration
-const OCR_API_KEY =
-  process.env.OCR_API_KEY ||
-  "sk-ojeleuybhlruuuhvbuteobvzlcbttegdwtijjqnixdduqoij";
+// OCR API configuration (for AI parsing)
+const OCR_API_KEY = process.env.OCR_API_KEY || "";
 const OCR_BASE_URL =
   process.env.OCR_BASE_URL || "https://api.siliconflow.cn/v1";
 
@@ -168,43 +167,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call OCR API
-    const response = await fetch(`${OCR_BASE_URL}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OCR_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-ai/DeepSeek-OCR",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "image_url",
-                image_url: {
-                  url: imageBase64,
-                },
-              },
-              {
-                type: "text",
-                text: "<image>\n<|grounding|>Convert the document to markdown. ",
-              },
-            ],
-          },
-        ],
-      }),
-    });
+    const provider = getOCRProvider();
+    console.log(`使用 ${provider.toUpperCase()} OCR 进行识别`);
 
-    if (!response.ok) {
-      throw new Error(
-        `OCR API error: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data: OCRResponse = await response.json();
-    const ocrText = data.choices[0]?.message?.content || "";
+    // 调用统一的OCR服务
+    const ocrText = await recognizeText(imageBase64);
 
     if (!ocrText) {
       return NextResponse.json(
@@ -228,6 +195,7 @@ export async function POST(request: NextRequest) {
       ocrText,
       parsedResult,
       aiParsedResult, // Include full AI parsed data
+      provider, // 返回使用的OCR提供商
     });
   } catch (error) {
     console.error("OCR error:", error);
