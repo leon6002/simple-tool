@@ -166,7 +166,14 @@ export const clearLocalStorage = (storageKey: string): void => {
 
 // 验证文件类型
 export const validateFile = (file: File): string | null => {
-  if (!file.type.startsWith("image/")) {
+  // 检查是否是图片文件（包括HEIC/HEIF格式）
+  const isHeic =
+    file.type === "image/heic" ||
+    file.type === "image/heif" ||
+    file.name.toLowerCase().endsWith(".heic") ||
+    file.name.toLowerCase().endsWith(".heif");
+
+  if (!file.type.startsWith("image/") && !isHeic) {
     return "请上传图片文件";
   }
 

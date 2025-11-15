@@ -24,35 +24,84 @@ export function getOCRProvider(): OCRProvider {
 export async function recognizeText(imageBase64: string): Promise<string> {
   const provider = getOCRProvider();
 
+  console.log("=== OCR Service 开始 ===");
   console.log(`使用 ${provider.toUpperCase()} OCR 进行识别`);
+  console.log("图片数据长度:", imageBase64.length);
 
   try {
+    console.log(`调用 ${provider.toUpperCase()} OCR...`);
+    let result;
+
     if (provider === "baidu") {
-      return await recognizeWithBaiduOCR(imageBase64);
+      result = await recognizeWithBaiduOCR(imageBase64);
     } else {
-      return await recognizeWithDeepSeekOCR(imageBase64);
+      result = await recognizeWithDeepSeekOCR(imageBase64);
     }
+
+    console.log(`${provider.toUpperCase()} OCR 识别成功`);
+    console.log("=== OCR Service 结束 ===");
+    return result;
   } catch (error) {
-    console.error(`${provider.toUpperCase()} OCR 识别失败:`, error);
+    console.error(`❌ ${provider.toUpperCase()} OCR 识别失败:`, error);
+    console.error(
+      "错误类型:",
+      error instanceof Error ? error.constructor.name : typeof error
+    );
+    console.error(
+      "错误消息:",
+      error instanceof Error ? error.message : String(error)
+    );
+    console.error("错误堆栈:", error instanceof Error ? error.stack : "无堆栈");
 
     // 如果主OCR失败，尝试使用备用OCR
     if (provider === "baidu") {
-      console.log("尝试使用 DeepSeek OCR 作为备用");
+      console.log("⚠️ 尝试使用 DeepSeek OCR 作为备用");
       try {
-        return await recognizeWithDeepSeekOCR(imageBase64);
+        const fallbackResult = await recognizeWithDeepSeekOCR(imageBase64);
+        console.log("✅ 备用 DeepSeek OCR 识别成功");
+        console.log("=== OCR Service 结束 ===");
+        return fallbackResult;
       } catch (fallbackError) {
-        console.error("备用OCR也失败:", fallbackError);
+        console.error("❌ 备用 DeepSeek OCR 也失败:", fallbackError);
+        console.error(
+          "备用错误类型:",
+          fallbackError instanceof Error
+            ? fallbackError.constructor.name
+            : typeof fallbackError
+        );
+        console.error(
+          "备用错误消息:",
+          fallbackError instanceof Error
+            ? fallbackError.message
+            : String(fallbackError)
+        );
+        console.log("=== OCR Service 结束（失败）===");
         throw error; // 抛出原始错误
       }
     } else {
-      console.log("尝试使用百度OCR作为备用");
+      console.log("⚠️ 尝试使用百度OCR作为备用");
       try {
-        return await recognizeWithBaiduOCR(imageBase64);
+        const fallbackResult = await recognizeWithBaiduOCR(imageBase64);
+        console.log("✅ 备用百度OCR识别成功");
+        console.log("=== OCR Service 结束 ===");
+        return fallbackResult;
       } catch (fallbackError) {
-        console.error("备用OCR也失败:", fallbackError);
+        console.error("❌ 备用百度OCR也失败:", fallbackError);
+        console.error(
+          "备用错误类型:",
+          fallbackError instanceof Error
+            ? fallbackError.constructor.name
+            : typeof fallbackError
+        );
+        console.error(
+          "备用错误消息:",
+          fallbackError instanceof Error
+            ? fallbackError.message
+            : String(fallbackError)
+        );
+        console.log("=== OCR Service 结束（失败）===");
         throw error; // 抛出原始错误
       }
     }
   }
 }
-

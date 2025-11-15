@@ -19,6 +19,7 @@ import {
   AutoPrizeResult,
 } from "../types";
 import { validateFile } from "../utils";
+import toast from "react-hot-toast";
 
 interface OCRProcessorProps {
   onOCRResult: (
@@ -44,6 +45,53 @@ export default function OCRProcessor({
   >("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // HEIF/HEIC格式转换函数（使用服务端API）
+  const convertHeicToJpeg = useCallback(async (file: File): Promise<string> => {
+    try {
+      toast.loading("正在转换HEIC格式...", { id: "heic-convert" });
+      console.log("检测到HEIC/HEIF格式，开始转换...");
+
+      // 读取文件为base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error("文件读取失败"));
+        reader.readAsDataURL(file);
+      });
+
+      // 调用服务端API转换
+      const response = await fetch("/api/lottery/convert-heic", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ image: base64 }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "HEIC转换失败");
+      }
+
+      const data = await response.json();
+
+      if (!data.success || !data.image) {
+        throw new Error("HEIC转换失败，未返回转换后的图片");
+      }
+
+      console.log(`HEIC转换成功: ${file.name}`);
+      toast.success("HEIC格式转换成功", { id: "heic-convert" });
+
+      return data.image; // 返回转换后的base64图片
+    } catch (error) {
+      console.error("HEIC转换失败:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "HEIC格式转换失败";
+      toast.error(errorMessage, { id: "heic-convert" });
+      throw error;
+    }
+  }, []);
+
   // 图片压缩和格式转换函数
   const compressAndConvertImage = useCallback(
     async (file: File): Promise<string> => {
@@ -56,7 +104,9 @@ export default function OCRProcessor({
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
             if (!ctx) {
-              reject(new Error("无法创建canvas上下文"));
+              const error = new Error("无法创建canvas上下文");
+              toast.error("无法创建canvas上下文");
+              reject(error);
               return;
             }
 
@@ -94,7 +144,7 @@ export default function OCRProcessor({
                 )} MB`
               );
 
-              if (sizeInBytes <= 1024 * 1024 || quality <= 0.1) {
+              if (sizeInBytes <= 4096 * 1024 || quality <= 0.5) {
                 return webpData;
               }
               return null;
@@ -102,7 +152,7 @@ export default function OCRProcessor({
 
             // 从高质量开始尝试
             let result = null;
-            for (let q = 0.9; q >= 0.1; q -= 0.1) {
+            for (let q = 0.6; q >= 0.4; q -= 0.1) {
               result = tryCompress(q);
               if (result) break;
             }
@@ -113,19 +163,25 @@ export default function OCRProcessor({
               );
               resolve(result);
             } else {
-              reject(new Error("无法将图片压缩到1MB以内"));
+              const error = new Error("无法将图片压缩到1MB以内");
+              toast.error("无法将图片压缩到1MB以内，请选择更小的图片");
+              reject(error);
             }
           };
 
           img.onerror = () => {
-            reject(new Error("图片加载失败"));
+            const error = new Error("图片加载失败");
+            toast.error("图片加载失败，请检查图片格式");
+            reject(error);
           };
 
           img.src = e.target?.result as string;
         };
 
         reader.onerror = () => {
-          reject(new Error("文件读取失败"));
+          const error = new Error("文件读取失败");
+          toast.error("文件读取失败，请重试");
+          reject(error);
         };
 
         reader.readAsDataURL(file);
@@ -139,27 +195,71 @@ export default function OCRProcessor({
       const file = e.target.files?.[0];
       if (!file) return;
 
-      const validationError = validateFile(file);
-      if (validationError) {
-        console.error(validationError);
-        return;
-      }
-
       setOcrLoading(true);
       setScanningStage("idle");
+      toast.loading("正在处理图片...", { id: "ocr-process" });
 
       try {
-        // 压缩和转换图片
-        console.log(
-          `原始图片: ${file.name}, 大小: ${(file.size / 1024 / 1024).toFixed(
-            2
-          )} MB, 格式: ${file.type}`
-        );
-        const compressedBase64 = await compressAndConvertImage(file);
+        let compressedBase64: string;
+
+        // 检查是否是HEIF/HEIC格式
+        const isHeic =
+          file.type === "image/heic" ||
+          file.type === "image/heif" ||
+          file.name.toLowerCase().endsWith(".heic") ||
+          file.name.toLowerCase().endsWith(".heif");
+        toast.loading("图片格式：" + file.type);
+
+        if (isHeic) {
+          // HEIC格式：先转换为JPEG，然后再压缩
+          const convertedBase64 = await convertHeicToJpeg(file);
+
+          // 将转换后的base64转换为File对象，然后压缩
+          const response = await fetch(convertedBase64);
+          const blob = await response.blob();
+          const convertedFile = new File(
+            [blob],
+            file.name.replace(/\.(heic|heif)$/i, ".jpg"),
+            {
+              type: "image/jpeg",
+            }
+          );
+
+          console.log(
+            `转换后图片: ${convertedFile.name}, 大小: ${(
+              convertedFile.size /
+              1024 /
+              1024
+            ).toFixed(2)} MB`
+          );
+
+          // 压缩转换后的图片
+          toast.loading("正在压缩图片...", { id: "ocr-process" });
+          compressedBase64 = await compressAndConvertImage(convertedFile);
+        } else {
+          // 非HEIC格式：验证后直接压缩
+          const validationError = validateFile(file);
+          if (validationError) {
+            console.error(validationError);
+            toast.error(validationError, { id: "ocr-process" });
+            return;
+          }
+
+          console.log(
+            `原始图片: ${file.name}, 大小: ${(file.size / 1024 / 1024).toFixed(
+              2
+            )} MB, 格式: ${file.type}`
+          );
+
+          toast.loading("正在处理图片...", { id: "ocr-process" });
+          compressedBase64 = await compressAndConvertImage(file);
+        }
+
         setOcrImage(compressedBase64);
 
         // 第一步：OCR文字识别
         setScanningStage("ocr");
+        toast.loading("正在识别图片文字...", { id: "ocr-process" });
         console.log("正在识别图片文字...");
         const ocrResponse = await fetch("/api/lottery/ocr-text", {
           method: "POST",
@@ -172,13 +272,20 @@ export default function OCRProcessor({
         });
 
         if (!ocrResponse.ok) {
-          throw new Error("OCR识别失败");
+          const errorData = await ocrResponse.json().catch(() => ({}));
+          const errorMessage =
+            errorData.error || errorData.message || "OCR识别失败";
+          const detailedError = `OCR识别失败 (${ocrResponse.status}): ${errorMessage}`;
+          console.error("OCR API错误:", detailedError, errorData);
+          toast.error(detailedError, { id: "ocr-process", duration: 10000 });
+          throw new Error(detailedError);
         }
 
         const ocrData = await ocrResponse.json();
 
         if (!ocrData.success || !ocrData.ocrText) {
           console.error("未能识别出文字");
+          toast.error("未能识别出文字，请确保图片清晰", { id: "ocr-process" });
           return;
         }
 
@@ -196,6 +303,7 @@ export default function OCRProcessor({
 
         // 第二步：AI解析
         setScanningStage("parsing");
+        toast.loading("正在AI解析识别结果...", { id: "ocr-process" });
         console.log("正在AI解析识别结果...");
         const parseResponse = await fetch("/api/lottery/parse-ai", {
           method: "POST",
@@ -209,7 +317,13 @@ export default function OCRProcessor({
         });
 
         if (!parseResponse.ok) {
-          throw new Error("AI解析失败");
+          const errorData = await parseResponse.json().catch(() => ({}));
+          const errorMessage =
+            errorData.error || errorData.message || "AI解析失败";
+          const detailedError = `AI解析失败 (${parseResponse.status}): ${errorMessage}`;
+          console.error("AI解析API错误:", detailedError, errorData);
+          toast.error(detailedError, { id: "ocr-process", duration: 10000 });
+          throw new Error(detailedError);
         }
 
         const parseData = await parseResponse.json();
@@ -217,10 +331,12 @@ export default function OCRProcessor({
 
         if (!parseData.success || !parseData.parsedData) {
           console.error("AI解析失败，返回数据:", parseData);
+          toast.error("AI解析失败，请重试", { id: "ocr-process" });
           return;
         }
 
         console.log("解析成功！");
+        toast.success("识别成功！", { id: "ocr-process" });
         setScanningStage("idle");
 
         // 设置解析结果
@@ -269,13 +385,17 @@ export default function OCRProcessor({
         onOCRResult(parsedResult, aiData, autoPrizeResults);
       } catch (error) {
         console.error("OCR error:", error);
-        console.error("图片识别失败，请重试");
+        const errorMessage =
+          error instanceof Error ? error.message : "图片识别失败，请重试";
+        // 显示详细错误信息，持续10秒
+        toast.error(errorMessage, { id: "ocr-process", duration: 10000 });
         setScanningStage("idle");
       } finally {
         setOcrLoading(false);
       }
     },
     [
+      convertHeicToJpeg,
       compressAndConvertImage,
       onOCRResult,
       lotteryHistoryData,
@@ -314,8 +434,15 @@ export default function OCRProcessor({
           draw.issue === issueNumber || draw.issue.endsWith(issueNumber!)
       );
       if (!ssqDraw) return [];
-      winningMainNumbers = ssqDraw.redBalls.map((n: string) => parseInt(n));
-      winningSpecialNumbers = [parseInt(ssqDraw.blueBall)];
+      // 确保转换为数字数组
+      winningMainNumbers = (ssqDraw.redBalls || []).map((n: any) =>
+        typeof n === "string" ? parseInt(n, 10) : n
+      );
+      winningSpecialNumbers = [
+        typeof ssqDraw.blueBall === "string"
+          ? parseInt(ssqDraw.blueBall, 10)
+          : ssqDraw.blueBall,
+      ];
     } else if (lotteryType === "kl8") {
       console.log("快乐8自动计算奖金 - 期号:", issueNumber);
       console.log(
@@ -353,8 +480,13 @@ export default function OCRProcessor({
         );
       }
       if (!dltDraw) return [];
-      winningMainNumbers = dltDraw.numbers.map((n: number) => n);
-      winningSpecialNumbers = dltDraw.specialNumbers.map((n: number) => n);
+      // 确保转换为数字数组
+      winningMainNumbers = (dltDraw.numbers || []).map((n: any) =>
+        typeof n === "string" ? parseInt(n, 10) : n
+      );
+      winningSpecialNumbers = (dltDraw.specialNumbers || []).map((n: any) =>
+        typeof n === "string" ? parseInt(n, 10) : n
+      );
     }
 
     return ocrEntries.map((entry, index) => {
@@ -486,7 +618,7 @@ export default function OCRProcessor({
             id="lottery-upload"
             type="file"
             ref={fileInputRef}
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
             onChange={handleImageUpload}
             disabled={ocrLoading}
             className="hidden"
